@@ -1,35 +1,52 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+/*import React from "react";
+import HeaderHome from "./components/HeaderHome";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
+    <div>
+      {/* Header */ /*}
+      <HeaderHome />
+
+      {/* Contenido de prueba *//*}
+      <main className="container mt-5">
+        <h1>Bienvenido a Medicina Integral</h1>
         <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
+          Aquí irá el contenido de tu sitio. Podés empezar a armar las secciones
+          "Quiénes somos", "Nuestros Sanatorios", "Nuestros Planes" y
+          "Servicios".
         </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      </main>
+    </div>
+  );
 }
 
-export default App
+export default App;*/
+import React from "react";
+import HeaderHome from "./components/HeaderHome";
+import HeaderLogin from "./components/HeaderLogin";
+
+function App() {
+  return (
+    <div>
+      {/* Header principal */}
+      <HeaderHome />
+
+      {/* Un poco de espacio */}
+      <div style={{ margin: "40px 0" }}></div>
+
+      {/* Header de login */}
+      <HeaderLogin />
+
+      {/* Contenido de prueba */}
+      <main className="container mt-5">
+        <h1>Bienvenido a Medicina Integral</h1>
+        <p>
+          Aquí podés ver los dos headers en acción. Redimensioná la ventana para 
+          probar el menú hamburguesa.
+        </p>
+      </main>
+    </div>
+  );
+}
+
+export default App;

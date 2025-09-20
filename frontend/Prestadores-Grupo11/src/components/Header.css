@@ -1,0 +1,72 @@
+:root {
+  --rosa: #fbc3c2;
+  --verde-agua: #6fb6b6;
+  --verde-menta: #b6e4db;
+  --azul-profundo: #0077b6;
+  --azul-petroleo: #22577a;
+  --celeste: #00b4d8;
+  --verde-suave: #b4dbdc;
+}
+
+/* Navbar */
+.custom-navbar {
+  background-color: var(--verde-menta); /* #b6e4db */
+  padding: 0.7rem 1.5rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Logo */
+.logo {
+  width: 200px;  
+  height: auto;
+}
+
+/* Links */
+.nav-link {
+  color: #000;
+  font-weight: 500;
+  margin: 0 0.5rem;
+  transition: color 0.3s, border-bottom 0.3s;
+  display: inline-block; /* hace que el borde solo sea del tamaño del texto */
+  border-bottom: 2px solid transparent; /* línea invisible por defecto */
+  padding-bottom: 3px; /* espacio para que la línea no pegue al texto */
+}
+
+.nav-link:hover {
+  color: var(--azul-petroleo); /* hover #22577a */
+  border-bottom: 2px solid var(--azul-petroleo); /* línea aparece */
+}
+
+/* Botón Ingresar */
+.btn-ingresar {
+  background-color: var(--verde-agua); /* #6fb6b6 */
+  color: #fff;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  transition: background-color 0.3s;
+  text-decoration: none;
+}
+
+.btn-ingresar:hover {
+  background-color: var(--azul-petroleo); /* hover #22577a */
+  color: #fff;
+}
+
+/* Responsive ajustes */
+@media (max-width: 991px) {
+  .navbar-nav {
+    margin-top: 1rem;
+    text-align: center;
+  }
+
+  .nav-link {
+    margin: 0.5rem 0; /* más espacio entre links */
+  }
+
+  .btn-ingresar {
+    display: block;
+    margin: 1rem auto;
+    width: 150px;
+  }
+}
