@@ -1,8 +1,9 @@
 
+
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-import Home from "./Home";
+import HomePage from "./Home";
 import LoginPage from "./Login";
 import DashboardMedico from "./DashboardMedico";
 import DashboardCentro from "./DashboardCentro";
@@ -12,7 +13,7 @@ export default function App() {
     <Router>
       <Routes>
         {/* Home */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<HomePage />} />
 
         {/* Login */}
         <Route path="/login" element={<LoginPage />} />
