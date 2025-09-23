@@ -34,7 +34,7 @@
 
 .nav-link:hover {
   color: var(--azul-petroleo); /* hover #22577a */
-  border-bottom: 2px solid var(--azul-petroleo); /* línea aparece */
+  border-bottom: 2px solid var(--azul-petroleo); /* línea aparece debajo del texto*/
 }
 
 /* Botón Ingresar */
@@ -68,5 +68,53 @@
     display: block;
     margin: 1rem auto;
     width: 150px;
+  }
+}
+
+/* ---------- Login specific styles  ---------- */
+
+.login-page main {
+  min-height: calc(100vh - 90px); /* deja espacio para el header */
+}
+
+/* Card que contiene el formulario */
+.login-card {
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  padding: 2rem;
+}
+
+/* Inputs: borde rosado tenue y corners redondeados*/
+.custom-input {
+  border-radius: 8px;
+  border: 1.5px solid var(--rosa);
+  padding: 0.85rem 1rem;
+  text-transform: none;
+  color: #333;
+}
+
+/* Placeholder rosado claro */
+.custom-input::placeholder {
+  color: rgba(243, 163, 163, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Botón principal de ingreso (reutiliza btn-ingresar) */
+.btn-login {
+  padding: 0.65rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+/* Ajustes responsive: centrado y espaciado para mobile */
+@media (max-width: 767px) {
+  .login-card {
+    margin: 1.2rem;
+    padding: 1.5rem;
+  }
+  .logo {
+    width: 160px; /* reduce logo en mobile si hace falta */
   }
 }

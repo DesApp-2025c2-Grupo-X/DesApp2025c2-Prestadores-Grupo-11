@@ -1,52 +1,44 @@
-/*import React from "react";
-import HeaderHome from "./components/HeaderHome";
 
-function App() {
-  return (
-    <div>
-      {/* Header */ /*}
-      <HeaderHome />
-
-      {/* Contenido de prueba *//*}
-      <main className="container mt-5">
-        <h1>Bienvenido a Medicina Integral</h1>
-        <p>
-          Aquí irá el contenido de tu sitio. Podés empezar a armar las secciones
-          "Quiénes somos", "Nuestros Sanatorios", "Nuestros Planes" y
-          "Servicios".
-        </p>
-      </main>
-    </div>
-  );
-}
-
-export default App;*/
 import React from "react";
-import HeaderHome from "./components/HeaderHome";
-import HeaderLogin from "./components/HeaderLogin";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-function App() {
+import Home from "./Home";
+import LoginPage from "./Login";
+import DashboardMedico from "./DashboardMedico";
+import DashboardCentro from "./DashboardCentro";
+
+export default function App() {
   return (
-    <div>
-      {/* Header principal */}
-      <HeaderHome />
+    <Router>
+      <Routes>
+        {/* Home */}
+        <Route path="/" element={<Home />} />
 
-      {/* Un poco de espacio */}
-      <div style={{ margin: "40px 0" }}></div>
+        {/* Login */}
+        <Route path="/login" element={<LoginPage />} />
 
-      {/* Header de login */}
-      <HeaderLogin />
+        {/* Dashboards */}
+        <Route path="/dashboard/medico" element={<RequireAuth role="medico"><DashboardMedico /></RequireAuth>} />
+        <Route path="/dashboard/centro" element={<RequireAuth role="centro_medico"><DashboardCentro /></RequireAuth>} />
 
-      {/* Contenido de prueba */}
-      <main className="container mt-5">
-        <h1>Bienvenido a Medicina Integral</h1>
-        <p>
-          Aquí podés ver los dos headers en acción. Redimensioná la ventana para 
-          probar el menú hamburguesa.
-        </p>
-      </main>
-    </div>
+        {/* Not found -> redirect home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
 
-export default App;
+/* HOC simple de protección por rol */
+function RequireAuth({ children, role }) {
+  const stored = localStorage.getItem("miapp_user");
+  if (!stored) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const user = JSON.parse(stored);
+  if (user.role !== role) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
