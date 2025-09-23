@@ -1,9 +1,9 @@
 
 import React, { useEffect, useState } from "react";
-import HeaderLogin from "./HeaderLogin"; 
+import HeaderLogin from "../components/HeaderLogin"; 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import "./Header.css"; // estilos compartidos + extensiones abajo
+import "../components/Header.css"; // estilos compartidos + extensiones abajo
 
 export default function LoginPage() {
   const [users, setUsers] = useState(null);

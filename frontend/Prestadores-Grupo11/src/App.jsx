@@ -3,10 +3,11 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-import HomePage from "./Home";
-import LoginPage from "./Login";
-import DashboardMedico from "./DashboardMedico";
-import DashboardCentro from "./DashboardCentro";
+import HomePage from "./pages/Home";
+import LoginPage from "./pages/Login";
+import DashboardMedico from "./pages/DashboardMedico";
+import DashboardCentro from "./pages/DashboardCentro";
+import RequireAuth from "./components/RequireAuth";  
 
 export default function App() {
   return (
@@ -19,27 +20,26 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
 
         {/* Dashboards */}
-        <Route path="/dashboard/medico" element={<RequireAuth role="medico"><DashboardMedico /></RequireAuth>} />
-        <Route path="/dashboard/centro" element={<RequireAuth role="centro_medico"><DashboardCentro /></RequireAuth>} />
+        <Route
+          path="/dashboard/medico"
+          element={
+            <RequireAuth role="medico">
+              <DashboardMedico />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/dashboard/centro"
+          element={
+            <RequireAuth role="centro_medico">
+              <DashboardCentro />
+            </RequireAuth>
+          }
+        />
 
         {/* Not found -> redirect home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
-}
-
-/* HOC simple de protección por rol */
-function RequireAuth({ children, role }) {
-  const stored = localStorage.getItem("miapp_user");
-  if (!stored) {
-    return <Navigate to="/login" replace />;
-  }
-
-  const user = JSON.parse(stored);
-  if (user.role !== role) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
 }
