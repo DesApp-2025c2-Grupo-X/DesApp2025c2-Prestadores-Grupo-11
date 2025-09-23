@@ -7,7 +7,7 @@ import HomePage from "./pages/Home";
 import LoginPage from "./pages/Login";
 import DashboardMedico from "./pages/DashboardMedico";
 import DashboardCentro from "./pages/DashboardCentro";
-import RequireAuth from "./components/RequireAuth";  
+import RequireAuth from "./components/RequireAuth"; 
 
 export default function App() {
   return (

@@ -2,29 +2,23 @@
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
-export default function RequireAuth({ children, role }) {
+export default function RequireAuth({ role, children }) {
   const location = useLocation();
-  const stored = localStorage.getItem("miapp_user");
 
-  if (!stored) {
-    // guarda la ruta origen en state para poder volver después del login
+  // Intentar leer usuario de localStorage
+  const storedUser = localStorage.getItem("miapp_user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
+
+  // Si no hay usuario -> al login
+  if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  let user = null;
-  try {
-    user = JSON.parse(stored);
-  } catch (err) {
-    console.error("Error parseando usuario:", err);
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  // Si el rol no coincide -> lo mandamos al home
+  if (role && user.role !== role) {
+    return <Navigate to="/" replace />;
   }
 
-  // chequeo simple de rol
-  if (!user?.role || user.role !== role) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
-  // si todo OK, renderiza el contenido protegido
+  // Si pasa las validaciones -> renderiza el componente hijo
   return children;
 }
-

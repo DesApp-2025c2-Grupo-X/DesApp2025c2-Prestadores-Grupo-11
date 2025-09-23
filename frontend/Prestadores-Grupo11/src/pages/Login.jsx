@@ -1,11 +1,16 @@
 
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import HeaderLogin from "../components/HeaderLogin"; 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import "../components/Header.css"; // estilos compartidos + extensiones abajo
+import "../components/Header.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function LoginPage() {
+  const navigate = useNavigate();
+
   const [users, setUsers] = useState(null);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [fetchError, setFetchError] = useState(null);
@@ -14,10 +19,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const [message, setMessage] = useState({ text: "", variant: "" }); // variant: success | danger | info
-
   useEffect(() => {
-    // Cargar usuarios desde /users.json (public folder)
+    // Cargar usuarios desde /users.json
     setLoadingUsers(true);
     fetch("/users.json")
       .then((res) => {
@@ -35,43 +38,52 @@ export default function LoginPage() {
       .finally(() => setLoadingUsers(false));
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setMessage({ text: "", variant: "" });
 
     if (!username.trim() || !password) {
-      setMessage({ text: "Completá usuario y contraseña.", variant: "danger" });
+      toast.error("Completá usuario y contraseña.");
       return;
     }
 
     if (loadingUsers) {
-      setMessage({ text: "Esperá: aún se cargan los datos.", variant: "info" });
+      toast.info("Esperá: aún se cargan los datos.");
       return;
     }
 
     if (fetchError) {
-      setMessage({ text: "No se pueden validar credenciales ahora.", variant: "danger" });
+      toast.error("No se pueden validar credenciales ahora.");
       return;
     }
 
     setSubmitting(true);
 
-    // Normalizamos username: comparación case-insensitive y trimmed
     const userMatch = (users || []).find(
       (u) => u.username.trim().toLowerCase() === username.trim().toLowerCase()
     );
 
-    // Simulamos una pequeña latencia realista
+    // Simular latencia realista
     setTimeout(() => {
-      if (userMatch && userMatch.password === password.trim()) {
-        // Login exitoso
-        setMessage({ text: `Bienvenido/a — ${userMatch.username}`, variant: "success" });
-        // Ejemplo: guardamos un token simulado
-        localStorage.setItem("miapp_user", JSON.stringify({ username: userMatch.username, role: userMatch.role }));
-        // Aquí despues se redirige con react-router: navigate("/dashboard")
+      if (userMatch) {
+        if (userMatch.password === password.trim()) {
+          // Login exitoso
+          toast.success(`Bienvenido/a — ${userMatch.username}`);
+          localStorage.setItem(
+            "miapp_user",
+            JSON.stringify({ username: userMatch.username, role: userMatch.role })
+          );
+
+          // Redirigir según rol
+          if (userMatch.role === "medico") navigate("/dashboard/medico");
+          else if (userMatch.role === "centro_medico") navigate("/dashboard/centro");
+          else toast.error("Rol de usuario desconocido.");
+        } else {
+          toast.error("Contraseña incorrecta.");
+        }
       } else {
-        setMessage({ text: "Usuario o contraseña incorrectos.", variant: "danger" });
+        toast.error("Usuario no registrado.");
       }
+
       setSubmitting(false);
     }, 600);
   };
@@ -84,16 +96,11 @@ export default function LoginPage() {
         <div className="row justify-content-center">
           <div className="col-12 col-md-6 col-lg-5">
             <div className="login-card mt-5 p-4 text-center">
-
               <h2 className="fw-bold mb-4">BIENVENIDOS A MEDICINA INTEGRAL !</h2>
 
               {loadingUsers && (
-                <div className="mb-3" role="status" aria-live="polite">Cargando datos...</div>
-              )}
-
-              {fetchError && (
-                <div className="alert alert-danger" role="alert">
-                  {fetchError}
+                <div className="mb-3" role="status" aria-live="polite">
+                  Cargando datos...
                 </div>
               )}
 
@@ -133,25 +140,28 @@ export default function LoginPage() {
                   </button>
                 </div>
 
-                <div id="login-help" className="mt-3" aria-live="polite">
-                  {message.text && (
-                    <div
-                      className={`alert ${message.variant === "success" ? "alert-success" : message.variant === "danger" ? "alert-danger" : "alert-info"} mt-2`}
-                      role="alert"
-                    >
-                      {message.text}
-                    </div>
-                  )}
+                <div id="login-help" className="mt-3 small text-muted">
+                  Usuarios de prueba: <strong>medico / 12345</strong> y <strong>centro medico / 9876</strong>
                 </div>
               </form>
-
-              <div className="mt-3 small text-muted">
-                Usuarios de prueba: <strong>medico / 12345</strong> y <strong>centro medico / 9876</strong>
-              </div>
             </div>
           </div>
         </div>
       </main>
+
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 }
+
