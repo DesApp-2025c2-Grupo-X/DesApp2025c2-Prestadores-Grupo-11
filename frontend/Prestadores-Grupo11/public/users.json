@@ -1,0 +1,12 @@
+[
+  {
+    "username": "medico",
+    "password": "12345",
+    "role": "medico"
+  },
+  {
+    "username": "centro medico",
+    "password": "9876",
+    "role": "centro_medico"
+  }
+]

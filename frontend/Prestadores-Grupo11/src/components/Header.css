@@ -71,7 +71,7 @@
   }
 }
 
-/* ---------- Login specific styles  ---------- */
+/* ---------- Login specific styles------------*/
 
 .login-page main {
   min-height: calc(100vh - 90px); /* deja espacio para el header */
@@ -85,7 +85,7 @@
   padding: 2rem;
 }
 
-/* Inputs: borde rosado tenue y corners redondeados*/
+/* Inputs: borde rosado tenue y corners redondeados  */
 .custom-input {
   border-radius: 8px;
   border: 1.5px solid var(--rosa);

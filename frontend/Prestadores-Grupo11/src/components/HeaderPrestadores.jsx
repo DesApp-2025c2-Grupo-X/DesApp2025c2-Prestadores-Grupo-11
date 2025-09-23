@@ -1,19 +1,45 @@
 import React from "react";
+import { useNavigate, Link } from "react-router-dom";
 import "./Header.css";
 
 const HeaderPrestadores = () => {
+  const navigate = useNavigate();
+
+  // Obtener información del usuario desde localStorage
+  const user = JSON.parse(localStorage.getItem("miapp_user"));
+
+  // Si no hay usuario logueado, redirigir al home
+  if (!user) {
+    navigate("/");
+    return null;
+  }
+
+  // Determinar nombre a mostrar según rol
+  const displayName =
+    user.role === "medico"
+      ? user.username
+      : user.role === "centro"
+      ? user.username
+      : "Usuario";
+
+  // Función cerrar sesión
+  const handleLogout = () => {
+    localStorage.removeItem("miapp_user");
+    navigate("/"); // Redirige al Home
+  };
+
   return (
     <header>
       <nav className="navbar navbar-expand-lg navbar-light custom-navbar">
         <div className="container-fluid">
           {/* Logo */}
-          <a className="navbar-brand d-flex align-items-center" href="#">
+          <Link className="navbar-brand d-flex align-items-center" to="/">
             <img
               src="/Medicina_integralLogo.jpg"
               alt="Medicina Integral"
               className="logo"
             />
-          </a>
+          </Link>
 
           {/* Botón hamburguesa */}
           <button
@@ -34,17 +60,20 @@ const HeaderPrestadores = () => {
             id="navbarPrestadores"
           >
             <ul className="navbar-nav align-items-center">
-              {/* Nombre del prestador */}
+              {/* Nombre del usuario */}
               <li className="nav-item me-3 d-flex align-items-center">
-                <span className="nav-link">NOMBRE DEL PRESTADOR</span>
-                <i className="bi bi-person ms-2"></i> {/* Icono Bootstrap */}
+                <span className="nav-link">{displayName}</span>
+                <i className="bi bi-person ms-2"></i>
               </li>
 
               {/* Botón Cerrar sesión */}
               <li className="nav-item">
-                <a href="#cerrar" className="btn btn-ingresar">
+                <button
+                  onClick={handleLogout}
+                  className="btn btn-ingresar"
+                >
                   CERRAR SESIÓN
-                </a>
+                </button>
               </li>
             </ul>
           </div>
