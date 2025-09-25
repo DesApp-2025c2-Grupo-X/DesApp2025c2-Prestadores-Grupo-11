@@ -1,101 +1,97 @@
-import React from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+
+import { FaInstagram, FaFacebook, FaLinkedin } from "react-icons/fa";
 import "./Footer.css";
 
-const Footer = () => {
+export default function Footer() {
   return (
-    <footer className="footer text-white">
-      <div className="container py-5">
-        <div className="row">
+    <footer className="footer text-white py-5">
+      <div className="container">
+        <div className="row align-items-start">
           {/* Logo */}
-          <div className="col-md-3 mb-4 text-center text-md-start">
+          <div className="col-md-2 mb-4 mb-md-0 text-center text-md-start">
             <img
-              src="/Medicina_Integral_Logo.png" // logo en /public
+              src="/Medicina_integralLogo.jpg"
               alt="Medicina Integral"
-              className="footer-logo mb-3"
+              className="footer-logo img-fluid"
             />
           </div>
 
-          {/* Secciones */}
-          <div className="col-md-9">
-            <div className="row">
-              <div className="col-6 col-md-3 mb-3">
-                <h6 className="fw-bold">Quiénes Somos</h6>
-                <ul className="list-unstyled">
-                  <li><a href="#historia">Nuestra Historia</a></li>
-                  <li><a href="#equipo">Equipo Médico</a></li>
-                  <li><a href="#staff">Staff</a></li>
-                </ul>
-              </div>
+          {/* Quiénes Somos */}
+          <div className="col-md-2 mb-4 mb-md-0">
+            <h6>Quiénes Somos</h6>
+            <ul className="list-unstyled">
+              <li><a href="#">Nuestra Historia</a></li>
+              <li><a href="#">Equipo Médico</a></li>
+              <li><a href="#">Staff</a></li>
+            </ul>
+          </div>
 
-              <div className="col-6 col-md-3 mb-3">
-                <h6 className="fw-bold">Sanatorios</h6>
-                <ul className="list-unstyled">
-                  <li><a href="#propios">Sanatorios Propios</a></li>
-                  <li><a href="#medicos">Centros Médicos</a></li>
-                  <li><a href="#vacunacion">Centros de Vacunación</a></li>
-                </ul>
-              </div>
+          {/* Sanatorios */}
+          <div className="col-md-2 mb-4 mb-md-0">
+            <h6>Sanatorios</h6>
+            <ul className="list-unstyled">
+              <li><a href="#">Sanatorios Propios</a></li>
+              <li><a href="#">Centros Médicos</a></li>
+              <li><a href="#">Centros de Vacunación</a></li>
+            </ul>
+          </div>
 
-              <div className="col-6 col-md-3 mb-3">
-                <h6 className="fw-bold">Planes de Salud</h6>
-                <ul className="list-unstyled">
-                  <li><a href="#planes200">Plan 200 - 220</a></li>
-                  <li><a href="#planes300">Plan 300 - 330</a></li>
-                  <li><a href="#planes400">Plan 400 - 440</a></li>
-                  <li><a href="#plan550">Plan 550</a></li>
-                </ul>
-              </div>
+          {/* Planes de Salud */}
+          <div className="col-md-2 mb-4 mb-md-0">
+            <h6>Planes de Salud</h6>
+            <ul className="list-unstyled">
+              <li><a href="#">Plan 200 - 220</a></li>
+              <li><a href="#">Plan 300 - 330</a></li>
+              <li><a href="#">Plan 400 - 440</a></li>
+              <li><a href="#">Plan 550</a></li>
+            </ul>
+          </div>
 
-              <div className="col-6 col-md-3 mb-3">
-                <h6 className="fw-bold">Servicios</h6>
-                <ul className="list-unstyled">
-                  <li><a href="#beneficios">Club de Beneficios</a></li>
-                  <li><a href="#saludmental">Salud Mental</a></li>
-                  <li><a href="#digitales">Servicios Digitales</a></li>
-                  <li><a href="#cobertura">Cobertura Médica</a></li>
-                </ul>
-              </div>
+          {/* Servicios */}
+          <div className="col-md-2 mb-4 mb-md-0">
+            <h6>Servicios</h6>
+            <ul className="list-unstyled">
+              <li><a href="#">Club de Beneficios</a></li>
+              <li><a href="#">Salud Mental</a></li>
+              <li><a href="#">Servicios Digitales</a></li>
+              <li><a href="#">Cobertura Médica</a></li>
+            </ul>
+          </div>
+
+          {/* Redes Sociales */}
+          <div className="col-md-2 mb-4 mb-md-0">
+            <h6>Seguinos</h6>
+            <div className="d-flex d-md-block justify-content-center">
+              <a href="#" className="social-link me-3">
+                <FaInstagram />
+              </a>
+              <a href="#" className="social-link me-3">
+                <FaFacebook />
+              </a>
+              <a href="#" className="social-link">
+                <FaLinkedin />
+              </a>
             </div>
           </div>
         </div>
 
-        {/* Línea divisoria */}
-        <hr className="mt-4 mb-3" />
+        {/* Línea inferior */}
+        <hr className="my-4" />
 
-        {/* Links legales */}
-        <div className="row">
-          <div className="col-md-8 text-center text-md-start mb-3 mb-md-0">
-            <ul className="list-inline small mb-0">
-              <li className="list-inline-item"><a href="#baja">Solicitud de Baja</a></li>
-              <li className="list-inline-item">|</li>
-              <li className="list-inline-item"><a href="#arrepentimiento">Solicitud de Arrepentimiento</a></li>
-              <li className="list-inline-item">|</li>
-              <li className="list-inline-item"><a href="#contrato">Contrato de Adhesión</a></li>
-              <li className="list-inline-item">|</li>
-              <li className="list-inline-item"><a href="#libro">Libro de Quejas</a></li>
-            </ul>
-          </div>
-
-          {/* Redes sociales */}
-          <div className="col-md-4 text-center text-md-end">
-            <a href="#instagram" className="me-3 social-link">📷</a>
-            <a href="#facebook" className="me-3 social-link">👍</a>
-            <a href="#linkedin" className="social-link">💼</a>
-          </div>
-        </div>
-
-        {/* Datos legales */}
-        <div className="row mt-3">
-          <div className="col text-center small">
-            Medicina Integral S.A. | Dirección: Av. Salud 123, CABA | CUIT 30-12345678-9 <br />
-            Superintendencia de Servicios de Salud - Teléfono gratuito: 0800-222-SALUD (72583) <br />
-            Ley 26.682 - Derechos Reservados
-          </div>
+        <div className="text-center small">
+          <p>
+            Solicitud de Baja | Solicitud de Arrepentimiento | Contrato de
+            Adhesión | Libro de Quejas
+          </p>
+          <p className="mb-0">
+            Medicina Integral S.A. | Dirección: Av. Salud 123, CABA | CUIT
+            30-12345678-9 <br />
+            Superintendencia de Servicios de Salud – Teléfono gratuito:
+            0800-222-SALUD (72583) <br />
+            Ley 26.682 – Derechos Reservados
+          </p>
         </div>
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

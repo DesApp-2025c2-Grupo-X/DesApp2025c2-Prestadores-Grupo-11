@@ -27,17 +27,27 @@
 
 /* Redes sociales */
 .social-link {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   color: #fff;
+  transition: color 0.3s;
 }
 
 .social-link:hover {
-  color: var(--celeste); /* hover celeste brillante */
+  color: var(--celeste);
 }
 
 /* Responsive */
 @media (max-width: 767px) {
   .footer {
     text-align: center;
+  }
+
+  .footer .social-link {
+    font-size: 2rem; /* un poquito más grandes en móviles */
+    margin: 0 10px;
+  }
+
+  .footer h6 {
+    margin-top: 1rem;
   }
 }
