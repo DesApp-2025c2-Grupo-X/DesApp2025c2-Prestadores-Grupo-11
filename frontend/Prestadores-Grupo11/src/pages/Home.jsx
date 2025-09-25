@@ -1,13 +1,16 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
+import Layout from "../components/Layout";
+import HeaderHome from "../components/HeaderHome";
 
-export default function HomePage() {
+const Home = () => {
   return (
-    <div className="container text-center mt-5">
-      <h1>Bienvenido a Medicina Integral</h1>
-      <p className="lead">Accedé al sistema según tu perfil.</p>
-      <Link to="/login" className="btn btn-primary mt-3">Ir al Login</Link>
-    </div>
+    <Layout header={HeaderHome}>
+      <h1>Bienvenido a la página principal</h1>
+      <p>Contenido de Home...</p>
+      <Link to="/login" className="btn btn-primary mt-3">Ir Login</Link>
+    </Layout>
   );
-}
+};
+
+export default Home;
