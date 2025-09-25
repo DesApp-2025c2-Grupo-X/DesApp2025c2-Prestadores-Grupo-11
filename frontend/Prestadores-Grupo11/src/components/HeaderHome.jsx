@@ -9,7 +9,7 @@ const HeaderHome = () => {
     { label: "SERVICIOS", href: "#servicios" },
   ];
 
-  const button = { label: "INGRESAR", href: "#ingresar" };
+  const button = { label: "INGRESAR", href: "./Login" };
 
   return <HeaderBase links={links} button={button} />;
 };

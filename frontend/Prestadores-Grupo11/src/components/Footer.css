@@ -1,0 +1,43 @@
+.footer {
+  background-color: var(--azul-petroleo); /* #22577a */
+  font-size: 0.9rem;
+}
+
+.footer-logo {
+  max-height: 80px;
+}
+
+.footer h6 {
+  margin-bottom: 1rem;
+}
+
+.footer a {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer a:hover {
+  color: var(--rosa); /* hover en rosa suave */
+}
+
+.footer hr {
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Redes sociales */
+.social-link {
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.social-link:hover {
+  color: var(--celeste); /* hover celeste brillante */
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  .footer {
+    text-align: center;
+  }
+}

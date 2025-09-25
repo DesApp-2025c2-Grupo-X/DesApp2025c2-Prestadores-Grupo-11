@@ -2,7 +2,7 @@ import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./Header.css";
-import logo from "../assets/Medicina_Integral_Logo.png";
+import logo from "../assets/Medicina_integralLogo.jpg";
 
 const HeaderBase = ({ links = [], button, extraContent, extraContentRight }) => {
   return (
