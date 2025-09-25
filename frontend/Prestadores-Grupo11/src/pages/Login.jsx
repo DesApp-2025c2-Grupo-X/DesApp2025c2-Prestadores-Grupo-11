@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Layout from "../components/Layout";
 import HeaderLogin from "../components/HeaderLogin"; 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -90,9 +91,7 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
-      <HeaderLogin />
-
-      <main className="container">
+      <Layout header={HeaderLogin}>
         <div className="row justify-content-center">
           <div className="col-12 col-md-6 col-lg-5">
             <div className="login-card mt-5 p-4 text-center">
@@ -147,21 +146,20 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
-      </main>
 
-      {/* Toast Container */}
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+        {/* Toast Container */}
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
+      </Layout>
     </div>
   );
 }
-

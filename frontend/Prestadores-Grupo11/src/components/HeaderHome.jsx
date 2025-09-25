@@ -1,61 +1,18 @@
 import React from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js"; 
-import "./Header.css";
+import HeaderBase from "./HeaderBase";
 
 const HeaderHome = () => {
-  return (
-    <header>
-      <nav className="navbar navbar-expand-lg navbar-light custom-navbar">
-        <div className="container-fluid">
-          {/* Logo */}
-          <a className="navbar-brand d-flex align-items-center" href="#">
-            <img
-              src="/Medicina_integralLogo.jpg"
-              alt="Medicina Integral"
-              className="logo"
-            />
-          </a>
+  const links = [
+    { label: "QUIENES SOMOS", href: "#quienes-somos" },
+    { label: "NUESTROS SANATORIOS", href: "#sanatorios" },
+    { label: "NUESTROS PLANES", href: "#planes" },
+    { label: "SERVICIOS", href: "#servicios" },
+  ];
 
-          {/* Botón hamburguesa */}
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarHome"
-            aria-controls="navbarHome"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
+  const button = { label: "INGRESAR", href: "#ingresar" };
 
-          {/* Links */}
-          <div className="collapse navbar-collapse justify-content-end" id="navbarHome">
-            <ul className="navbar-nav me-3">
-              <li className="nav-item">
-                <a className="nav-link" href="#quienes-somos">QUIENES SOMOS</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#sanatorios">NUESTROS SANATORIOS</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#planes">NUESTROS PLANES</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#servicios">SERVICIOS</a>
-              </li>
-            </ul>
-
-            {/* Botón Ingresar */}
-            <a href="#ingresar" className="btn btn-ingresar">
-              INGRESAR →
-            </a>
-          </div>
-        </div>
-      </nav>
-    </header>
-  );
+  return <HeaderBase links={links} button={button} />;
 };
 
 export default HeaderHome;
+
