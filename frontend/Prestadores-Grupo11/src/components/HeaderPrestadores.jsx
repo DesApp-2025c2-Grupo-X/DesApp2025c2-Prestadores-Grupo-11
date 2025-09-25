@@ -18,7 +18,7 @@ const HeaderPrestadores = () => {
   const displayName =
     user.role === "medico"
       ? user.username
-      : user.role === "centro"
+      : user.role === "centro_medico"
       ? user.username
       : "Usuario";
 
@@ -28,17 +28,28 @@ const HeaderPrestadores = () => {
     navigate("/"); // Redirige al Home
   };
 
-  // Contenido derecho: nombre + botón logout
+  // Contenido derecho: nombre + ícono usuario + botón logout
   const extraContentRight = (
-    <>
-      <span className="nav-link me-3">{displayName}</span>
-      <button onClick={handleLogout} className="btn btn-ingresar">
-        CERRAR SESIÓN
-      </button>
-    </>
+    <div className="collapse navbar-collapse justify-content-end" id="navbarPrestadores">
+      <ul className="navbar-nav align-items-center">
+        {/* Nombre del usuario */}
+        <li className="nav-item me-3 d-flex align-items-center">
+          <span className="nav-link">{displayName}</span>
+          <i className="bi bi-person ms-2"></i>
+        </li>
+
+        {/* Botón logout */}
+        <li className="nav-item">
+          <button onClick={handleLogout} className="btn btn-ingresar">
+            CERRAR SESIÓN
+          </button>
+        </li>
+      </ul>
+    </div>
   );
 
   return <HeaderBase extraContentRight={extraContentRight} />;
 };
 
 export default HeaderPrestadores;
+
