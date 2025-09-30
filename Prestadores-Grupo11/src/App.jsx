@@ -5,8 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 
 import HomePage from "./pages/Home";
 import LoginPage from "./pages/Login";
-import DashboardMedico from "./pages/DashboardMedico";
-import DashboardCentro from "./pages/DashboardCentro";
+import Dashboard from "./pages/Dashboard"
 import RequireAuth from "./components/RequireAuth"; 
 
 export default function App() {
@@ -21,21 +20,14 @@ export default function App() {
 
         {/* Dashboards */}
         <Route
-          path="/dashboard/medico"
+          path="/dashboard"
           element={
             <RequireAuth role="medico">
               <DashboardMedico />
             </RequireAuth>
           }
         />
-        <Route
-          path="/dashboard/centro"
-          element={
-            <RequireAuth role="centro_medico">
-              <DashboardCentro />
-            </RequireAuth>
-          }
-        />
+    
 
         {/* Not found -> redirect home */}
         <Route path="*" element={<Navigate to="/" replace />} />

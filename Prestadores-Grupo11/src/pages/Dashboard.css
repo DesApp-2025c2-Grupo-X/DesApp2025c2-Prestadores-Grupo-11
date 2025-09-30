@@ -1,0 +1,58 @@
+.dashboard-container {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* Títulos de secciones */
+.section-title {
+  font-weight: 700;
+  color: var(--azul-profundo);
+  margin-bottom: 1.5rem;
+}
+
+/* TARJETAS DE INFORMACIÓN */
+.info-card {
+  background-color: var(--verde-menta);
+  border-radius: 1rem;
+  text-align: center;
+  padding: 2rem 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.info-card h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  color: var(--azul-petroleo);
+}
+
+.info-card p {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--azul-profundo);
+  margin: 0;
+}
+
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+/* TARJETAS DE ACCESOS DIRECTOS */
+.access-card {
+  background-color: var(--rosa);
+  border-radius: 1rem;
+  text-align: center;
+  padding: 2rem 1rem;
+  font-weight: 600;
+  color: var(--azul-petroleo);
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.25s ease;
+}
+
+.access-card:hover {
+  background-color: var(--celeste);
+  color: #fff;
+  transform: translateY(-5px);
+}
