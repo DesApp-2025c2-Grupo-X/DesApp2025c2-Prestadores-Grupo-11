@@ -5,25 +5,17 @@ body {
 
 /* Fondo del dashboard */
 .dashboard-container {
-  width: 100%;
-  min-height: 100vh; /* ocupa toda la altura de la pantalla */
-  margin: 0;
-  padding: 0;
   background: url("/src/assets/dashboard.webp") center / cover no-repeat;
   display: block;          
-  padding: 2rem;         
+  padding: 2rem 4rem;         
   box-sizing: border-box;
-}
-.my-4 {
-    margin-top: 0!important;
-    margin-bottom: 0!important;
 }
 
 /* HERO */
 .dashboard-hero {
   border-radius: 1rem;
   padding: 3rem 2rem;
-  text-align: center;
+  text-align: left;
 }
 
 .hero-title {
@@ -45,6 +37,11 @@ body {
   padding: 2rem 1rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;             /* Flex para alinear contenido vertical */
+  flex-direction: column;    /* Coloca h5 y p en columna */
+  justify-content: center;   /* Centra verticalmente el contenido */
+  height: 100%;              /* La card ocupará todo el alto del contenedor col */
+  min-height: 200px;         /* Altura mínima, ajusta a tu gusto */
 }
 
 .info-card h5 {
@@ -52,6 +49,7 @@ body {
   font-weight: 600;
   margin-bottom: 0.8rem;
   color: var(--azul-petroleo);
+  flex-shrink: 1;            /* Permite que el texto se reduzca si es necesario */
 }
 
 .info-card p {
@@ -59,11 +57,17 @@ body {
   font-weight: bold;
   color: var(--azul-profundo);
   margin: 0;
+  flex-shrink: 1;            /* Ajusta tamaño si el contenido es largo */
+  word-wrap: break-word;     /* Evita que el texto salga de la card */
 }
 
 .info-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+.responsive-row {
+  width: 50%;
 }
 
 /* SECCIÓN ACCESOS DIRECTOS */
@@ -76,13 +80,16 @@ body {
 .access-container {
   background: #fff;
   border-radius: 1.2rem;
-  padding: 2rem;
+  padding: 2rem ;
+  width: 50%;  
+  border: 2px solid var(--rosa);          
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
+
 .access-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr) !important; /* 4 columnas iguales */
+  grid-template-columns: repeat(2, 1fr) !important; /* 4 columnas iguales */
   gap: 1.5rem;
 }
 
@@ -96,7 +103,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.2rem 1rem;
+  padding: 1.2rem 2rem;
 }
 
 .access-card svg {
@@ -117,10 +124,13 @@ body {
   .access-grid {
     grid-template-columns: 1fr 1fr ;
   }
+  .responsive-row {
+    width: 100%;
+  }
 }
 
 @media (max-width: 576px) {
   .access-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 }

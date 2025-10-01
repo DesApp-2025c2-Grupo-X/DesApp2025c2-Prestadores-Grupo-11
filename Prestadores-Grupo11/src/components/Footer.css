@@ -2,18 +2,6 @@
   background-color: var(--azul-petroleo); /* #22577a */
   font-size: 0.9rem;
 }
-.footer .py-5 {
-  padding-top: 1rem !important;
-  padding-bottom: 1rem !important;
-}
-.my-4 {
-    margin-top: 0.5rem !important;
-    margin-bottom: 0.5rem !important;
-}
-p {
-    margin-top: 0;
-    margin-bottom: 0.25rem;
-}
 
 .footer-logo {
   max-height: 80px;

@@ -4,7 +4,7 @@ import "./Footer.css";
 
 export default function Footer() {
   return (
-    <footer className="footer text-white py-5">
+    <footer className="footer text-white py-3">
       <div className="container">
         <div className="row align-items-start">
           {/* Logo */}
@@ -59,7 +59,7 @@ export default function Footer() {
           </div>
 
           {/* Redes Sociales */}
-          <div className="col-md-2 mb-4 mb-md-0">
+          <div className="col-md-2 mb-2 mb-md-0">
             <h6>Seguinos</h6>
             <div className="d-flex d-md-block justify-content-center">
               <a href="#" className="social-link me-3">
@@ -76,7 +76,7 @@ export default function Footer() {
         </div>
 
         {/* Línea inferior */}
-        <hr className="my-4" />
+        <hr className="my-2" />
 
         <div className="text-center small">
           <p>

@@ -1,10 +1,14 @@
 import React from "react";
 import Layout from "../components/Layout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
-import {PieChart,Pie,Cell,ResponsiveContainer,Tooltip,} from "recharts";
-import {FaCalendarAlt,FaClipboardList,FaNotesMedical,FaUserMd,} from "react-icons/fa";
-import "./Dashboard.css"
-
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import {
+  FaCalendarAlt,
+  FaClipboardList,
+  FaNotesMedical,
+  FaUserMd,
+} from "react-icons/fa";
+import "./Dashboard.css";
 
 export default function Dashboard() {
   return (
@@ -17,34 +21,34 @@ export default function Dashboard() {
             Aquí encontrarás la información de tus pacientes y turnos.
           </p>
         </div>
-       
+
         {/* Cards de Información */}
-        <div className="row g-4 mt-3">
-          <div className="col-md-3">
-            <div className="info-card">
-              <h5>Solicitudes Pendientes</h5>
-              <p>20</p>
+        <div className="row responsive-row g-4 mt-3">
+            <div className="col-md-3">
+              <div className="info-card">
+                <h5>Solicitudes Pendientes</h5>
+                <p>20</p>
+              </div>
             </div>
-          </div>
-          <div className="col-md-3">
-            <div className="info-card">
-              <h5>Autorizaciones Pendientes</h5>
-              <p>35</p>
+            <div className="col-md-3">
+              <div className="info-card">
+                <h5>Autorizaciones Pendientes</h5>
+                <p>35</p>
+              </div>
             </div>
-          </div>
-          <div className="col-md-3">
-            <div className="info-card">
-              <h5>Recetas Pendientes</h5>
-              <p>12</p>
+            <div className="col-md-3">
+              <div className="info-card">
+                <h5>Recetas Pendientes</h5>
+                <p>12</p>
+              </div>
             </div>
-          </div>
-          <div className="col-md-3">
-            <div className="info-card">
-              <h5>Reintegros  Pendientes</h5>
-              <p>35</p>
+            <div className="col-md-3">
+              <div className="info-card">
+                <h5>Reintegros Pendientes</h5>
+                <p>35</p>
+              </div>
             </div>
-          </div>
-       </div>
+        </div>
         {/* Accesos Directos */}
         <h2 className="section-title mt-5">Accesos Directos</h2>
         <div className="access-container">
