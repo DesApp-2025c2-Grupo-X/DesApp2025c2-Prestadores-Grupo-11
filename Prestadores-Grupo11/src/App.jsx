@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 
 import HomePage from "./pages/Home";
 import LoginPage from "./pages/Login";
-import Dashboard from "./pages/Dashboard"
+import Dashboard from "./pages/Dashboard";
 import RequireAuth from "./components/RequireAuth"; 
 
 export default function App() {
@@ -23,7 +23,15 @@ export default function App() {
           path="/dashboard"
           element={
             <RequireAuth role="medico">
-              <DashboardMedico />
+              <Dashboard />
+            </RequireAuth>
+          }
+        />
+         <Route
+          path="/dashboard"
+          element={
+            <RequireAuth role="centro_medico">
+              <Dashboard />
             </RequireAuth>
           }
         />

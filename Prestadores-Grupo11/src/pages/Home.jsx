@@ -2,7 +2,6 @@
 import React from "react";
 import Layout from "../components/Layout";
 import HeaderHome from "../components/HeaderHome";
-import { Link } from "react-router-dom";
 import "./Home.css"
 import appImg from "../assets/imgCarousel.jpg"
 import phone from "../assets/phone.png"

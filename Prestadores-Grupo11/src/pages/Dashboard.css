@@ -1,13 +1,40 @@
-.dashboard-container {
-  padding-top: 2rem;
-  padding-bottom: 2rem;
+body {
+  margin: 0;
+  padding: 0;
 }
 
-/* Títulos de secciones */
-.section-title {
+/* Fondo del dashboard */
+.dashboard-container {
+  width: 100%;
+  min-height: 100vh; /* ocupa toda la altura de la pantalla */
+  margin: 0;
+  padding: 0;
+  background: url("/src/assets/dashboard.webp") center / cover no-repeat;
+  display: block;          
+  padding: 2rem;         
+  box-sizing: border-box;
+}
+.my-4 {
+    margin-top: 0!important;
+    margin-bottom: 0!important;
+}
+
+/* HERO */
+.dashboard-hero {
+  border-radius: 1rem;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.hero-title {
   font-weight: 700;
+  font-size: 1.8rem;
   color: var(--azul-profundo);
-  margin-bottom: 1.5rem;
+}
+
+.hero-subtitle {
+  color: var(--azul-petroleo);
+  font-size: 1rem;
 }
 
 /* TARJETAS DE INFORMACIÓN */
@@ -39,20 +66,61 @@
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
 }
 
-/* TARJETAS DE ACCESOS DIRECTOS */
+/* SECCIÓN ACCESOS DIRECTOS */
+.section-title {
+  font-weight: 700;
+  color: var(--azul-profundo);
+  margin-bottom: 1.5rem;
+}
+
+.access-container {
+  background: #fff;
+  border-radius: 1.2rem;
+  padding: 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.access-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) !important; /* 4 columnas iguales */
+  gap: 1.5rem;
+}
+
 .access-card {
   background-color: var(--rosa);
   border-radius: 1rem;
-  text-align: center;
-  padding: 2rem 1rem;
   font-weight: 600;
   color: var(--azul-petroleo);
   cursor: pointer;
   transition: background-color 0.25s ease, transform 0.25s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1rem;
+}
+
+.access-card svg {
+  font-size: 1.5rem;
 }
 
 .access-card:hover {
   background-color: var(--celeste);
   color: #fff;
   transform: translateY(-5px);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 1.4rem;
+  }
+  .access-grid {
+    grid-template-columns: 1fr 1fr ;
+  }
+}
+
+@media (max-width: 576px) {
+  .access-grid {
+    grid-template-columns: 1fr;
+  }
 }

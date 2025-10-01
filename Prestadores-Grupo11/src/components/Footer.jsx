@@ -85,9 +85,9 @@ export default function Footer() {
           </p>
           <p className="mb-0">
             Medicina Integral S.A. | Dirección: Av. Salud 123, CABA | CUIT
-            30-12345678-9 <br />
+            30-12345678-9 | 
             Superintendencia de Servicios de Salud – Teléfono gratuito:
-            0800-222-SALUD (72583) <br />
+            0800-222-SALUD (72583) | 
             Ley 26.682 – Derechos Reservados
           </p>
         </div>
