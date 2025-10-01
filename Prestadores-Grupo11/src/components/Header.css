@@ -1,0 +1,120 @@
+:root {
+  --rosa: #fbc3c2;
+  --verde-agua: #6fb6b6;
+  --verde-menta: #b6e4db;
+  --azul-profundo: #0077b6;
+  --azul-petroleo: #22577a;
+  --celeste: #00b4d8;
+  --verde-suave: #b4dbdc;
+}
+
+/* Navbar */
+.custom-navbar {
+  background-color: var(--verde-menta); /* #b6e4db */
+  padding: 0.7rem 1.5rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Logo */
+.logo {
+  width: 200px;  
+  height: auto;
+}
+
+/* Links */
+.nav-link {
+  color: #000;
+  font-weight: 500;
+  margin: 0 0.5rem;
+  transition: color 0.3s, border-bottom 0.3s;
+  display: inline-block; /* hace que el borde solo sea del tamaño del texto */
+  border-bottom: 2px solid transparent; /* línea invisible por defecto */
+  padding-bottom: 3px; /* espacio para que la línea no pegue al texto */
+}
+
+.nav-link:hover {
+  color: var(--azul-petroleo); /* hover #22577a */
+  border-bottom: 2px solid var(--azul-petroleo); /* línea aparece debajo del texto*/
+}
+
+/* Botón Ingresar */
+.btn-ingresar {
+  background-color: var(--verde-agua); /* #6fb6b6 */
+  color: #fff;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  transition: background-color 0.3s;
+  text-decoration: none;
+}
+
+.btn-ingresar:hover {
+  background-color: var(--azul-petroleo); /* hover #22577a */
+  color: #fff;
+}
+
+/* Responsive ajustes */
+@media (max-width: 991px) {
+  .navbar-nav {
+    margin-top: 1rem;
+    text-align: center;
+  }
+
+  .nav-link {
+    margin: 0.5rem 0; /* más espacio entre links */
+  }
+
+  .btn-ingresar {
+    display: block;
+    margin: 1rem auto;
+    width: 150px;
+  }
+}
+
+/* ---------- Login specific styles------------*/
+
+.login-page main {
+  min-height: calc(100vh - 90px); /* deja espacio para el header */
+}
+
+/* Card que contiene el formulario */
+.login-card {
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  padding: 2rem;
+}
+
+/* Inputs: borde rosado tenue y corners redondeados  */
+.custom-input {
+  border-radius: 8px;
+  border: 1.5px solid var(--rosa);
+  padding: 0.85rem 1rem;
+  text-transform: none;
+  color: #333;
+}
+
+/* Placeholder rosado claro */
+.custom-input::placeholder {
+  color: rgba(243, 163, 163, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Botón principal de ingreso (reutiliza btn-ingresar) */
+.btn-login {
+  padding: 0.65rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+/* Ajustes responsive: centrado y espaciado para mobile */
+@media (max-width: 767px) {
+  .login-card {
+    margin: 1.2rem;
+    padding: 1.5rem;
+  }
+  .logo {
+    width: 160px; /* reduce logo en mobile si hace falta */
+  }
+}

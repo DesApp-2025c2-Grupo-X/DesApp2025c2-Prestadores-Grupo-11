@@ -1,0 +1,126 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Fondo del dashboard */
+.dashboard-container {
+  width: 100%;
+  min-height: 100vh; /* ocupa toda la altura de la pantalla */
+  margin: 0;
+  padding: 0;
+  background: url("/src/assets/dashboard.webp") center / cover no-repeat;
+  display: block;          
+  padding: 2rem;         
+  box-sizing: border-box;
+}
+.my-4 {
+    margin-top: 0!important;
+    margin-bottom: 0!important;
+}
+
+/* HERO */
+.dashboard-hero {
+  border-radius: 1rem;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.hero-title {
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: var(--azul-profundo);
+}
+
+.hero-subtitle {
+  color: var(--azul-petroleo);
+  font-size: 1rem;
+}
+
+/* TARJETAS DE INFORMACIÓN */
+.info-card {
+  background-color: var(--verde-menta);
+  border-radius: 1rem;
+  text-align: center;
+  padding: 2rem 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.info-card h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  color: var(--azul-petroleo);
+}
+
+.info-card p {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--azul-profundo);
+  margin: 0;
+}
+
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+/* SECCIÓN ACCESOS DIRECTOS */
+.section-title {
+  font-weight: 700;
+  color: var(--azul-profundo);
+  margin-bottom: 1.5rem;
+}
+
+.access-container {
+  background: #fff;
+  border-radius: 1.2rem;
+  padding: 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.access-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) !important; /* 4 columnas iguales */
+  gap: 1.5rem;
+}
+
+.access-card {
+  background-color: var(--rosa);
+  border-radius: 1rem;
+  font-weight: 600;
+  color: var(--azul-petroleo);
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.25s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1rem;
+}
+
+.access-card svg {
+  font-size: 1.5rem;
+}
+
+.access-card:hover {
+  background-color: var(--celeste);
+  color: #fff;
+  transform: translateY(-5px);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 1.4rem;
+  }
+  .access-grid {
+    grid-template-columns: 1fr 1fr ;
+  }
+}
+
+@media (max-width: 576px) {
+  .access-grid {
+    grid-template-columns: 1fr;
+  }
+}
