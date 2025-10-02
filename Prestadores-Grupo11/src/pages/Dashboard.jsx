@@ -21,7 +21,7 @@ export default function Dashboard() {
         {/* --- GRID PRINCIPAL: LEFT = CARDS (50%) | RIGHT = ACCESOS (50%) --- */}
         <div className="row g-4 mt-3">
           {/* Columna izquierda: cards (anidamos una row dentro) */}
-          <div className="col-12 col-lg-6">
+          <div className="col-12 col-lg-8">
             <div className="row g-4">
               <div className="col-12 col-sm-6 col-lg-3">
                 <div className="info-card">

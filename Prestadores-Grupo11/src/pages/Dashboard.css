@@ -30,7 +30,7 @@ body { margin: 0; padding: 0; }
   border: 2px solid var(--rosa);
 }
 
-.info-card h5 { font-size:1rem; font-weight:600; margin-bottom:.8rem; color:var(--azul-petroleo); }
+.info-card h5 { font-size:1rem; font-weight:600; margin-bottom:.8rem; color:var(--azul-petroleo);}
 .info-card p  { font-size:1.4rem; font-weight:bold; color:var(--azul-profundo); margin:0; word-wrap:break-word; }
 .info-card:hover { transform: translateY(-5px); box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15); }
 
