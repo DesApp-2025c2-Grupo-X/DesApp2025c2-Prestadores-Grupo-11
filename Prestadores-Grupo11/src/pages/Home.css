@@ -63,3 +63,23 @@
 .buttonAboutUs:hover {
     background-color: #22577a;
 }
+
+@media (max-width: 767px) {
+  .infoContainer {
+    flex-wrap: wrap;
+  }
+
+  .cardInfo p {
+    font-size: 14px;
+  }
+
+  .numeroTelefono {
+    flex-direction: column;
+  }
+
+  .numeroTelefono div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
