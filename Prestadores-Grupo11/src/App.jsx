@@ -1,12 +1,15 @@
-
-
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 import HomePage from "./pages/Home";
 import LoginPage from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import RequireAuth from "./components/RequireAuth"; 
+import RequireAuth from "./components/RequireAuth";
 
 export default function App() {
   return (
@@ -22,20 +25,11 @@ export default function App() {
         <Route
           path="/dashboard"
           element={
-            <RequireAuth role="medico">
+            <RequireAuth roles={["medico", "centro_medico"]}>
               <Dashboard />
             </RequireAuth>
           }
         />
-         <Route
-          path="/dashboard"
-          element={
-            <RequireAuth role="centro_medico">
-              <Dashboard />
-            </RequireAuth>
-          }
-        />
-    
 
         {/* Not found -> redirect home */}
         <Route path="*" element={<Navigate to="/" replace />} />

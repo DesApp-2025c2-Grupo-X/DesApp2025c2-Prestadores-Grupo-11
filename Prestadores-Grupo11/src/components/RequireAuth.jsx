@@ -1,8 +1,9 @@
 
+
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
-export default function RequireAuth({ role, children }) {
+export default function RequireAuth({ role, roles, children }) {
   const location = useLocation();
 
   // Intentar leer usuario de localStorage
@@ -14,8 +15,12 @@ export default function RequireAuth({ role, children }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Si el rol no coincide -> lo mandamos al home
+  // Validación de rol
   if (role && user.role !== role) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (roles && !roles.includes(user.role)) {
     return <Navigate to="/" replace />;
   }
 
