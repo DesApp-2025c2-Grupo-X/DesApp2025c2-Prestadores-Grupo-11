@@ -75,8 +75,8 @@ export default function LoginPage() {
           );
 
           // Redirigir según rol
-          if (userMatch.role === "medico") navigate("/dashboard/medico");
-          else if (userMatch.role === "centro_medico") navigate("/dashboard/centro");
+          if (userMatch.role === "medico") navigate("/dashboard");
+          else if (userMatch.role === "centro_medico") navigate("/dashboard");
           else toast.error("Rol de usuario desconocido.");
         } else {
           toast.error("Contraseña incorrecta.");

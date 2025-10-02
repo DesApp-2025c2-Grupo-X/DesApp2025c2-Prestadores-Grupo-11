@@ -1,0 +1,84 @@
+import React from "react";
+import Layout from "../components/Layout";
+import HeaderPrestadores from "../components/HeaderPrestadores";
+import { FaCalendarAlt, FaClipboardList, FaNotesMedical, FaUserMd } from "react-icons/fa";
+import "./Dashboard.css";
+
+/* ...imports y Layout igual que antes... */
+
+export default function Dashboard() {
+  return (
+    <Layout header={HeaderPrestadores}>
+      <div className="dashboard-container">
+        {/* HERO */}
+        <div className="dashboard-hero">
+          <h2 className="hero-title">👋 Bienvenido, Dr. Pérez</h2>
+          <p className="hero-subtitle">
+            Aquí encontrarás la información de tus pacientes y turnos.
+          </p>
+        </div>
+
+        {/* --- GRID PRINCIPAL: LEFT = CARDS (50%) | RIGHT = ACCESOS (50%) --- */}
+        <div className="row g-4 mt-3">
+          {/* Columna izquierda: cards (anidamos una row dentro) */}
+          <div className="col-12 col-lg-6">
+            <div className="row g-4">
+              <div className="col-12 col-sm-6 col-lg-3">
+                <div className="info-card">
+                  <h5>Solicitudes Pendientes</h5>
+                  <p>20</p>
+                </div>
+              </div>
+
+              <div className="col-12 col-sm-6 col-lg-3">
+                <div className="info-card">
+                  <h5>Autorizaciones Pendientes</h5>
+                  <p>35</p>
+                </div>
+              </div>
+
+              <div className="col-12 col-sm-6 col-lg-3">
+                <div className="info-card">
+                  <h5>Recetas Pendientes</h5>
+                  <p>12</p>
+                </div>
+              </div>
+
+              <div className="col-12 col-sm-6 col-lg-3">
+                <div className="info-card">
+                  <h5>Reintegros Pendientes</h5>
+                  <p>35</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Columna derecha: accesos directos */}
+        
+            <h2 className="section-title">Accesos Directos</h2>
+            <div className="access-container">
+              <div className="access-grid">
+                <div className="access-card">
+                  <span>Calendario de Turnos</span>
+                  <FaCalendarAlt className="text-primary" />
+                </div>
+                <div className="access-card">
+                  <span>Gestión de Solicitudes</span>
+                  <FaClipboardList className="text-success" />
+                </div>
+                <div className="access-card">
+                  <span>Consultar Historia Clínica</span>
+                  <FaNotesMedical className="text-danger" />
+                </div>
+                <div className="access-card">
+                  <span>Situaciones Terapéuticas</span>
+                  <FaUserMd className="text-warning" />
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+}
+
