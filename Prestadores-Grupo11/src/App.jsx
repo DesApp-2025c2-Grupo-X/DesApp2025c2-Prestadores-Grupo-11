@@ -6,7 +6,11 @@ import HomePage from "./pages/Home";
 import LoginPage from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import RequireAuth from "./components/RequireAuth";
+
+// ✅ Importamos las nuevas páginas
 import BusquedaSituacionesTerapeuticas from "./pages/BusquedaSituacionesTerapeuticas";
+import DetalleSituacionesTerapeuticas from "./pages/DetalleSituacionesTerapeuticas";
+import SituacionesTerapeuticas from "./pages/SituacionesTerapeuticas";
 
 export default function App() {
   return (
@@ -29,7 +33,14 @@ export default function App() {
         />
 
         {/* Situaciones Terapéuticas - protegidas */}
-       
+        <Route
+          path="/prestadores/situaciones"
+          element={
+            <RequireAuth roles={["medico", "centro_medico"]}>
+              <SituacionesTerapeuticas />
+            </RequireAuth>
+          }
+        />
 
         <Route
           path="/prestadores/situaciones/busqueda"
@@ -40,7 +51,14 @@ export default function App() {
           }
         />
 
-       
+        <Route
+          path="/prestadores/situaciones/:id"
+          element={
+            <RequireAuth roles={["medico", "centro_medico"]}>
+              <DetalleSituacionesTerapeuticas />
+            </RequireAuth>
+          }
+        />
 
         {/* Not found -> redirect home */}
         <Route path="*" element={<Navigate to="/" replace />} />

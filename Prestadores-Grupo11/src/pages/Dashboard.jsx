@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import Layout from "../components/Layout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import { Calendar, FileText, Activity, BookOpen } from "lucide-react";
-import "./Dashboard.css";
+import "../styles/Dashboar.css";
 
 export default function Dashboard() {
   return (
