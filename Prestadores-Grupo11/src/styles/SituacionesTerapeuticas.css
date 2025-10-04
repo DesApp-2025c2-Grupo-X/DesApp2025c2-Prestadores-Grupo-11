@@ -1,0 +1,191 @@
+/*  Paleta general */
+:root {
+  --rosa: #fbc3c2;
+  --azul-profundo: #22345f;
+  --gris-claro: #f7f7f7;
+  --gris-medio: #dcdcdc;
+  --sombra: rgba(0, 0, 0, 0.1);
+}
+
+/*  Layout general */
+.main-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--gris-claro);
+}
+
+.contenido-principal {
+  flex-grow: 1;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/*  Sidebar coherente */
+.sidebar {
+  width: 240px;
+  background-color: var(--azul-profundo);
+  color: white;
+  min-height: 100vh;
+  box-shadow: 2px 0 6px var(--sombra);
+}
+
+/*  Títulos */
+h3, h4 {
+  color: var(--azul-profundo);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/*  Buscador general */
+.buscador {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px var(--sombra);
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 420px;
+}
+
+.buscador:focus-within {
+  box-shadow: 0 0 0 3px var(--rosa);
+  transform: scale(1.01);
+}
+
+.buscador input {
+  border: none;
+  outline: none;
+  flex-grow: 1;
+  padding: 0.4rem 0.6rem;
+  font-size: 1rem;
+  color: var(--azul-profundo);
+}
+
+.buscador button {
+  background-color: var(--rosa);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.buscador button:hover {
+  background-color: var(--azul-profundo);
+  transform: scale(1.05);
+}
+
+/*  Tabla de resultados */
+.tabla-container {
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 900px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px var(--sombra);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background-color: var(--azul-profundo);
+  color: white;
+}
+
+.table th, .table td {
+  padding: 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid var(--gris-medio);
+}
+
+.table tr {
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.table tr:hover {
+  background-color: rgba(251, 195, 194, 0.2);
+  transform: scale(1.01);
+}
+
+/*  Botones de acción */
+.btn-accion {
+  background-color: var(--rosa);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-accion:hover {
+  background-color: var(--azul-profundo);
+  transform: scale(1.05);
+}
+
+/*  Tarjetas del grupo familiar */
+.familia-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 900px;
+}
+
+.familia-card {
+  background-color: white;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px var(--sombra);
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.familia-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+}
+
+.familia-card h5 {
+  color: var(--azul-profundo);
+  margin-bottom: 0.5rem;
+}
+
+.familia-card p {
+  color: #555;
+  font-size: 0.95rem;
+}
+
+/*  Responsividad */
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+  }
+
+  .tabla-container, .familia-container {
+    max-width: 100%;
+  }
+
+  .buscador {
+    max-width: 100%;
+  }
+}

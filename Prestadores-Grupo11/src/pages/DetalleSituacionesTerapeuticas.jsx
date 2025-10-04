@@ -5,7 +5,8 @@ import HeaderPrestadores from "../components/HeaderPrestadores";
 import SideBar from "../components/SideBar";
 import { ArrowLeft, ClipboardList } from "lucide-react";
 import familiasData from "../data/familias.json";
-import "./DetalleSituacionesTerapeuticas.css";
+import "../styles/SituacionesTerapeuticas.css";
+;
 
 const DetalleSituacionesTerapeuticas = () => {
   const { dni } = useParams();

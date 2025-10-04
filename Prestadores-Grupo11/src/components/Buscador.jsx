@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import "./Buscador.css";
+import "../styles/SituacionesTerapeuticas.css";
 
 export default function Buscador({ onSearch, delay = 500 }) {
   const [query, setQuery] = useState("");
