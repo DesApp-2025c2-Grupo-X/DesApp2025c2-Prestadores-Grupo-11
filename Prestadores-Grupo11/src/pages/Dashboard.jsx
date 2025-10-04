@@ -1,7 +1,7 @@
 import React from "react";
 import Layout from "../components/Layout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
-import { FaCalendarAlt, FaClipboardList, FaNotesMedical, FaUserMd } from "react-icons/fa";
+import { Calendar, FileText, Activity, BookOpen } from "lucide-react";
 import "./Dashboard.css";
 
 /* ...imports y Layout igual que antes... */
@@ -53,26 +53,26 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Columna derecha: accesos directos */}
+          {/* accesos directos */}
         
             <h2 className="section-title">Accesos Directos</h2>
             <div className="access-container">
               <div className="access-grid">
                 <div className="access-card">
                   <span>Calendario de Turnos</span>
-                  <FaCalendarAlt className="text-primary" />
+                  <Calendar className="text-primary" />
                 </div>
                 <div className="access-card">
                   <span>Gestión de Solicitudes</span>
-                  <FaClipboardList className="text-success" />
+                  <FileText className="text-primary" />
                 </div>
                 <div className="access-card">
                   <span>Consultar Historia Clínica</span>
-                  <FaNotesMedical className="text-danger" />
+                  <BookOpen className="text-danger" />
                 </div>
                 <div className="access-card">
                   <span>Situaciones Terapéuticas</span>
-                  <FaUserMd className="text-warning" />
+                  <Activity className="text-danger" />
                 </div>
               </div>
           </div>

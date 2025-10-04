@@ -1,42 +1,74 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* 🎨 Variables globales */
+:root {
+  --rosa: #fbc3c2;
+  --verde-agua: #6fb6b6;
+  --verde-menta: #b6e4db;
+  --azul-profundo: #0077b6;
+  --azul-petroleo: #22577a;
+  --celeste: #00b4d8;
+  --verde-suave: #b4dbdc;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* 🔹 Reset y estilos generales */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+body {
+  font-family: "Roboto", "Segoe UI", sans-serif;
+  background-color: white;
+  color: var(--azul-petroleo);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Links */
+a {
+  color: var(--azul-profundo);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--celeste);
+}
+
+/* Botones generales */
+button {
+  cursor: pointer;
+  font-weight: 500;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Inputs generales */
+input,
+textarea,
+select {
+  font-size: 14px;
+  border: 1px solid var(--verde-agua);
+  border-radius: 6px;
+  padding: 8px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--azul-profundo);
+  box-shadow: 0 0 5px var(--celeste);
+}
+
+/* Sidebar fix para móviles */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 50px;
   }
-  to {
-    transform: rotate(360deg);
+  .sidebar-link {
+    padding: 8px;
   }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
 }

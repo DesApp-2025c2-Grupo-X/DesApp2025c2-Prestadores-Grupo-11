@@ -1,0 +1,23 @@
+.sidebar {
+  background-color: var(--verde-menta); /* lateral */
+  width: 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sidebar-link {
+  color: var(--azul-petroleo);
+  text-decoration: none;
+  margin: 15px 0;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar-link:hover,
+.sidebar-link.active {
+  background-color: var(--verde-agua);
+  color: white;
+}
