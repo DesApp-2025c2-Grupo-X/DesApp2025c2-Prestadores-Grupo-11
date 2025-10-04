@@ -1,11 +1,20 @@
 .sidebar {
-  background-color: var(--verde-menta); /* lateral */
-  width: 60px;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  width: 70px;                     
+  display: flex;                   
+  flex-direction: column;         
+  gap: 20px;                      
+  align-items: center;            
+  justify-content: center;       
+  border: 3px solid var(--rosa);   
+  border-radius: 12px;             
+  padding: 15px;                  
+  position: fixed;                
+  top: 50%;                      
+  left: 20px;                     
+  transform: translateY(-50%);     
+  background-color: white;        
 }
+
 
 .sidebar-link {
   color: var(--azul-petroleo);

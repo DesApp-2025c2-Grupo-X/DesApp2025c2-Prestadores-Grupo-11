@@ -1,0 +1,44 @@
+.paciente-card {
+  background-color: var(--verde-agua);
+  border-radius: 10px;
+  color: #000;
+}
+
+.tabla-situaciones {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tabla-situaciones thead {
+  background-color: var(--verde-menta);
+}
+
+.tabla-situaciones th,
+.tabla-situaciones td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.estado-terminada {
+  color: green;
+  font-weight: bold;
+}
+
+.estado-proceso {
+  color: orange;
+  font-weight: bold;
+}
+
+.btn-volver {
+  background: none;
+  border: none;
+  color: var(--azul-petroleo);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.btn-volver:hover {
+  text-decoration: underline;
+}

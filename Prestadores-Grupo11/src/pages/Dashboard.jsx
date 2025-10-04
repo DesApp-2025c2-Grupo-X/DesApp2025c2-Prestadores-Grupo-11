@@ -1,10 +1,9 @@
 import React from "react";
+import { Link } from "react-router-dom";  
 import Layout from "../components/Layout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import { Calendar, FileText, Activity, BookOpen } from "lucide-react";
 import "./Dashboard.css";
-
-/* ...imports y Layout igual que antes... */
 
 export default function Dashboard() {
   return (
@@ -20,7 +19,7 @@ export default function Dashboard() {
 
         {/* --- GRID PRINCIPAL: LEFT = CARDS (50%) | RIGHT = ACCESOS (50%) --- */}
         <div className="row g-4 mt-3">
-          {/* Columna izquierda: cards (anidamos una row dentro) */}
+          {/* Columna izquierda: cards */}
           <div className="col-12 col-lg-8">
             <div className="row g-4">
               <div className="col-12 col-sm-6 col-lg-3">
@@ -54,31 +53,36 @@ export default function Dashboard() {
           </div>
 
           {/* accesos directos */}
-        
             <h2 className="section-title">Accesos Directos</h2>
             <div className="access-container">
               <div className="access-grid">
-                <div className="access-card">
+                {/* Calendario */}
+                <Link to="/prestadores/turnos" className="access-card">
                   <span>Calendario de Turnos</span>
                   <Calendar className="text-primary" />
-                </div>
-                <div className="access-card">
+                </Link>
+
+                {/* Solicitudes */}
+                <Link to="/prestadores/solicitudes" className="access-card">
                   <span>Gestión de Solicitudes</span>
                   <FileText className="text-primary" />
-                </div>
-                <div className="access-card">
+                </Link>
+
+                {/* Historia Clínica */}
+                <Link to="/prestadores/historia-clinica" className="access-card">
                   <span>Consultar Historia Clínica</span>
                   <BookOpen className="text-danger" />
-                </div>
-                <div className="access-card">
+                </Link>
+
+                {/* Situaciones Terapéuticas */}
+                <Link to="/prestadores/situaciones/busqueda" className="access-card">
                   <span>Situaciones Terapéuticas</span>
                   <Activity className="text-danger" />
-                </div>
+                </Link>
               </div>
+            </div>
           </div>
         </div>
-      </div>
     </Layout>
   );
 }
-
