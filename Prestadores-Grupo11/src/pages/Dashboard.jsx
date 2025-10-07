@@ -1,13 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";  
-import Layout from "../components/Layout";
+import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import { Calendar, FileText, Activity, BookOpen } from "lucide-react";
-import "../styles/Dashboar.css";
+import "../styles/Dashboard.css";
+
 
 export default function Dashboard() {
   return (
-    <Layout header={HeaderPrestadores}>
+    <PrestadoresLayout header={HeaderPrestadores}>
       <div className="dashboard-container">
         {/* HERO */}
         <div className="dashboard-hero">
@@ -83,6 +84,6 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-    </Layout>
+    </PrestadoresLayout>
   );
 }

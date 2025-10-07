@@ -1,132 +1,88 @@
-/*  Paleta general */
+body { margin: 0; padding: 0; }
+
 :root {
   --rosa: #fbc3c2;
-  --azul-profundo: #22345f;
+  --verde-agua: #6fb6b6;
+  --verde-menta: #b6e4db;
+  --azul-profundo: #0077b6;
+  --azul-petroleo: #22577a;
+  --celeste: #00b4d8;
+  --verde-suave: #b4dbdc;
   --gris-claro: #f7f7f7;
-  --gris-medio: #dcdcdc;
-  --sombra: rgba(0, 0, 0, 0.1);
 }
 
-/*  Layout general */
-.main-container {
-  display: flex;
-  min-height: 100vh;
-  background-color: var(--gris-claro);
-}
-
-.contenido-principal {
-  flex-grow: 1;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/*  Sidebar coherente */
-.sidebar {
-  width: 240px;
-  background-color: var(--azul-profundo);
-  color: white;
-  min-height: 100vh;
-  box-shadow: 2px 0 6px var(--sombra);
-}
-
-/*  Títulos */
-h3, h4 {
-  color: var(--azul-profundo);
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-/*  Buscador general */
-.buscador {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: white;
-  padding: 0.5rem 1rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px var(--sombra);
+ h3{
+   font-weight: 700;
+   color: var(--azul-profundo);
+   margin-bottom: 1.5rem;
+   margin-top: 3.5rem;
+   text-align: center;
+ }
+/* ====== CONTENEDORES PRINCIPALES ====== */
+.familia-card,
+.paciente-card {
+  background: var(--gris-claro);
+  border-left: 5px solid var(--rosa);
+  border-radius: 16px;
+  padding: 1.5rem;
   transition: all 0.3s ease;
-  width: 100%;
-  max-width: 420px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.buscador:focus-within {
-  box-shadow: 0 0 0 3px var(--rosa);
-  transform: scale(1.01);
+.familia-card:hover,
+.paciente-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 10px rgba(251, 195, 194, 0.6);
 }
 
-.buscador input {
-  border: none;
-  outline: none;
-  flex-grow: 1;
-  padding: 0.4rem 0.6rem;
-  font-size: 1rem;
-  color: var(--azul-profundo);
-}
-
-.buscador button {
-  background-color: var(--rosa);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 6px 10px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.buscador button:hover {
-  background-color: var(--azul-profundo);
-  transform: scale(1.05);
-}
-
-/*  Tabla de resultados */
-.tabla-container {
-  margin-top: 2rem;
-  width: 100%;
-  max-width: 900px;
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px var(--sombra);
-  overflow: hidden;
-}
+/* ====== TABLAS ====== */
 
 .table {
-  width: 100%;
+  width: 60%;
   border-collapse: collapse;
+  font-size: 0.95rem;
+  margin-top: 5rem ;
 }
 
-.table thead {
-  background-color: var(--azul-profundo);
-  color: white;
-}
-
-.table th, .table td {
-  padding: 0.8rem;
+.table th {
+  background-color: var(--verde-suave);
+  color: var(--azul-petroleo);
   text-align: left;
-  border-bottom: 1px solid var(--gris-medio);
+  padding: 0.75rem;
 }
 
-.table tr {
-  transition: background-color 0.3s ease, transform 0.2s ease;
+.table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* ====== FILAS ====== */
+.tabla-integrantes tr,
+.tabla-situaciones tr {
+  transition: all 0.3s ease;
+}
+
+.tabla-integrantes tr:hover,
+.tabla-situaciones tr:hover {
+  background-color: var(--verde-menta);
   cursor: pointer;
 }
 
-.table tr:hover {
-  background-color: rgba(251, 195, 194, 0.2);
-  transform: scale(1.01);
-}
-
-/*  Botones de acción */
+/* ====== BOTONES ====== */
 .btn-accion {
-  background-color: var(--rosa);
-  color: white;
+  background-color: var(--verde-agua);
+  color: #fff;
   border: none;
   border-radius: 8px;
   padding: 6px 10px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .btn-accion:hover {
@@ -134,58 +90,144 @@ h3, h4 {
   transform: scale(1.05);
 }
 
-/*  Tarjetas del grupo familiar */
-.familia-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-  width: 100%;
-  max-width: 900px;
+.btn-volver {
+  background-color: var(--rosa);
+  border: none;
+  color: #222;
+  padding: 8px 16px;
+  border-radius: 10px;
+  transition: all 0.25s ease;
 }
 
-.familia-card {
-  background-color: white;
-  border-radius: 14px;
-  box-shadow: 0 2px 8px var(--sombra);
-  padding: 1.2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+.btn-volver:hover {
+  background-color: var(--verde-agua);
+  color: white;
 }
 
-.familia-card:hover {
-  transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+/* ====== ESTADOS ====== */
+.estado-terminada {
+  color: var(--azul-petroleo);
+  font-weight: 600;
 }
 
-.familia-card h5 {
+.estado-proceso {
   color: var(--azul-profundo);
-  margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
-.familia-card p {
-  color: #555;
-  font-size: 0.95rem;
+/* ====== BUSCADOR ====== */
+.buscador {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  background: white;
+  border: 2px solid var(--verde-agua);
+  border-radius: 50px;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 }
 
-/*  Responsividad */
+.buscador input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  background: transparent;
+}
+
+.buscador button {
+  background: var(--verde-agua);
+  border: none;
+  color: white;
+  border-radius: 50%;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.buscador button:hover {
+  background: var(--azul-profundo);
+}
+
+/* ====== RESPONSIVIDAD ====== */
+@media (max-width: 992px) {
+  .familia-card,
+  .paciente-card {
+    padding: 1rem;
+  }
+
+  .table th,
+  .table td {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+  }
+
+  .btn-volver,
+  .btn-accion {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+  }
+}
+
 @media (max-width: 768px) {
-  .main-container {
+  .d-flex {
     flex-direction: column;
   }
 
-  .sidebar {
-    width: 100%;
-    min-height: auto;
-  }
-
-  .tabla-container, .familia-container {
-    max-width: 100%;
+  .table-responsive {
+    overflow-x: auto;
   }
 
   .buscador {
-    max-width: 100%;
+    max-width: 90%;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .buscador input {
+    font-size: 0.9rem;
+  }
+
+  .buscador button {
+    padding: 0.4rem;
+  }
+}
+
+@media (max-width: 576px) {
+  h4,
+  h5 {
+    font-size: 1rem;
+  }
+
+  .table th,
+  .table td {
+    font-size: 0.8rem;
+  }
+
+  .btn-volver {
+    width: 100%;
+    border-radius: 12px;
+  }
+
+  .familia-card,
+  .paciente-card {
+    text-align: center;
+  }
+
+  .buscador {
+    flex-direction: column;
+    border-radius: 12px;
+  }
+
+  .buscador input {
+    width: 100%;
+  }
+
+  .buscador button {
+    width: 100%;
+    border-radius: 8px;
   }
 }

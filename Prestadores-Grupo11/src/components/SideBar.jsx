@@ -1,33 +1,87 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { House, Calendar, FileText, Activity, BookOpen } from "lucide-react"; 
-import "./SideBar.css";
+import { Link } from "react-router-dom";
+import { Home, Calendar, FileText, Activity, BookOpen, X, Menu } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useSidebar } from "../context/SidebarContext";
+import "./Sidebar.css";
 
-const SideBar = () => {
-  const location = useLocation();
 
-  const menuItems = [
-    { path: "/prestadores/home", label: "Home", icon: <House size={20} /> },
-    { path: "/prestadores/turnos", label: "Calendario de Turnos", icon: <Calendar size={20} /> },
-    { path: "/prestadores/solicitudes", label: "Gestión de Solicitudes", icon: <FileText size={20} /> },
-    { path: "/prestadores/situaciones", label: "Situaciones Terapéuticas", icon: <Activity size={20} /> },
-    { path: "/prestadores/historia-clinica", label: "Historia Clínica", icon: <BookOpen size={20} /> },
-  ];
+const menuItems = [
+  { to: "/prestadores/home", label: "Home", Icon: Home },
+  { to: "/prestadores/turnos", label: "Calendario de Turnos", Icon: Calendar },
+  { to: "/prestadores/solicitudes", label: "Gestión de Solicitudes", Icon: FileText },
+  { to: "/prestadores/situaciones", label: "Situaciones Terapéuticas", Icon: Activity },
+  { to: "/prestadores/historia-clinica", label: "Historia Clínica", Icon: BookOpen },
+];
+
+export default function SideBar() {
+  const { open, toggle, closeSidebar } = useSidebar();
 
   return (
-    <div className="sidebar d-flex flex-column align-items-center p-2">
-      {menuItems.map((item, index) => (
-        <Link
-          key={index}
-          to={item.path}
-          className={`sidebar-link ${location.pathname === item.path ? "active" : ""}`}
-          title={item.label}
-        >
-          {item.icon}
-        </Link>
-      ))}
-    </div>
-  );
-};
+    <>
+      {/* ===== Fixed sidebar for large screens ===== */}
+      <nav className="sidebar-fixed d-none d-lg-flex flex-column align-items-center p-2">
+        {menuItems.map((m) => (
+          <Link key={m.to} to={m.to} className="sidebar-link" title={m.label}>
+            <m.Icon size={20} />
+          </Link>
+        ))}
+      </nav>
 
-export default SideBar;
+      {/* ===== Mobile toggle button (if your header already has hamburger you can omit this) ===== */}
+      <button
+        className="sidebar-toggle-btn d-lg-none"
+        aria-label="Abrir menú lateral"
+        onClick={toggle}
+      >
+        <Menu size={20} />
+      </button>
+
+      {/* ===== Drawer + backdrop for small screens ===== */}
+      <AnimatePresence>
+        {open && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              className="sidebar-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.45 }}
+              exit={{ opacity: 0 }}
+              onClick={closeSidebar}
+            />
+
+            {/* Drawer */}
+            <motion.aside
+              className="sidebar-drawer"
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            >
+              <div className="sidebar-drawer-header">
+                <button className="close-drawer-btn" onClick={closeSidebar} aria-label="Cerrar menú">
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="sidebar-drawer-menu">
+                {menuItems.map((m) => (
+                  <Link
+                    key={m.to}
+                    to={m.to}
+                    className="sidebar-drawer-link"
+                    onClick={closeSidebar}
+                  >
+                    <m.Icon size={18} className="me-2" />
+                    <span>{m.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+

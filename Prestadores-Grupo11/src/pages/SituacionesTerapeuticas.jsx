@@ -1,83 +1,126 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import Layout from "../components/Layout";
+import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import SideBar from "../components/SideBar";
 import { Users, Search, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import "../styles/SituacionesTerapeuticas.css";
 
-const SituacionesTerapeuticas = () => {
+export default function SituacionesTerapeuticas() {
+  const [familias, setFamilias] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const query = searchParams.get("query");
-  const [familia, setFamilia] = useState(null);
+
+  const query = searchParams.get("query")?.toLowerCase() || "";
 
   useEffect(() => {
-    // Cargar mock JSON desde public
-    fetch("/data/familias.json")
-      .then((res) => res.json())
-      .then((data) => {
-        const resultado = data.find((f) =>
-          f.apellido.toLowerCase().includes(query.toLowerCase())
-        );
-        setFamilia(resultado);
-      });
-  }, [query]);
+    const cargarFamilias = async () => {
+      try {
+        const res = await fetch("/familias.json");
+        if (!res.ok) throw new Error("Error al cargar familias.json");
+        const data = await res.json();
+        setFamilias(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!familia) {
+    cargarFamilias();
+  }, []);
+
+  if (loading) {
     return (
-      <Layout header={HeaderPrestadores}>
+      <PrestadoresLayout header={HeaderPrestadores}>
         <div className="d-flex">
           <SideBar />
           <div className="flex-grow-1 p-4 text-center">
-            <p>No se encontraron resultados para “{query}”</p>
-            <button className="btn-volver" onClick={() => navigate(-1)}>
+            <p>Cargando información...</p>
+          </div>
+        </div>
+      </PrestadoresLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <PrestadoresLayout header={HeaderPrestadores}>
+        <div className="d-flex">
+          <SideBar />
+          <div className="flex-grow-1 p-4 text-center">
+            <p>Error: {error}</p>
+            <button className="btn-volver mt-3" onClick={() => navigate(-1)}>
               <ArrowLeft size={18} className="me-2" /> Volver
             </button>
           </div>
         </div>
-      </Layout>
+      </PrestadoresLayout>
+    );
+  }
+
+  const familia = familias.find((f) =>
+    f.apellido.toLowerCase().includes(query)
+  );
+
+  if (!familia) {
+    return (
+      <PrestadoresLayout header={HeaderPrestadores}>
+        <div className="d-flex">
+          <SideBar />
+          <div className="flex-grow-1 p-4 text-center">
+            <h5>No se encontraron resultados para “{query}”.</h5>
+            <button className="btn-volver mt-3" onClick={() => navigate(-1)}>
+              <ArrowLeft size={18} className="me-2" /> Volver
+            </button>
+          </div>
+        </div>
+      </PrestadoresLayout>
     );
   }
 
   const totalSituaciones = familia.integrantes.reduce(
-    (acc, i) => acc + i.situaciones,
+    (acc, i) => acc + i.situaciones.length,
     0
   );
   const totalTerminadas = familia.integrantes.reduce(
-    (acc, i) => acc + i.terminadas,
+    (acc, i) =>
+      acc + i.situaciones.filter((s) => s.estado === "Terminada").length,
     0
   );
 
   return (
-    <Layout header={HeaderPrestadores}>
-      <motion.div
-        className="d-flex"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-      >
+    <PrestadoresLayout header={HeaderPrestadores}>
+      <div className="d-flex">
         <SideBar />
-
-        <motion.div
-          className="flex-grow-1 p-4"
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8 }}
-        >
-          <button className="btn-volver mb-3" onClick={() => navigate(-1)}>
+        <div className="flex-grow-1 p-4">
+          {/* Botón volver */}
+          <motion.button
+            className="btn-volver mb-3"
+            whileHover={{ scale: 1.05, backgroundColor: "var(--verde-agua)" }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate(-1)}
+          >
             <ArrowLeft size={18} className="me-2" /> Volver
-          </button>
+          </motion.button>
 
+          {/* Card familia */}
           <motion.div
             className="familia-card p-3 mb-4"
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            whileHover={{
+              scale: 1.02,
+              boxShadow: "0 0 10px rgba(251, 195, 194, 0.6)",
+            }}
           >
             <div className="d-flex align-items-center gap-3">
-              <Users size={40} />
+              <Users size={40} color="var(--azul-petroleo)" />
               <div>
                 <h4>Familia {familia.apellido}</h4>
                 <p>
@@ -89,57 +132,64 @@ const SituacionesTerapeuticas = () => {
             </div>
           </motion.div>
 
-          <h5 className="mb-3">Integrantes del grupo familiar</h5>
-          <motion.table
-            className="table tabla-integrantes"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-          >
-            <thead>
-              <tr>
-                <th>Nombre completo</th>
-                <th>Edad</th>
-                <th>DNI</th>
-                <th>Situaciones</th>
-                <th>Terminadas</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {familia.integrantes.map((p, i) => (
-                <motion.tr
-                  key={i}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <td>
-                    <Users size={18} className="me-2" />
-                    {p.nombre}
-                  </td>
-                  <td>{p.edad}</td>
-                  <td>{p.dni}</td>
-                  <td>{p.situaciones}</td>
-                  <td>{p.terminadas}</td>
-                  <td>
-                    <button
-                      className="btn-accion"
-                      onClick={() =>
-                        navigate(`/prestadores/detalle-situaciones/${p.dni}`)
-                      }
-                    >
-                      <Search size={18} />
-                    </button>
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </motion.table>
-        </motion.div>
-      </motion.div>
-    </Layout>
+          {/* Tabla integrantes */}
+          <h5 className="mb-3">Integrantes</h5>
+          <div className="table-responsive">
+            <table className="table tabla-integrantes">
+              <thead>
+                <tr>
+                  <th>Nombre completo</th>
+                  <th>Edad</th>
+                  <th>DNI</th>
+                  <th>Situaciones</th>
+                  <th>Terminadas</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {familia.integrantes.map((p, i) => (
+                  <motion.tr
+                    key={p.dni}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    whileHover={{
+                      scale: 1.02,
+                      backgroundColor: "var(--verde-menta)",
+                    }}
+                  >
+                    <td>
+                      <Users size={18} className="me-2" /> {p.nombre}
+                    </td>
+                    <td>{p.edad}</td>
+                    <td>{p.dni}</td>
+                    <td>{p.situaciones.length}</td>
+                    <td>
+                      {p.situaciones.filter((s) => s.estado === "Terminada").length}
+                    </td>
+                    <td>
+                      <motion.button
+                        className="btn-accion"
+                        whileHover={{
+                          scale: 1.1,
+                          backgroundColor: "var(--rosa)",
+                        }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() =>
+                          navigate(`/prestadores/situaciones/detalle/${p.dni}`)
+                        }
+                      >
+                        <Search size={18} />
+                      </motion.button>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </PrestadoresLayout>
   );
-};
+}
 
-export default SituacionesTerapeuticas;

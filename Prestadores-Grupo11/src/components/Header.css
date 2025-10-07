@@ -71,50 +71,34 @@
   }
 }
 
-/* ---------- Login specific styles------------*/
-
-.login-page main {
-  min-height: calc(100vh - 90px); /* deja espacio para el header */
+/* ---------- HeaderLogin específico ---------- */
+.header-login {
+  background-color: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  z-index: 1000;
 }
 
-/* Card que contiene el formulario */
-.login-card {
-  background: #ffffff;
-  border-radius: 6px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
-  padding: 2rem;
+/* Botón retroceso */
+.header-login .btn-back {
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  transition: background 0.2s ease;
 }
 
-/* Inputs: borde rosado tenue y corners redondeados  */
-.custom-input {
-  border-radius: 8px;
-  border: 1.5px solid var(--rosa);
-  padding: 0.85rem 1rem;
-  text-transform: none;
-  color: #333;
+.header-login .btn-back:hover {
+  background: rgba(0, 0, 0, 0.05);
 }
 
-/* Placeholder rosado claro */
-.custom-input::placeholder {
-  color: rgba(243, 163, 163, 0.7);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-/* Botón principal de ingreso (reutiliza btn-ingresar) */
-.btn-login {
-  padding: 0.65rem 1.5rem;
-  border-radius: 999px;
-  font-weight: 700;
-}
-
-/* Ajustes responsive: centrado y espaciado para mobile */
-@media (max-width: 767px) {
-  .login-card {
-    margin: 1.2rem;
-    padding: 1.5rem;
+/* Responsividad mejorada */
+@media (max-width: 768px) {
+  .header-login {
+    padding: 0.6rem 1rem;
   }
-  .logo {
-    width: 160px; /* reduce logo en mobile si hace falta */
+  .header-login .btn-back svg {
+    width: 22px;
+    height: 22px;
   }
 }

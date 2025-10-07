@@ -1,4 +1,6 @@
-/* 🎨 Variables globales */
+/*  Variables globales */
+
+
 :root {
   --rosa: #fbc3c2;
   --verde-agua: #6fb6b6;
@@ -9,7 +11,7 @@
   --verde-suave: #b4dbdc;
 }
 
-/* 🔹 Reset y estilos generales */
+/* Reset y estilos generales */
 * {
   margin: 0;
   padding: 0;

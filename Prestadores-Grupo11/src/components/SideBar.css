@@ -1,32 +1,128 @@
-.sidebar {
-  width: 70px;                     
-  display: flex;                   
-  flex-direction: column;         
-  gap: 20px;                      
-  align-items: center;            
-  justify-content: center;       
-  border: 3px solid var(--rosa);   
-  border-radius: 12px;             
-  padding: 15px;                  
-  position: fixed;                
-  top: 50%;                      
-  left: 20px;                     
-  transform: translateY(-50%);     
-  background-color: white;        
+/* ----- Sidebar fixed (desktop) ----- */
+.sidebar-fixed {
+  position: fixed;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 70px;               /* ancho de íconos vertical */
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+  padding: 12px;
+  background: var(--verde-menta);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  z-index: 1050;
 }
 
-
+/* icon links */
 .sidebar-link {
   color: var(--azul-petroleo);
   text-decoration: none;
-  margin: 15px 0;
-  padding: 10px;
+  padding: 8px;
   border-radius: 8px;
-  transition: background 0.2s, color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
 }
 
-.sidebar-link:hover,
-.sidebar-link.active {
-  background-color: var(--verde-agua);
+.sidebar-link:hover {
+  background: var(--verde-agua);
   color: white;
 }
+
+/* reserve space for main content on desktop so it doesn't sit under the fixed sidebar */
+@media (min-width: 992px) {
+  .main-with-sidebar {
+    margin-left: 120px; /* ajusta según ancho + left offset */
+  }
+}
+
+/* ----- Mobile drawer/backdrop ----- */
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  z-index: 1040;
+}
+
+/* drawer panel */
+.sidebar-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100%;
+  background: white;
+  z-index: 1050;
+  padding: 1rem;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-drawer-header {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.close-drawer-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--azul-petroleo);
+}
+
+.sidebar-drawer-menu {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebar-drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  color: var(--azul-petroleo);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sidebar-drawer-link:hover {
+  background: var(--verde-menta);
+  color: var(--azul-petroleo);
+}
+
+/* floating toggle button for mobile (optional) */
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 16px;
+  bottom: 18px;
+  z-index: 1060;
+  background: var(--rosa);
+  border: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  color: white;
+}
+
+/* Hide the fixed sidebar on small screens (Bootstrap d-none d-lg-flex already handles; keep as fallback) */
+@media (max-width: 991px) {
+  .sidebar-fixed {
+    display: none !important;
+  }
+}
+

@@ -7,7 +7,6 @@ import LoginPage from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import RequireAuth from "./components/RequireAuth";
 
-// ✅ Importamos las nuevas páginas
 import BusquedaSituacionesTerapeuticas from "./pages/BusquedaSituacionesTerapeuticas";
 import DetalleSituacionesTerapeuticas from "./pages/DetalleSituacionesTerapeuticas";
 import SituacionesTerapeuticas from "./pages/SituacionesTerapeuticas";
@@ -52,13 +51,14 @@ export default function App() {
         />
 
         <Route
-          path="/prestadores/situaciones/:id"
+          path="/prestadores/situaciones/detalle/:dni"
           element={
             <RequireAuth roles={["medico", "centro_medico"]}>
               <DetalleSituacionesTerapeuticas />
             </RequireAuth>
           }
         />
+
 
         {/* Not found -> redirect home */}
         <Route path="*" element={<Navigate to="/" replace />} />

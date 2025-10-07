@@ -1,19 +1,19 @@
-
 import React from "react";
 import Layout from "../components/Layout";
 import HeaderHome from "../components/HeaderHome";
-import "./Home.css"
-import appImg from "../assets/imgCarousel.jpg"
-import phone from "../assets/phone.png"
-import hospital from "../assets/hospitalMasGrande.png"
-import doctor from "../assets/doctor.png"
-import user from "../assets/usuario.png"
-import pill from "../assets/medicamento.png"
+import "../styles/Home.css";
 
-const Home = () => {
+import appImg from "../assets/imgCarousel.jpg";
+import phone from "../assets/phone.png";
+import hospital from "../assets/hospitalMasGrande.png";
+import doctor from "../assets/doctor.png";
+import user from "../assets/usuario.png";
+import pill from "../assets/medicamento.png";
+
+export default function Home() {
   return (
-    <Layout header={HeaderHome}>
-      {/*Carousel de imagenes*/}
+    <Layout header={<HeaderHome/>}>
+      {/* Carousel de imágenes */}
       <div id="carouselExampleIndicators" className="carousel slide">
         <div className="carousel-indicators">
           <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" className="active" aria-current="true" aria-label="Slide 1"></button>
@@ -40,12 +40,13 @@ const Home = () => {
           <span className="visually-hidden">Next</span>
         </button>
       </div>
-      {/*Numeros telefonicos*/}
-      <div className="numeroTelefono" >
+
+      {/* Números telefónicos */}
+      <div className="numeroTelefono">
         <img src={phone} alt="Telefono" />
-        <h1>Numeros telefonicos</h1>
+        <h1>Numeros telefónicos</h1>
         <div>
-          <strong>Atencion al cliente</strong>
+          <strong>Atención al cliente</strong>
           <p>5563-0121</p>
         </div>
         <div>
@@ -57,20 +58,21 @@ const Home = () => {
           <p>4522-1234</p>
         </div>
       </div>
-      {/*Sobre nosotros */}
+
+      {/* Sobre nosotros */}
       <div className="aboutUs">
-        <h1>Centros medicos de alta calidad.</h1>
-        <p>Mas de 20 años de experiencia cuidando de nuestros pacientes.</p>
+        <h1>Centros médicos de alta calidad.</h1>
+        <p>Más de 20 años de experiencia cuidando de nuestros pacientes.</p>
         <div className="infoContainer">
           <div className="cardInfo">
             <img src={hospital} alt="Icono hospital" />
             <strong>100</strong>
-            <p>Centros medicos en el pais</p>
+            <p>Centros médicos en el país</p>
           </div>
           <div className="cardInfo">
             <img src={doctor} alt="Icono profesional" />
             <strong>10.000</strong>
-            <p>Profesionales medicos</p>
+            <p>Profesionales médicos</p>
           </div>
           <div className="cardInfo">
             <img src={user} alt="Icono paciente" />
@@ -80,13 +82,11 @@ const Home = () => {
           <div className="cardInfo">
             <img src={pill} alt="Icono farmacia" />
             <strong>200+</strong>
-            <p>Farmacias en el pais</p>
+            <p>Farmacias en el país</p>
           </div>
         </div>
-        <button className="buttonAboutUs">Aprende mas sobre nosotros</button>
+        <button className="buttonAboutUs">Aprende más sobre nosotros</button>
       </div>
     </Layout>
   );
-};
-
-export default Home;
+}

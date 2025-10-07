@@ -1,30 +1,43 @@
 import React from "react";
+import { Link, useLocation } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./Header.css";
 import logo from "../assets/Medicina_integralLogo.jpg";
 
-const HeaderBase = ({ links = [], button, extraContent, extraContentRight }) => {
-  return (
-    <header>
-      <nav className="navbar navbar-expand-lg navbar-light custom-navbar">
-        <div className="container-fluid d-flex align-items-center">
-          
-          {/* Extra content (ej: flecha atrás) */}
-          {extraContent && <div className="me-3">{extraContent}</div>}
+const HeaderBase = ({
+  links = [],
+  button,
+  extraContent,
+  extraContentRight,
+  className = "",
+}) => {
+  const location = useLocation();
 
-          {/* Logo */}
-          <a className="navbar-brand d-flex align-items-center" href="/">
+  return (
+    <header className={`header-base ${className}`}>
+      <nav className="navbar navbar-expand-lg navbar-light custom-navbar shadow-sm">
+        <div className="container-fluid align-items-center px-3 px-md-4">
+          {/*  Contenido adicional a la izquierda  */}
+          {extraContent && (
+            <div className="d-flex align-items-center me-2 me-md-3">
+              {extraContent}
+            </div>
+          )}
+
+          {/*  Logo principal */}
+          <Link className="navbar-brand d-flex align-items-center" to="/">
             <img
               src={logo}
-              alt="Medicina Integral"
+              alt="Medicina Integral - Logo"
               className="logo"
+              draggable="false"
             />
-          </a>
+          </Link>
 
-          {/* Botón hamburguesa */}
+          {/*  Botón hamburguesa */}
           <button
-            className="navbar-toggler"
+            className="navbar-toggler border-0"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#navbarBase"
@@ -35,27 +48,42 @@ const HeaderBase = ({ links = [], button, extraContent, extraContentRight }) => 
             <span className="navbar-toggler-icon"></span>
           </button>
 
-          {/* Links y contenido derecho */}
-          <div className="collapse navbar-collapse justify-content-end" id="navbarBase">
-            <ul className="navbar-nav me-3">
-              {links.map((link, index) => (
-                <li key={index} className="nav-item">
-                  <a className="nav-link" href={link.href}>
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-
-            {/* Botón dinámico */}
-            {button && (
-              <a href={button.href} className="btn btn-ingresar">
-                {button.label} →
-              </a>
+          {/*  Contenido colapsable */}
+          <div
+            className="collapse navbar-collapse justify-content-end mt-2 mt-lg-0"
+            id="navbarBase"
+          >
+            {/*  Enlaces principales */}
+            {links.length > 0 && (
+              <ul className="navbar-nav me-lg-3">
+                {links.map((link, index) => (
+                  <li key={index} className="nav-item">
+                    <Link
+                      to={link.to}
+                      className={`nav-link ${
+                        location.pathname === link.to ? "active" : ""
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             )}
 
-            {/* Contenido especial (ej: nombre usuario + logout) */}
-            {extraContentRight && <div className="d-flex align-items-center">{extraContentRight}</div>}
+            {/*  Botón derecho (opcional) */}
+            {button && (
+              <Link to={button.to} className="btn btn-ingresar ms-lg-2">
+                {button.label} →
+              </Link>
+            )}
+
+            {/*  Contenido adicional derecho (ej. avatar, logout) */}
+            {extraContentRight && (
+              <div className="d-flex align-items-center ms-2">
+                {extraContentRight}
+              </div>
+            )}
           </div>
         </div>
       </nav>
