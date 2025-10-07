@@ -1,18 +1,15 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
-import HeaderLogin from "../components/HeaderLogin"; 
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import "../components/Header.css";
+import HeaderLogin from "../components/HeaderLogin";
+import "../styles/login.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function LoginPage() {
   const navigate = useNavigate();
 
-  const [users, setUsers] = useState(null);
+  const [users, setUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [fetchError, setFetchError] = useState(null);
 
@@ -20,9 +17,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  //  Cargar usuarios desde /users.json (en public/)
   useEffect(() => {
-    // Cargar usuarios desde /users.json
-    setLoadingUsers(true);
     fetch("/users.json")
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar users.json");
@@ -42,7 +38,7 @@ export default function LoginPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!username.trim() || !password) {
+    if (!username.trim() || !password.trim()) {
       toast.error("Completá usuario y contraseña.");
       return;
     }
@@ -59,107 +55,87 @@ export default function LoginPage() {
 
     setSubmitting(true);
 
-    const userMatch = (users || []).find(
+    const userMatch = users.find(
       (u) => u.username.trim().toLowerCase() === username.trim().toLowerCase()
     );
 
-    // Simular latencia realista
     setTimeout(() => {
-      if (userMatch) {
-        if (userMatch.password === password.trim()) {
-          // Login exitoso
-          toast.success(`Bienvenido/a — ${userMatch.username}`);
-          localStorage.setItem(
-            "miapp_user",
-            JSON.stringify({ username: userMatch.username, role: userMatch.role })
-          );
+      if (userMatch && userMatch.password === password.trim()) {
+        toast.success(`Bienvenido/a — ${userMatch.username}`);
+        localStorage.setItem(
+          "miapp_user",
+          JSON.stringify({ username: userMatch.username, role: userMatch.role })
+        );
 
-          // Redirigir según rol
-          if (userMatch.role === "medico") navigate("/dashboard");
-          else if (userMatch.role === "centro_medico") navigate("/dashboard");
-          else toast.error("Rol de usuario desconocido.");
+        //  Redirigir según rol
+        if (userMatch.role === "medico" || userMatch.role === "centro_medico") {
+          navigate("/dashboard");
         } else {
-          toast.error("Contraseña incorrecta.");
+          toast.error("Rol de usuario desconocido.");
         }
       } else {
-        toast.error("Usuario no registrado.");
+        toast.error("Credenciales incorrectas.");
       }
 
       setSubmitting(false);
-    }, 600);
+    }, 700);
   };
 
   return (
-    <div className="login-page">
-      <Layout header={HeaderLogin}>
-        <div className="row justify-content-center">
-          <div className="col-12 col-md-6 col-lg-5">
-            <div className="login-card mt-5 p-4 text-center">
-              <h2 className="fw-bold mb-4">BIENVENIDOS A MEDICINA INTEGRAL !</h2>
+     <Layout header={<HeaderLogin />}>
+      <div className="login-page">
+        <div className="d-flex justify-content-center align-items-center w-100">
+          <div className="login-card text-center">
+            <h2 className="fw-bold mb-4">Bienvenidos a Medicina Integral</h2>
 
-              {loadingUsers && (
-                <div className="mb-3" role="status" aria-live="polite">
-                  Cargando datos...
-                </div>
-              )}
+            {loadingUsers && (
+              <p className="mb-3 text-muted">Cargando datos de acceso...</p>
+            )}
 
-              <form onSubmit={handleSubmit} noValidate aria-describedby="login-help">
-                <div className="mb-3">
-                  <input
-                    type="text"
-                    className="form-control custom-input"
-                    placeholder="NÚMERO CUIT / MATRICULA"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    aria-label="usuario"
-                    autoComplete="username"
-                  />
-                </div>
+            <form onSubmit={handleSubmit} noValidate>
+              <div className="mb-3">
+                <input
+                  type="text"
+                  className="form-control custom-input"
+                  placeholder="NÚMERO CUIT / MATRÍCULA"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  autoComplete="username"
+                />
+              </div>
 
-                <div className="mb-4">
-                  <input
-                    type="password"
-                    className="form-control custom-input"
-                    placeholder="CONTRASEÑA"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    aria-label="contraseña"
-                    autoComplete="current-password"
-                  />
-                </div>
+              <div className="mb-4">
+                <input
+                  type="password"
+                  className="form-control custom-input"
+                  placeholder="CONTRASEÑA"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                />
+              </div>
 
-                <div className="d-grid">
-                  <button
-                    type="submit"
-                    className="btn btn-ingresar btn-login"
-                    disabled={submitting || loadingUsers}
-                    aria-disabled={submitting || loadingUsers}
-                  >
-                    {submitting ? "Validando..." : "INGRESAR"}
-                  </button>
-                </div>
+              <div className="d-grid">
+                <button
+                  type="submit"
+                  className="btn btn-login"
+                  disabled={submitting || loadingUsers}
+                >
+                  {submitting ? "Validando..." : "INGRESAR"}
+                </button>
+              </div>
+            </form>
 
-                <div id="login-help" className="mt-3 small text-muted">
-                  Usuarios de prueba: <strong>medico / 12345</strong> y <strong>centro medico / 9876</strong>
-                </div>
-              </form>
-            </div>
+            <p id="login-help" className="mt-3 small text-muted">
+              Usuarios de prueba:{" "}
+              <strong>medico / 12345</strong> —{" "}
+              <strong>centro medico / 9876</strong>
+            </p>
           </div>
         </div>
-
-        {/* Toast Container */}
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-        />
+      </div>
+        <ToastContainer position="top-right" autoClose={3000} theme="colored" />
       </Layout>
-    </div>
+    
   );
 }

@@ -1,55 +1,49 @@
-import React from "react";
+
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Person } from "react-bootstrap-icons";
 import HeaderBase from "./HeaderBase";
 
 const HeaderPrestadores = () => {
   const navigate = useNavigate();
 
-  // Obtener usuario desde localStorage
-  const user = JSON.parse(localStorage.getItem("miapp_user"));
-
-  // Si no hay usuario logueado, redirigir al home
-  if (!user) {
-    navigate("/");
-    return null;
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem("miapp_user"));
+  } catch (error) {
+    console.error("Error al leer usuario:", error);
   }
 
-  // Determinar nombre a mostrar
-  const displayName =
-    user.role === "medico"
-      ? user.username
-      : user.role === "centro_medico"
-      ? user.username
-      : "Usuario";
+  useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
-  // Función cerrar sesión
+  if (!user) return null;
+
+  const displayName = user.username || "Usuario";
+
   const handleLogout = () => {
     localStorage.removeItem("miapp_user");
-    navigate("/"); // Redirige al Home
+    navigate("/");
   };
 
-  // Contenido derecho: nombre + ícono usuario + botón logout
   const extraContentRight = (
-    <div className="collapse navbar-collapse justify-content-end" id="navbarPrestadores">
-      <ul className="navbar-nav align-items-center">
-        {/* Nombre del usuario */}
-        <li className="nav-item me-3 d-flex align-items-center">
-          <span className="nav-link">{displayName}</span>
-          <i className="bi bi-person ms-2"></i>
-        </li>
-
-        {/* Botón logout */}
-        <li className="nav-item">
-          <button onClick={handleLogout} className="btn btn-ingresar">
-            CERRAR SESIÓN
-          </button>
-        </li>
-      </ul>
-    </div>
+    <ul className="navbar-nav align-items-center">
+      <li className="nav-item me-3 d-flex align-items-center">
+        <span className="nav-link">{displayName}</span>
+        <Person size={20} className="ms-2" />
+      </li>
+      <li className="nav-item">
+        <button onClick={handleLogout} className="btn btn-ingresar">
+          CERRAR SESIÓN
+        </button>
+      </li>
+    </ul>
   );
 
   return <HeaderBase extraContentRight={extraContentRight} />;
 };
 
 export default HeaderPrestadores;
-

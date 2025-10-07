@@ -2,28 +2,39 @@ import React from "react";
 import { ArrowLeft } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 import HeaderBase from "./HeaderBase";
+import "./Header.css";
 
 const HeaderLogin = () => {
   const navigate = useNavigate();
 
-  const handleBackClick = () => {
-    navigate("/"); // Redirige al Home
-  };
+  // Acción del botón "Volver"
+  const handleBackClick = () => navigate(-1);
 
+  //Enlaces de navegación (visuales, no funcionales)
   const links = [
-    { label: "AFILIADOS", href: "/" },
-    { label: "PRESTADORES", href: "/" },
-    { label: "ADMINISTRACIÓN", href: "/" },
+    { label: "AFILIADOS", to: "/" },
+    { label: "PRESTADORES", to: "/" },
+    { label: "ADMINISTRACIÓN", to: "/" },
   ];
 
-  // Flecha atrás como extraContent
+  // Botón retroceso (extraContent)
   const extraContent = (
-    <button className="btn p-0" onClick={handleBackClick}>
-      <ArrowLeft size={28} color="black" />
+    <button
+      className="btn btn-back"
+      onClick={handleBackClick}
+      aria-label="Volver atrás"
+    >
+      <ArrowLeft size={26} color="#000" />
     </button>
   );
 
-  return <HeaderBase links={links} extraContent={extraContent} />;
+  return (
+    <HeaderBase
+      links={links}
+      extraContent={extraContent}
+      className="header-login"
+    />
+  );
 };
 
 export default HeaderLogin;

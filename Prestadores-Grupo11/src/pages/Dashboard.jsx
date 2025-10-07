@@ -1,14 +1,14 @@
 import React from "react";
-import Layout from "../components/Layout";
+import { Link } from "react-router-dom";  
+import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
-import { FaCalendarAlt, FaClipboardList, FaNotesMedical, FaUserMd } from "react-icons/fa";
-import "./Dashboard.css";
+import { Calendar, FileText, Activity, BookOpen } from "lucide-react";
+import "../styles/Dashboard.css";
 
-/* ...imports y Layout igual que antes... */
 
 export default function Dashboard() {
   return (
-    <Layout header={HeaderPrestadores}>
+    <PrestadoresLayout header={HeaderPrestadores}>
       <div className="dashboard-container">
         {/* HERO */}
         <div className="dashboard-hero">
@@ -20,7 +20,7 @@ export default function Dashboard() {
 
         {/* --- GRID PRINCIPAL: LEFT = CARDS (50%) | RIGHT = ACCESOS (50%) --- */}
         <div className="row g-4 mt-3">
-          {/* Columna izquierda: cards (anidamos una row dentro) */}
+          {/* Columna izquierda: cards */}
           <div className="col-12 col-lg-8">
             <div className="row g-4">
               <div className="col-12 col-sm-6 col-lg-3">
@@ -53,32 +53,37 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Columna derecha: accesos directos */}
-        
+          {/* accesos directos */}
             <h2 className="section-title">Accesos Directos</h2>
             <div className="access-container">
               <div className="access-grid">
-                <div className="access-card">
+                {/* Calendario */}
+                <Link to="/prestadores/turnos" className="access-card">
                   <span>Calendario de Turnos</span>
-                  <FaCalendarAlt className="text-primary" />
-                </div>
-                <div className="access-card">
+                  <Calendar className="text-primary" />
+                </Link>
+
+                {/* Solicitudes */}
+                <Link to="/prestadores/solicitudes" className="access-card">
                   <span>Gestión de Solicitudes</span>
-                  <FaClipboardList className="text-success" />
-                </div>
-                <div className="access-card">
+                  <FileText className="text-primary" />
+                </Link>
+
+                {/* Historia Clínica */}
+                <Link to="/prestadores/historia-clinica" className="access-card">
                   <span>Consultar Historia Clínica</span>
-                  <FaNotesMedical className="text-danger" />
-                </div>
-                <div className="access-card">
+                  <BookOpen className="text-danger" />
+                </Link>
+
+                {/* Situaciones Terapéuticas */}
+                <Link to="/prestadores/situaciones/busqueda" className="access-card">
                   <span>Situaciones Terapéuticas</span>
-                  <FaUserMd className="text-warning" />
-                </div>
+                  <Activity className="text-danger" />
+                </Link>
               </div>
+            </div>
           </div>
         </div>
-      </div>
-    </Layout>
+    </PrestadoresLayout>
   );
 }
-

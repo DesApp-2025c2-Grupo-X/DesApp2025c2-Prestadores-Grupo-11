@@ -1,0 +1,233 @@
+body { margin: 0; padding: 0; }
+
+:root {
+  --rosa: #fbc3c2;
+  --verde-agua: #6fb6b6;
+  --verde-menta: #b6e4db;
+  --azul-profundo: #0077b6;
+  --azul-petroleo: #22577a;
+  --celeste: #00b4d8;
+  --verde-suave: #b4dbdc;
+  --gris-claro: #f7f7f7;
+}
+
+ h3{
+   font-weight: 700;
+   color: var(--azul-profundo);
+   margin-bottom: 1.5rem;
+   margin-top: 3.5rem;
+   text-align: center;
+ }
+/* ====== CONTENEDORES PRINCIPALES ====== */
+.familia-card,
+.paciente-card {
+  background: var(--gris-claro);
+  border-left: 5px solid var(--rosa);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.familia-card:hover,
+.paciente-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 10px rgba(251, 195, 194, 0.6);
+}
+
+/* ====== TABLAS ====== */
+
+.table {
+  width: 60%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  margin-top: 5rem ;
+}
+
+.table th {
+  background-color: var(--verde-suave);
+  color: var(--azul-petroleo);
+  text-align: left;
+  padding: 0.75rem;
+}
+
+.table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* ====== FILAS ====== */
+.tabla-integrantes tr,
+.tabla-situaciones tr {
+  transition: all 0.3s ease;
+}
+
+.tabla-integrantes tr:hover,
+.tabla-situaciones tr:hover {
+  background-color: var(--verde-menta);
+  cursor: pointer;
+}
+
+/* ====== BOTONES ====== */
+.btn-accion {
+  background-color: var(--verde-agua);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  transition: all 0.25s ease;
+}
+
+.btn-accion:hover {
+  background-color: var(--azul-profundo);
+  transform: scale(1.05);
+}
+
+.btn-volver {
+  background-color: var(--rosa);
+  border: none;
+  color: #222;
+  padding: 8px 16px;
+  border-radius: 10px;
+  transition: all 0.25s ease;
+}
+
+.btn-volver:hover {
+  background-color: var(--verde-agua);
+  color: white;
+}
+
+/* ====== ESTADOS ====== */
+.estado-terminada {
+  color: var(--azul-petroleo);
+  font-weight: 600;
+}
+
+.estado-proceso {
+  color: var(--azul-profundo);
+  font-weight: 600;
+}
+
+/* ====== BUSCADOR ====== */
+.buscador {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  background: white;
+  border: 2px solid var(--verde-agua);
+  border-radius: 50px;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.buscador input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  background: transparent;
+}
+
+.buscador button {
+  background: var(--verde-agua);
+  border: none;
+  color: white;
+  border-radius: 50%;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.buscador button:hover {
+  background: var(--azul-profundo);
+}
+
+/* ====== RESPONSIVIDAD ====== */
+@media (max-width: 992px) {
+  .familia-card,
+  .paciente-card {
+    padding: 1rem;
+  }
+
+  .table th,
+  .table td {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+  }
+
+  .btn-volver,
+  .btn-accion {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .d-flex {
+    flex-direction: column;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  .buscador {
+    max-width: 90%;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .buscador input {
+    font-size: 0.9rem;
+  }
+
+  .buscador button {
+    padding: 0.4rem;
+  }
+}
+
+@media (max-width: 576px) {
+  h4,
+  h5 {
+    font-size: 1rem;
+  }
+
+  .table th,
+  .table td {
+    font-size: 0.8rem;
+  }
+
+  .btn-volver {
+    width: 100%;
+    border-radius: 12px;
+  }
+
+  .familia-card,
+  .paciente-card {
+    text-align: center;
+  }
+
+  .buscador {
+    flex-direction: column;
+    border-radius: 12px;
+  }
+
+  .buscador input {
+    width: 100%;
+  }
+
+  .buscador button {
+    width: 100%;
+    border-radius: 8px;
+  }
+}

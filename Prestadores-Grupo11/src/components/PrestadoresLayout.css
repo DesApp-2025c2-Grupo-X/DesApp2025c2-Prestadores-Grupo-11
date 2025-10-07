@@ -1,0 +1,74 @@
+:root {
+  --rosa: #fbc3c2;
+  --verde-agua: #6fb6b6;
+  --verde-menta: #b6e4db;
+  --azul-profundo: #0077b6;
+  --azul-petroleo: #22577a;
+  --celeste: #00b4d8;
+  --verde-suave: #b4dbdc;
+  --gris-claro: #f7f7f7;
+}
+
+/* ----- Layout principal ----- */
+.prestadores-layout {
+  display: flex;
+  position: relative;
+  height: 100%;
+  min-height: 100vh;
+  background-color: var(--gris-claro);
+}
+
+/* ----- Botón hamburguesa ----- */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1050;
+  background-color: var(--azul-profundo);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+/* ----- Contenido principal ----- */
+.prestadores-content {
+  flex-grow: 1;
+  padding: 2rem;
+  transition: margin-left 0.3s ease;
+}
+
+/* ----- Sidebar flotante en móvil ----- */
+.sidebar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100%;
+  background-color: white;
+  z-index: 1100;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  z-index: 1000;
+}
+
+/* ----- Responsive ----- */
+@media (max-width: 992px) {
+  .sidebar-toggle {
+    display: block;
+  }
+
+  .prestadores-content {
+    padding: 1rem;
+  }
+}
