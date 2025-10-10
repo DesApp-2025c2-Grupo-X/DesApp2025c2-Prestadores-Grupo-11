@@ -1,10 +1,8 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
-import { Home, Calendar, FileText, Activity, BookOpen, X, Menu } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useSidebar } from "../context/SidebarContext";
+import { Home, Calendar, FileText, Activity, BookOpen } from "lucide-react";
 import "./Sidebar.css";
-
 
 const menuItems = [
   { to: "/prestadores/home", label: "Home", Icon: Home },
@@ -14,12 +12,10 @@ const menuItems = [
   { to: "/prestadores/historia-clinica", label: "Historia Clínica", Icon: BookOpen },
 ];
 
-export default function SideBar() {
-  const { open, toggle, closeSidebar } = useSidebar();
-
+export default function SideBar({ onLinkClick }) {
   return (
     <>
-      {/* ===== Fixed sidebar for large screens ===== */}
+      {/* ===== Fixed sidebar (pantallas grandes) ===== */}
       <nav className="sidebar-fixed d-none d-lg-flex flex-column align-items-center p-2">
         {menuItems.map((m) => (
           <Link key={m.to} to={m.to} className="sidebar-link" title={m.label}>
@@ -28,60 +24,25 @@ export default function SideBar() {
         ))}
       </nav>
 
-      {/* ===== Mobile toggle button (if your header already has hamburger you can omit this) ===== */}
-      <button
-        className="sidebar-toggle-btn d-lg-none"
-        aria-label="Abrir menú lateral"
-        onClick={toggle}
-      >
-        <Menu size={20} />
-      </button>
-
-      {/* ===== Drawer + backdrop for small screens ===== */}
-      <AnimatePresence>
-        {open && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              className="sidebar-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.45 }}
-              exit={{ opacity: 0 }}
-              onClick={closeSidebar}
-            />
-
-            {/* Drawer */}
-            <motion.aside
-              className="sidebar-drawer"
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      {/* ===== Contenido del drawer (sólo se muestra en móvil por CSS d-lg-none) ===== */}
+      <div className="sidebar-drawer-content d-lg-none">
+        <div className="sidebar-drawer-header"> </div>
+        <div className="sidebar-drawer-menu">
+          {menuItems.map((m) => (
+            <Link
+              key={m.to}
+              to={m.to}
+              className="sidebar-drawer-link"
+              onClick={() => {
+                if (onLinkClick) onLinkClick(); // cierra el drawer cuando navegás
+              }}
             >
-              <div className="sidebar-drawer-header">
-                <button className="close-drawer-btn" onClick={closeSidebar} aria-label="Cerrar menú">
-                  <X size={18} />
-                </button>
-              </div>
-
-              <div className="sidebar-drawer-menu">
-                {menuItems.map((m) => (
-                  <Link
-                    key={m.to}
-                    to={m.to}
-                    className="sidebar-drawer-link"
-                    onClick={closeSidebar}
-                  >
-                    <m.Icon size={18} className="me-2" />
-                    <span>{m.label}</span>
-                  </Link>
-                ))}
-              </div>
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
+              <m.Icon size={18} className="me-2" />
+              <span>{m.label}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
     </>
   );
 }
-

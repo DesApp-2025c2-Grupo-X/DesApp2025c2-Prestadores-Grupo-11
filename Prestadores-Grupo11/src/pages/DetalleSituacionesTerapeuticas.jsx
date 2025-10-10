@@ -103,7 +103,7 @@ export default function DetalleSituacionesTerapeuticas() {
           >
             <ArrowLeft size={18} className="me-2" /> Volver
           </motion.button>
-
+          <h3>Detalle Situaciones Terapéuticas</h3>
           {/* Card paciente */}
           <motion.div
             className="paciente-card p-3 mb-4"
@@ -114,6 +114,7 @@ export default function DetalleSituacionesTerapeuticas() {
               boxShadow: "0 0 10px rgba(251,195,194,0.6)",
             }}
           >
+
             <div className="d-flex align-items-center gap-3">
               <Users size={40} color="var(--azul-petroleo)" />
               <div>
@@ -127,7 +128,7 @@ export default function DetalleSituacionesTerapeuticas() {
           </motion.div>
 
           {/* Tabla situaciones */}
-          <h5>Situaciones Terapéuticas</h5>
+
           {paciente.situaciones.length === 0 ? (
             <p className="text-muted mt-3">No hay situaciones registradas.</p>
           ) : (

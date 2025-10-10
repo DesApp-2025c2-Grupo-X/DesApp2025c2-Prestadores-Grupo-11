@@ -1,33 +1,32 @@
-import React, { useState } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import Layout from "./Layout";
 import SideBar from "./SideBar";
 import HeaderPrestadores from "./HeaderPrestadores";
+import { SidebarProvider, useSidebar } from "../context/SidebarContext"; //usamos el contexto
 import "./PrestadoresLayout.css";
 
-export default function PrestadoresLayout({ children }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const toggleSidebar = () => setSidebarOpen((prev) => !prev);
-  const closeSidebar = () => setSidebarOpen(false);
+//  Este componente usa directamente el contexto del sidebar
+function PrestadoresContent({ children }) {
+  const { open, toggle, closeSidebar } = useSidebar(); // estado global del sidebar
 
   return (
     <Layout header={<HeaderPrestadores />}>
       <div className="prestadores-layout d-flex">
-        {/* Botón hamburguesa (solo móvil) */}
+        {/* ===== Botón hamburguesa (solo móvil) ===== */}
         <button
           className="sidebar-toggle"
-          onClick={toggleSidebar}
-          aria-label={sidebarOpen ? "Cerrar menú" : "Abrir menú"}
+          onClick={toggle}
+          aria-label={open ? "Cerrar menú" : "Abrir menú"}
           role="button"
         >
-          {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
+          {open ? <X size={22} /> : <Menu size={22} />}
         </button>
 
-        {/* Sidebar animado */}
+        {/* ===== Sidebar animado ===== */}
         <AnimatePresence>
-          {sidebarOpen && (
+          {open && (
             <>
               {/* Fondo semitransparente */}
               <motion.div
@@ -46,13 +45,13 @@ export default function PrestadoresLayout({ children }) {
                 exit={{ x: "-100%" }}
                 transition={{ type: "spring", stiffness: 70 }}
               >
-                <SideBar onClose={closeSidebar} />
+                <SideBar /> {/* ya no necesita props */}
               </motion.div>
             </>
           )}
         </AnimatePresence>
 
-        {/* Contenido principal */}
+        {/* ===== Contenido principal ===== */}
         <div className="prestadores-content flex-grow-1">
           {children}
         </div>
@@ -60,3 +59,13 @@ export default function PrestadoresLayout({ children }) {
     </Layout>
   );
 }
+
+// El provider envuelve todo el layout
+export default function PrestadoresLayout({ children }) {
+  return (
+    <SidebarProvider>
+      <PrestadoresContent>{children}</PrestadoresContent>
+    </SidebarProvider>
+  );
+}
+
