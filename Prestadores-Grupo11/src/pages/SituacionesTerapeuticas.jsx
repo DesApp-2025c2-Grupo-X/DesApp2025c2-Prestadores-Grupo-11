@@ -107,7 +107,7 @@ export default function SituacionesTerapeuticas() {
           >
             <ArrowLeft size={18} className="me-2" /> Volver
           </motion.button>
-
+          <h3>Situaciones Terapéuticas</h3>
           {/* Card familia */}
           <motion.div
             className="familia-card p-3 mb-4"
