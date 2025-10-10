@@ -20,9 +20,9 @@
 
 /* ----- Botón hamburguesa ----- */
 .sidebar-toggle {
-  display: none;
+  display:none;
   position: fixed;
-  top: 1rem;
+  top: 8rem;
   left: 1rem;
   z-index: 1050;
   background-color: var(--azul-profundo);
@@ -63,7 +63,7 @@
 }
 
 /* ----- Responsive ----- */
-@media (max-width: 992px) {
+@media (min-width: 315px) and (max-width: 470px) {
   .sidebar-toggle {
     display: block;
   }
