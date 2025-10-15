@@ -1,6 +1,7 @@
 'use strict';
 
-const { Prestador } = require('../models'); // Asegurate de la ruta correcta si es distinto
+const { sequelize } = require('../models');
+const { Prestador } = require('../models'); 
 
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -29,7 +30,7 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     try {
-      await Prestador.destroy({ where: {}, truncate: true });
+      await sequelize.query('TRUNCATE TABLE "Prestadors" RESTART IDENTITY CASCADE;');
       console.log("Prestadores eliminados correctamente");
     } catch (err) {
       console.error("Error eliminando prestadores:", err);
