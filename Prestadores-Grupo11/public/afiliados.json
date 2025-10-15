@@ -1,0 +1,85 @@
+[
+    {
+        "nombre": "Juancito Perez",
+        "edad": 35,
+        "dni": "25097345",
+        "consultas": [
+            {
+                "fecha": "01/10/2025",
+                "especialidad": "Cardiologia",
+                "descripcion": "Revisacion de corazon"
+            },
+            {
+                "fecha": "01/10/2025",
+                "especialidad": "Cardiologia",
+                "descripcion": "Dolor de garganta"
+            }
+        ],
+        "antecedentes": ["Tuberculosis"]
+    },
+    {
+        "nombre": "Maria Perez",
+        "edad": 33,
+        "dni": "23001224",
+        "consultas": [
+            {
+                "fecha": "22/07/2023",
+                "especialidad": "Cardiologia",
+                "descripcion": "Control medico"
+            }
+        ],
+        "antecedentes": ["Diabetes", "Apendicectomia"]
+    },
+    {
+        "nombre": "Pepe Perez",
+        "edad": 10,
+        "dni": "43278669",
+        "consultas": [
+            {
+                "fecha": "10/03/2024",
+                "especialidad": "Pediatria",
+                "descripcion": "Control pediátrico y seguimiento de crecimiento"
+            }
+        ],
+        "antecedentes": []
+    },
+    {
+        "nombre": "Lola Perez",
+        "edad": 6,
+        "dni": "47011489",
+        "consultas": [
+            {
+                "fecha": "12/12/2023",
+                "especialidad": "Pediatria",
+                "descripcion": "Vacunación y control de desarrollo"
+            }
+        ],
+        "antecedentes": []
+    },
+    {
+        "nombre": "Carlos Gonzalez",
+        "edad": 45,
+        "dni": "28011452",
+        "consultas": [
+            {
+                "fecha": "03/09/2022",
+                "especialidad": "Traumatologia",
+                "descripcion": "Consulta por dolor lumbar"
+            }
+        ],
+        "antecedentes": ["Hipertension"]
+    },
+    {
+        "nombre": "Lucia Gonzalez",
+        "edad": 42,
+        "dni": "27099433",
+        "consultas": [
+            {
+                "fecha": "15/01/2024",
+                "especialidad": "Psicologia",
+                "descripcion": "Acompañamiento psicológico inicial"
+            }
+        ],
+        "antecedentes": []
+    }
+]

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import "../styles/SituacionesTerapeuticas.css";
 
-export default function Buscador({ onSearch, delay = 500 }) {
+export default function Buscador({ onSearch, delay = 500, basePath = "/prestadores/situaciones" }) {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -27,7 +27,7 @@ export default function Buscador({ onSearch, delay = 500 }) {
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && query.trim() !== "") {
-      navigate(`/prestadores/situaciones?query=${encodeURIComponent(query)}`);
+      navigate(`${basePath}?query=${encodeURIComponent(query)}`);
     }
   };
 
@@ -59,7 +59,7 @@ export default function Buscador({ onSearch, delay = 500 }) {
         whileTap={{ scale: 0.9 }}
         onClick={() =>
           query.trim() &&
-          navigate(`/prestadores/situaciones?query=${encodeURIComponent(query)}`)
+          navigate(`${basePath}?query=${encodeURIComponent(query)}`)
         }
       >
         <Search size={20} />

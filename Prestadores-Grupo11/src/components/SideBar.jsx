@@ -5,11 +5,11 @@ import { Home, Calendar, FileText, Activity, BookOpen } from "lucide-react";
 import "./Sidebar.css";
 
 const menuItems = [
-  { to: "/prestadores/home", label: "Home", Icon: Home },
+  { to: "/dashboard", label: "Dashboard", Icon: Home },
   { to: "/prestadores/turnos", label: "Calendario de Turnos", Icon: Calendar },
   { to: "/prestadores/solicitudes", label: "Gestión de Solicitudes", Icon: FileText },
   { to: "/prestadores/situaciones", label: "Situaciones Terapéuticas", Icon: Activity },
-  { to: "/prestadores/historia-clinica", label: "Historia Clínica", Icon: BookOpen },
+  { to: "/prestadores/historialClinico/busqueda", label: "Historia Clínica", Icon: BookOpen },
 ];
 
 export default function SideBar({ onLinkClick }) {
