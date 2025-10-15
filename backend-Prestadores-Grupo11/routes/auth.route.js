@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const controller = require('../db/controllers/prestadorController');
 
-router.post('/', (req, res) => {
-  res.send('Login funcionando');
-});
+router.post('/', controller.login);
 
 module.exports = router;

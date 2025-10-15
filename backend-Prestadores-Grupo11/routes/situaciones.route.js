@@ -1,21 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const controller = require('../db/controllers/situacionController');
 
-router.get('/afiliado/:id', (req, res) => {
-  res.send(`Listar situaciones para id ${req.params.id}`);
-});
-
-router.post('/situaciones', (req, res) => {
-  res.send('Crear situación');
-});
-
-router.put('/situaciones/:id', (req, res) => {
-  res.send(`Actualizar situación ${req.params.id}`);
-});
-
-router.delete('/situaciones/:id', (req, res) => {
-  res.send(`Eliminar situación ${req.params.id}`);
-});
-
+router.get('/afiliado/:id', controller.getByAfiliado);
+router.post('/situaciones', controller.create);
+router.put('/situaciones/:id', controller.update);
+router.delete('/situaciones/:id', controller.delete);
 
 module.exports = router;
