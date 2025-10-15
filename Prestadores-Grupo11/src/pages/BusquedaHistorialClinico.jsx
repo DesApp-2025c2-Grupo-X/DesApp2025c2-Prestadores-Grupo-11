@@ -12,6 +12,7 @@ export default function BusquedaHistorialClinico() {
     const [dni, setDni] = useState("")
     const [afiliados, setAfiliados] = useState([])
     const [resultados, setResultados] = useState([])
+    const navigate = useNavigate();
 
     const handleSearchAfiliado = (valor) => {
         const lower = valor?.toLowerCase() || "";
