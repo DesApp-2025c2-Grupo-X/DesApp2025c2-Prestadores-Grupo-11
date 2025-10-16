@@ -7,8 +7,9 @@
             {
                 "fecha": "01/10/2025",
                 "especialidad": "Cardiologia",
-                "descripcion": "Revisacion de corazon",
-                "medico": "Dr. Alejandro Ruiz"
+                "descripcion": "Revisación de corazón",
+                "medico": "Dr. Alejandro Ruiz",
+                "notas": "El corazón lo vi muy bien, necesito que venga a control para el siguiente mes."
             },
             {
                 "fecha": "20/12/2019",
@@ -17,7 +18,12 @@
                 "medico": "Dra. Sofía Martínez"
             }
         ],
-        "antecedentes": ["Tuberculosis"]
+        "antecedentes": [
+            "Tuberculosis tratada en 2010, con controles posteriores normales.",
+            "Episodios de taquicardia paroxística diagnosticados en 2019.",
+            "Tensión arterial levemente elevada en controles previos, sin medicación actual.",
+            "No refiere alergias medicamentosas conocidas."
+        ]
     },
     {
         "nombre": "Maria Perez",
@@ -27,11 +33,16 @@
             {
                 "fecha": "22/07/2023",
                 "especialidad": "Cardiologia",
-                "descripcion": "Control medico",
+                "descripcion": "Control médico",
                 "medico": "Dr. Martín López"
             }
         ],
-        "antecedentes": ["Diabetes", "Apendicectomia"]
+        "antecedentes": [
+            "Diabetes tipo 2 diagnosticada en 2021, bajo tratamiento con metformina.",
+            "Apendicectomía realizada en 2010 sin complicaciones.",
+            "Colesterol total elevado en controles previos.",
+            "No fuma ni consume alcohol."
+        ]
     },
     {
         "nombre": "Pepe Perez",
@@ -45,7 +56,12 @@
                 "medico": "Dra. Carla Fernández"
             }
         ],
-        "antecedentes": []
+        "antecedentes": [
+            "Asma infantil diagnosticada a los 6 años, en control con inhalador broncodilatador.",
+            "Alergia leve al polen en primavera.",
+            "Cuadro de varicela superado a los 5 años.",
+            "Vacunación completa según calendario nacional."
+        ]
     },
     {
         "nombre": "Lola Perez",
@@ -59,7 +75,12 @@
                 "medico": "Dr. Javier Gómez"
             }
         ],
-        "antecedentes": []
+        "antecedentes": [
+            "Otitis media recurrente durante el primer año de vida, resuelta.",
+            "Alergia alimentaria leve a la leche de vaca (en remisión).",
+            "Desarrollo psicomotor acorde a la edad.",
+            "Vacunas al día según esquema nacional."
+        ]
     },
     {
         "nombre": "Carlos Gonzalez",
@@ -73,7 +94,12 @@
                 "medico": "Dr. Roberto Ávila"
             }
         ],
-        "antecedentes": ["Hipertension"]
+        "antecedentes": [
+            "Hipertensión arterial diagnosticada en 2018, controlada con losartán 50 mg/día.",
+            "Lumbalgia crónica con episodios de reagudización esporádicos.",
+            "Aumento de peso progresivo en los últimos años (IMC 29).",
+            "Cirugía de meniscos en rodilla derecha en 2015."
+        ]
     },
     {
         "nombre": "Lucia Gonzalez",
@@ -87,6 +113,11 @@
                 "medico": "Dra. Teresa Ramos"
             }
         ],
-        "antecedentes": []
+        "antecedentes": [
+            "Ansiedad generalizada diagnosticada en 2020, en seguimiento psicológico.",
+            "Migrañas tensionales recurrentes desde la adolescencia.",
+            "Cefaleas relacionadas al estrés laboral.",
+            "No presenta antecedentes quirúrgicos ni alergias conocidas."
+        ]
     }
 ]
