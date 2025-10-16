@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Layout from "../components/Layout";
+import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import SideBar from "../components/SideBar";
+import { motion } from "framer-motion";
 import { Save, ArrowLeft } from "lucide-react";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 import "../styles/SituacionesTerapeuticas.css";
 
 export default function AltaSituacionTerapeutica() {
@@ -24,28 +27,32 @@ export default function AltaSituacionTerapeutica() {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Nueva situación:", formData);
+  e.preventDefault();
+  console.log("Nueva situación:", formData);
+  // fetch() o localStorage.setItem()
 
-    // Aquí luego podés hacer un POST real o actualizar localStorage
-    alert("Situación terapéutica guardada con éxito");
-    navigate(`/detalle-situaciones/${dni}`);
-  };
+  toast.success("Situación terapéutica guardada con éxito");
+
+  // Redirigir después de mostrar el toast
+  navigate(`/prestadores/situaciones/detalle/${dni}`);
+};
+
 
   return (
-    <Layout header={<HeaderPrestadores />}>
-      <div className="prestadores-layout d-flex">
+   <PrestadoresLayout header={HeaderPrestadores}>
+      <div className="d-flex">
         <SideBar />
-        <div className="container p-4">
-          <button
-            className="btn btn-link text-decoration-none mb-3"
+        <div className="flex-grow-1 p-4">
+          {/* Botón volver */}
+          <motion.button
+            className="btn-volver mb-3"
+            whileHover={{ scale: 1.05, backgroundColor: "var(--verde-agua)" }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => navigate(-1)}
           >
-            <ArrowLeft size={18} /> Volver
-          </button>
-
-          <h3 className="fw-bold mb-4">Alta de Situación Terapéutica</h3>
-
+            <ArrowLeft size={18} className="me-2" /> Volver
+          </motion.button>
+          <h3> Alta Situacion Terapéutica</h3>
           <form
             className="card p-4 shadow-sm rounded formulario-alta"
             onSubmit={handleSubmit}
@@ -112,7 +119,7 @@ export default function AltaSituacionTerapeutica() {
             <div className="text-end mt-4">
               <button
                 type="submit"
-                className="btn btn-success d-flex align-items-center gap-2 rounded-pill px-4 py-2"
+                className="btn-accion"
               >
                 <Save size={18} /> Guardar situación
               </button>
@@ -120,6 +127,6 @@ export default function AltaSituacionTerapeutica() {
           </form>
         </div>
       </div>
-    </Layout>
+    </PrestadoresLayout>
   );
 }

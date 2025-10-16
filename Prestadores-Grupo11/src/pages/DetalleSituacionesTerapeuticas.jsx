@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Layout from "../components/Layout";
+import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import SideBar from "../components/SideBar";
 import { ArrowLeft, Folder, Pencil, Plus } from "lucide-react";
 import { motion } from "framer-motion";
-import "../styles/DetalleSituacionesTerapeuticas.css";
+import "../styles/SituacionesTerapeuticas.css";
 
 export default function DetalleSituacionesTerapeuticas() {
   const { dni } = useParams();
@@ -13,11 +13,11 @@ export default function DetalleSituacionesTerapeuticas() {
   const [paciente, setPaciente] = useState(null);
 
   useEffect(() => {
-    fetch("/familia.json")
+    fetch("/familias.json")
       .then((res) => res.json())
       .then((data) => {
         const encontrado = data
-          .flatMap((familia) => familia.integrantes)
+          .flatMap((familias) => familias.integrantes)
           .find((i) => i.dni === dni);
         setPaciente(encontrado || null);
       })
@@ -26,14 +26,14 @@ export default function DetalleSituacionesTerapeuticas() {
 
   if (!paciente) {
     return (
-      <Layout header={<HeaderPrestadores />}>
+      <PrestadoresLayout header={<HeaderPrestadores />}>
         <div className="prestadores-layout d-flex">
           <SideBar />
           <div className="container mt-5 text-center">
             <h4>Cargando datos del paciente...</h4>
           </div>
         </div>
-      </Layout>
+      </PrestadoresLayout>
     );
   }
 
@@ -43,26 +43,39 @@ export default function DetalleSituacionesTerapeuticas() {
   ).length;
 
   return (
-    <Layout header={<HeaderPrestadores />}>
-      <div className="prestadores-layout d-flex">
+     <PrestadoresLayout header={HeaderPrestadores}>
+      <div className="d-flex">
         <SideBar />
-        <div className="container-fluid p-4">
-          <button
-            className="btn btn-link text-decoration-none mb-3"
+        <div className="flex-grow-1 p-4">
+          {/* Botón volver */}
+          <motion.button
+            className="btn-volver mb-3"
+            whileHover={{ scale: 1.05, backgroundColor: "var(--verde-agua)" }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => navigate(-1)}
           >
-            <ArrowLeft size={18} /> Volver
-          </button>
-
-          <div className="d-flex align-items-center justify-content-between mb-4">
-            <h3 className="fw-bold">Gestión de Situaciones Terapéuticas</h3>
+            <ArrowLeft size={18} className="me-2" /> Volver
+          </motion.button>
+          <h3> Detalle Situaciones Terapéuticas</h3>
+          {/* Card familia */}
+          <motion.div
+            className="familia-card p-3 mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            whileHover={{
+              scale: 1.02,
+              boxShadow: "0 0 10px rgba(251, 195, 194, 0.6)",
+            }}
+          >
             <button
-              className="btn btn-success d-flex align-items-center gap-2 rounded-pill shadow-sm"
-              onClick={() => navigate(`/alta-situacion/${dni}`)}
+              className="btn-accion"
+              onClick={() => navigate(`/prestadores/situaciones/alta/${dni}`)}
+
             >
               <Plus size={18} /> Nueva situación
             </button>
-          </div>
+           </motion.div>
 
           {/* === ENCABEZADO DEL PACIENTE === */}
           <div className="paciente-card p-3 rounded shadow-sm bg-light mb-4">
@@ -114,8 +127,8 @@ export default function DetalleSituacionesTerapeuticas() {
                     <span
                       className={`badge ${
                         s.estado === "Terminada"
-                          ? "bg-success"
-                          : "bg-warning text-dark"
+                          ? "estado-terminada"
+                          : "estado-proceso"
                       }`}
                     >
                       {s.estado}
@@ -135,6 +148,6 @@ export default function DetalleSituacionesTerapeuticas() {
           </motion.table>
         </div>
       </div>
-    </Layout>
+    </PrestadoresLayout>
   );
 }

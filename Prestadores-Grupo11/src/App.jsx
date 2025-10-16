@@ -9,6 +9,7 @@ import RequireAuth from "./components/RequireAuth";
 
 import BusquedaSituacionesTerapeuticas from "./pages/BusquedaSituacionesTerapeuticas";
 import DetalleSituacionesTerapeuticas from "./pages/DetalleSituacionesTerapeuticas";
+import AltaSituacionTerapeutica from "./pages/AltaSituacionTerapeutica";
 import SituacionesTerapeuticas from "./pages/SituacionesTerapeuticas";
 
 export default function App() {
@@ -59,6 +60,15 @@ export default function App() {
           }
         />
 
+        {/* Alta de Situación Terapéutica */}
+        <Route
+          path="/prestadores/situaciones/alta/:dni"
+          element={
+            <RequireAuth roles={["medico", "centro_medico"]}>
+              <AltaSituacionTerapeutica />
+            </RequireAuth>
+          }
+        />
 
         {/* Not found -> redirect home */}
         <Route path="*" element={<Navigate to="/" replace />} />

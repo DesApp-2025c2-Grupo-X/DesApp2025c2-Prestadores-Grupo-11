@@ -1,4 +1,7 @@
-body { margin: 0; padding: 0; }
+body {
+  margin: 0;
+  padding: 0;
+}
 
 :root {
   --rosa: #fbc3c2;
@@ -9,24 +12,35 @@ body { margin: 0; padding: 0; }
   --celeste: #00b4d8;
   --verde-suave: #b4dbdc;
   --gris-claro: #f7f7f7;
+  --toastify-color-success: #b6e4db;  
+  --toastify-color-error: #fbc3c2; 
 }
 
- h3 , h5 {
-   font-weight: 700;
-   color: var(--azul-profundo);
-   margin-bottom: 1.5rem;
-   margin-top: 3.5rem;
-   text-align: center;
- }
+h3,
+h5 {
+  font-weight: 700;
+  color: var(--azul-profundo);
+  margin-bottom: 1.5rem;
+  margin-top: 3.5rem;
+  text-align: center;
+}
+
+.titulo-container {
+  display: flex;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center;    /* Centra verticalmente */
+  text-align: center;
+}
+
 /* ====== CONTENEDORES PRINCIPALES ====== */
 .familia-card,
 .paciente-card {
   background: var(--gris-claro);
   border-left: 5px solid var(--rosa);
   border-radius: 16px;
-  width:60%;
+  width: 60%;
   padding: 1.5rem;
-  margin:3rem auto;
+  margin: 3rem auto;
   transition: all 0.3s ease;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
@@ -44,7 +58,7 @@ body { margin: 0; padding: 0; }
   border-collapse: collapse;
   font-size: 0.95rem;
   margin: 5rem auto;
-  
+
 }
 
 .table th {
@@ -112,11 +126,13 @@ body { margin: 0; padding: 0; }
 /* ====== ESTADOS ====== */
 .estado-terminada {
   color: var(--azul-petroleo);
+  background-color: var(--verde-menta);
   font-weight: 600;
 }
 
 .estado-proceso {
   color: var(--azul-profundo);
+  background-color: var(--verde-suave);
   font-weight: 600;
 }
 
@@ -209,6 +225,7 @@ body { margin: 0; padding: 0; }
 
 /* ====== RESPONSIVIDAD ====== */
 @media (max-width: 992px) {
+
   .familia-card,
   .paciente-card {
     padding: 1rem;
@@ -251,6 +268,7 @@ body { margin: 0; padding: 0; }
 }
 
 @media (max-width: 576px) {
+
   h4,
   h5 {
     font-size: 1rem;
