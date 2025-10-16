@@ -12,6 +12,9 @@ import DetalleSituacionesTerapeuticas from "./pages/DetalleSituacionesTerapeutic
 import AltaSituacionTerapeutica from "./pages/AltaSituacionTerapeutica";
 import SituacionesTerapeuticas from "./pages/SituacionesTerapeuticas";
 
+import BusquedaHistorialClinico from "./pages/BusquedaHistorialClinico";
+import HistorialClinico from "./pages/HistorialClinico";
+
 export default function App() {
   return (
     <Router>
@@ -56,6 +59,26 @@ export default function App() {
           element={
             <RequireAuth roles={["medico", "centro_medico"]}>
               <DetalleSituacionesTerapeuticas />
+            </RequireAuth>
+          }
+        />
+
+        {/* Historial clinico */}
+        
+        <Route
+          path="/prestadores/historialClinico/busqueda"
+          element={
+            <RequireAuth roles={["medico", "centro_medico"]}>
+              <BusquedaHistorialClinico />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/prestadores/historialClinico/:dni"
+          element={
+            <RequireAuth roles={["medico", "centro_medico"]}>
+              <HistorialClinico />
             </RequireAuth>
           }
         />

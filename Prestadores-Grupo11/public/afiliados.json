@@ -1,0 +1,123 @@
+[
+    {
+        "nombre": "Juancito Perez",
+        "edad": 35,
+        "dni": "25097345",
+        "consultas": [
+            {
+                "fecha": "01/10/2025",
+                "especialidad": "Cardiologia",
+                "descripcion": "Revisación de corazón",
+                "medico": "Dr. Alejandro Ruiz",
+                "notas": "El corazón lo vi muy bien, necesito que venga a control para el siguiente mes."
+            },
+            {
+                "fecha": "20/12/2019",
+                "especialidad": "Cardiologia",
+                "descripcion": "Episodios de taquicardia",
+                "medico": "Dra. Sofía Martínez"
+            }
+        ],
+        "antecedentes": [
+            "Tuberculosis tratada en 2010, con controles posteriores normales.",
+            "Episodios de taquicardia paroxística diagnosticados en 2019.",
+            "Tensión arterial levemente elevada en controles previos, sin medicación actual.",
+            "No refiere alergias medicamentosas conocidas."
+        ]
+    },
+    {
+        "nombre": "Maria Perez",
+        "edad": 33,
+        "dni": "23001224",
+        "consultas": [
+            {
+                "fecha": "22/07/2023",
+                "especialidad": "Cardiologia",
+                "descripcion": "Control médico",
+                "medico": "Dr. Martín López"
+            }
+        ],
+        "antecedentes": [
+            "Diabetes tipo 2 diagnosticada en 2021, bajo tratamiento con metformina.",
+            "Apendicectomía realizada en 2010 sin complicaciones.",
+            "Colesterol total elevado en controles previos.",
+            "No fuma ni consume alcohol."
+        ]
+    },
+    {
+        "nombre": "Pepe Perez",
+        "edad": 10,
+        "dni": "43278669",
+        "consultas": [
+            {
+                "fecha": "10/03/2024",
+                "especialidad": "Pediatria",
+                "descripcion": "Control pediátrico y seguimiento de crecimiento",
+                "medico": "Dra. Carla Fernández"
+            }
+        ],
+        "antecedentes": [
+            "Asma infantil diagnosticada a los 6 años, en control con inhalador broncodilatador.",
+            "Alergia leve al polen en primavera.",
+            "Cuadro de varicela superado a los 5 años.",
+            "Vacunación completa según calendario nacional."
+        ]
+    },
+    {
+        "nombre": "Lola Perez",
+        "edad": 6,
+        "dni": "47011489",
+        "consultas": [
+            {
+                "fecha": "12/12/2023",
+                "especialidad": "Pediatria",
+                "descripcion": "Vacunación y control de desarrollo",
+                "medico": "Dr. Javier Gómez"
+            }
+        ],
+        "antecedentes": [
+            "Otitis media recurrente durante el primer año de vida, resuelta.",
+            "Alergia alimentaria leve a la leche de vaca (en remisión).",
+            "Desarrollo psicomotor acorde a la edad.",
+            "Vacunas al día según esquema nacional."
+        ]
+    },
+    {
+        "nombre": "Carlos Gonzalez",
+        "edad": 45,
+        "dni": "28011452",
+        "consultas": [
+            {
+                "fecha": "03/09/2022",
+                "especialidad": "Traumatologia",
+                "descripcion": "Consulta por dolor lumbar",
+                "medico": "Dr. Roberto Ávila"
+            }
+        ],
+        "antecedentes": [
+            "Hipertensión arterial diagnosticada en 2018, controlada con losartán 50 mg/día.",
+            "Lumbalgia crónica con episodios de reagudización esporádicos.",
+            "Aumento de peso progresivo en los últimos años (IMC 29).",
+            "Cirugía de meniscos en rodilla derecha en 2015."
+        ]
+    },
+    {
+        "nombre": "Lucia Gonzalez",
+        "edad": 42,
+        "dni": "27099433",
+        "consultas": [
+            {
+                "fecha": "15/01/2024",
+                "especialidad": "Psicologia",
+                "descripcion": "Acompañamiento psicológico inicial",
+                "medico": "Dra. Teresa Ramos"
+            }
+        ],
+        "antecedentes": [
+            "Ansiedad generalizada diagnosticada en 2020, en seguimiento psicológico.",
+            "Migrañas tensionales recurrentes desde la adolescencia.",
+            "Cefaleas relacionadas al estrés laboral.",
+            "No presenta antecedentes quirúrgicos ni alergias conocidas."
+        ]
+    }
+]

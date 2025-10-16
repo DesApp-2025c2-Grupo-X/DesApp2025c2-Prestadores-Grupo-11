@@ -70,7 +70,7 @@ export default function Dashboard() {
                 </Link>
 
                 {/* Historia Clínica */}
-                <Link to="/prestadores/historia-clinica" className="access-card">
+                <Link to="/prestadores/historialClinico/busqueda" className="access-card">
                   <span>Consultar Historia Clínica</span>
                   <BookOpen className="text-danger" />
                 </Link>
