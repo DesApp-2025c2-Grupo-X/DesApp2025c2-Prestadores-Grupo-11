@@ -158,6 +158,55 @@ body { margin: 0; padding: 0; }
   background: var(--azul-profundo);
 }
 
+/* =======DEATLLE SITUACIONES TERAPEUTICAS =====*/
+.paciente-card {
+  background-color: #f8f9fa;
+}
+
+.resumen {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.paciente-avatar {
+  color: #6c757d;
+}
+
+.table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table th {
+  font-weight: 600;
+}
+
+.btn-outline-primary,
+.btn-outline-secondary {
+  border-radius: 10px;
+}
+
+/* ======== ALTA SITUACIONES TERAPEUTICAS ====== */
+.formulario-alta {
+  max-width: 700px;
+  margin: 0 auto;
+  background-color: #fdfdfd;
+}
+
+.form-label {
+  color: #333;
+}
+
+.btn-success {
+  background-color: #2e8b57;
+  border: none;
+}
+
+.btn-success:hover {
+  background-color: #267149;
+}
+
+
 /* ====== RESPONSIVIDAD ====== */
 @media (max-width: 992px) {
   .familia-card,

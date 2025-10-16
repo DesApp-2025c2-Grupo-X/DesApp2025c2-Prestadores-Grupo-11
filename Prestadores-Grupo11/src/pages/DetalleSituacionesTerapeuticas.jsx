@@ -1,182 +1,140 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import PrestadoresLayout from "../components/PrestadoresLayout";
+import Layout from "../components/Layout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import SideBar from "../components/SideBar";
-import { ArrowLeft, ClipboardList, Users } from "lucide-react";
+import { ArrowLeft, Folder, Pencil, Plus } from "lucide-react";
 import { motion } from "framer-motion";
-import "../styles/SituacionesTerapeuticas.css";
+import "../styles/DetalleSituacionesTerapeuticas.css";
 
 export default function DetalleSituacionesTerapeuticas() {
   const { dni } = useParams();
   const navigate = useNavigate();
-
   const [paciente, setPaciente] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  // Cargar datos del paciente
   useEffect(() => {
-    const cargarPaciente = async () => {
-      try {
-        const res = await fetch("/familias.json");
-        if (!res.ok) throw new Error("Error al cargar familias.json");
-        const familias = await res.json();
-
-        const encontrado = familias
-          .flatMap((f) => f.integrantes)
-          .find((p) => String(p.dni) === String(dni));
-
-        if (!encontrado) throw new Error(`No se encontró un paciente con DNI ${dni}`);
-
-        setPaciente(encontrado);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    cargarPaciente();
+    fetch("/familia.json")
+      .then((res) => res.json())
+      .then((data) => {
+        const encontrado = data
+          .flatMap((familia) => familia.integrantes)
+          .find((i) => i.dni === dni);
+        setPaciente(encontrado || null);
+      })
+      .catch((err) => console.error("Error cargando datos:", err));
   }, [dni]);
 
-  // Estado: cargando
-  if (loading) {
-    return (
-      <PrestadoresLayout header={HeaderPrestadores}>
-        <div className="d-flex">
-          <SideBar />
-          <div className="flex-grow-1 p-4 text-center">
-            <p>Cargando información del paciente...</p>
-          </div>
-        </div>
-      </PrestadoresLayout>
-    );
-  }
-
-  // Estado: error
-  if (error) {
-    return (
-      <PrestadoresLayout header={HeaderPrestadores}>
-        <div className="d-flex">
-          <SideBar />
-          <div className="flex-grow-1 p-4 text-center">
-            <p className="text-danger">{error}</p>
-            <button className="btn-volver mt-3" onClick={() => navigate(-1)}>
-              <ArrowLeft size={18} className="me-2" /> Volver
-            </button>
-          </div>
-        </div>
-      </PrestadoresLayout>
-    );
-  }
-
-  // Estado: sin paciente (por seguridad adicional)
   if (!paciente) {
     return (
-      <PrestadoresLayout header={HeaderPrestadores}>
-        <div className="d-flex">
+      <Layout header={<HeaderPrestadores />}>
+        <div className="prestadores-layout d-flex">
           <SideBar />
-          <div className="flex-grow-1 p-4 text-center">
-            <p>No se encontraron datos del paciente con DNI {dni}</p>
-            <button className="btn-volver mt-3" onClick={() => navigate(-1)}>
-              <ArrowLeft size={18} className="me-2" /> Volver
-            </button>
+          <div className="container mt-5 text-center">
+            <h4>Cargando datos del paciente...</h4>
           </div>
         </div>
-      </PrestadoresLayout>
+      </Layout>
     );
   }
 
-  // --- Vista principal ---
+  const totalSituaciones = paciente.situaciones.length;
+  const terminadas = paciente.situaciones.filter(
+    (s) => s.estado.toLowerCase() === "terminada"
+  ).length;
+
   return (
-    <PrestadoresLayout header={HeaderPrestadores}>
-      <div className="d-flex">
+    <Layout header={<HeaderPrestadores />}>
+      <div className="prestadores-layout d-flex">
         <SideBar />
-        <div className="flex-grow-1 p-4">
-          {/* Botón volver */}
-          <motion.button
-            className="btn-volver mb-3"
-            whileHover={{ scale: 1.05, backgroundColor: "var(--verde-agua)" }}
-            whileTap={{ scale: 0.95 }}
+        <div className="container-fluid p-4">
+          <button
+            className="btn btn-link text-decoration-none mb-3"
             onClick={() => navigate(-1)}
           >
-            <ArrowLeft size={18} className="me-2" /> Volver
-          </motion.button>
-          <h3>Detalle Situaciones Terapéuticas</h3>
-          {/* Card paciente */}
-          <motion.div
-            className="paciente-card p-3 mb-4"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            whileHover={{
-              scale: 1.02,
-              boxShadow: "0 0 10px rgba(251,195,194,0.6)",
-            }}
-          >
+            <ArrowLeft size={18} /> Volver
+          </button>
 
-            <div className="d-flex align-items-center gap-3">
-              <Users size={40} color="var(--azul-petroleo)" />
+          <div className="d-flex align-items-center justify-content-between mb-4">
+            <h3 className="fw-bold">Gestión de Situaciones Terapéuticas</h3>
+            <button
+              className="btn btn-success d-flex align-items-center gap-2 rounded-pill shadow-sm"
+              onClick={() => navigate(`/alta-situacion/${dni}`)}
+            >
+              <Plus size={18} /> Nueva situación
+            </button>
+          </div>
+
+          {/* === ENCABEZADO DEL PACIENTE === */}
+          <div className="paciente-card p-3 rounded shadow-sm bg-light mb-4">
+            <div className="d-flex align-items-center">
+              <div className="paciente-avatar me-3">
+                <i className="bi bi-person-circle fs-1"></i>
+              </div>
               <div>
-                <h4>{paciente.nombre}</h4>
-                <p>
-                  Edad: <strong>{paciente.edad}</strong> | DNI:{" "}
-                  <strong>{paciente.dni}</strong>
-                </p>
+                <h5 className="mb-1 fw-semibold">{paciente.nombre}</h5>
+                <div className="text-muted small">
+                  DNI: {paciente.dni} <br />
+                  Edad: {paciente.edad}
+                </div>
+              </div>
+              <div className="ms-auto resumen bg-success-subtle p-3 rounded">
+                <div className="d-flex flex-column align-items-end">
+                  <span>Situaciones terapéuticas: {totalSituaciones}</span>
+                  <span>Situaciones terminadas: {terminadas}</span>
+                </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Tabla situaciones */}
-
-          {paciente.situaciones.length === 0 ? (
-            <p className="text-muted mt-3">No hay situaciones registradas.</p>
-          ) : (
-            <div className="table-responsive">
-              <table className="table tabla-situaciones">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Situación</th>
-                    <th>Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paciente.situaciones.map((s, i) => (
-                    <motion.tr
-                      key={s.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      whileHover={{
-                        scale: 1.02,
-                        backgroundColor:
-                          s.estado === "Terminada"
-                            ? "var(--verde-menta)"
-                            : "var(--rosa)",
-                      }}
+          {/* === TABLA === */}
+          <motion.table
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+            className="table table-hover align-middle shadow-sm rounded"
+          >
+            <thead className="table-secondary">
+              <tr>
+                <th>Especialidad</th>
+                <th>Situación</th>
+                <th>Fecha fin</th>
+                <th>Prestador</th>
+                <th>Estado</th>
+                <th className="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paciente.situaciones.map((s) => (
+                <tr key={s.id}>
+                  <td>{s.especialidad || "—"}</td>
+                  <td>{s.titulo}</td>
+                  <td>{s.fecha || "—"}</td>
+                  <td>{s.prestador || "—"}</td>
+                  <td>
+                    <span
+                      className={`badge ${
+                        s.estado === "Terminada"
+                          ? "bg-success"
+                          : "bg-warning text-dark"
+                      }`}
                     >
-                      <td>{s.id}</td>
-                      <td>
-                        <ClipboardList size={18} className="me-2" /> {s.titulo}
-                      </td>
-                      <td
-                        className={
-                          s.estado === "Terminada"
-                            ? "estado-terminada"
-                            : "estado-proceso"
-                        }
-                      >
-                        {s.estado}
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                      {s.estado}
+                    </span>
+                  </td>
+                  <td className="text-center">
+                    <button className="btn btn-sm btn-outline-primary me-2">
+                      <Pencil size={16} />
+                    </button>
+                    <button className="btn btn-sm btn-outline-secondary">
+                      <Folder size={16} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </motion.table>
         </div>
       </div>
-    </PrestadoresLayout>
+    </Layout>
   );
 }

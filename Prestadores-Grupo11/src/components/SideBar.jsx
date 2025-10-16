@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Home, Calendar, FileText, Activity, BookOpen } from "lucide-react";
-import "./Sidebar.css";
+import "./SideBar.css";
 
 const menuItems = [
   { to: "/prestadores/home", label: "Home", Icon: Home },
