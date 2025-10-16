@@ -20,6 +20,20 @@ module.exports = {
           role: "centro_medico",
           createdAt: new Date(),
           updatedAt: new Date()
+        },
+        {
+          username: "hospitalCentro",
+          password: "hospital",
+          role: "centro_medico",
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          username: "Dr. Juan",
+          password: "0111",
+          role: "medico",
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       ]);
       console.log("Prestadores insertados correctamente");
