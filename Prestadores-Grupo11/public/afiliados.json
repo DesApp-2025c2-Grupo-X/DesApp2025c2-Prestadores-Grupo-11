@@ -7,12 +7,14 @@
             {
                 "fecha": "01/10/2025",
                 "especialidad": "Cardiologia",
-                "descripcion": "Revisacion de corazon"
+                "descripcion": "Revisacion de corazon",
+                "medico": "Dr. Alejandro Ruiz"
             },
             {
-                "fecha": "01/10/2025",
+                "fecha": "20/12/2019",
                 "especialidad": "Cardiologia",
-                "descripcion": "Dolor de garganta"
+                "descripcion": "Episodios de taquicardia",
+                "medico": "Dra. Sofía Martínez"
             }
         ],
         "antecedentes": ["Tuberculosis"]
@@ -25,7 +27,8 @@
             {
                 "fecha": "22/07/2023",
                 "especialidad": "Cardiologia",
-                "descripcion": "Control medico"
+                "descripcion": "Control medico",
+                "medico": "Dr. Martín López"
             }
         ],
         "antecedentes": ["Diabetes", "Apendicectomia"]
@@ -38,7 +41,8 @@
             {
                 "fecha": "10/03/2024",
                 "especialidad": "Pediatria",
-                "descripcion": "Control pediátrico y seguimiento de crecimiento"
+                "descripcion": "Control pediátrico y seguimiento de crecimiento",
+                "medico": "Dra. Carla Fernández"
             }
         ],
         "antecedentes": []
@@ -51,7 +55,8 @@
             {
                 "fecha": "12/12/2023",
                 "especialidad": "Pediatria",
-                "descripcion": "Vacunación y control de desarrollo"
+                "descripcion": "Vacunación y control de desarrollo",
+                "medico": "Dr. Javier Gómez"
             }
         ],
         "antecedentes": []
@@ -64,7 +69,8 @@
             {
                 "fecha": "03/09/2022",
                 "especialidad": "Traumatologia",
-                "descripcion": "Consulta por dolor lumbar"
+                "descripcion": "Consulta por dolor lumbar",
+                "medico": "Dr. Roberto Ávila"
             }
         ],
         "antecedentes": ["Hipertension"]
@@ -77,7 +83,8 @@
             {
                 "fecha": "15/01/2024",
                 "especialidad": "Psicologia",
-                "descripcion": "Acompañamiento psicológico inicial"
+                "descripcion": "Acompañamiento psicológico inicial",
+                "medico": "Dra. Teresa Ramos"
             }
         ],
         "antecedentes": []

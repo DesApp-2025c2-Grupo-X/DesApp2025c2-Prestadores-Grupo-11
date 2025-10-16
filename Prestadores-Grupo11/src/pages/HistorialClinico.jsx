@@ -102,6 +102,7 @@ export default function HistorialClinico() {
             <ArrowLeft size={18} className="me-2" /> Volver
           </motion.button>
           <h3>Detalle Historial Clinico</h3>
+
           {/* Card paciente */}
           <motion.div
             className="paciente-card p-3 mb-4"
@@ -124,9 +125,57 @@ export default function HistorialClinico() {
             </div>
           </motion.div>
 
-          {/* Tabla situaciones */}
+          {/*Contenedor de ultimas consultas y antecedentes*/}
+          <div>
 
-          
+            {/* Tabla ultimas consultas */}
+            <motion.div
+              className="tabla-container"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <table className="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Descripcion</th>
+                    <th>Especialidad</th>
+                    <th>Medico</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {afiliado.consultas.map((consulta, idx) => (
+                    <motion.tr
+                      key={idx}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      whileHover={{
+                        scale: 1.02,
+                      }}
+                    >
+                      <td>{consulta.fecha}</td>
+                      <td>{consulta.descripcion}</td>
+                      <td>{consulta.especialidad}</td>
+                      <td>{consulta.medico}</td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </motion.div>
+
+            {/*Antecedentes*/}
+            <motion.div
+              className="tabla-container"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <p style={{backgroundColor: "red",}}>Coso donde pruebo el coso</p>
+            </motion.div>
+          </div>
+
         </div>
       </div>
     </PrestadoresLayout>
