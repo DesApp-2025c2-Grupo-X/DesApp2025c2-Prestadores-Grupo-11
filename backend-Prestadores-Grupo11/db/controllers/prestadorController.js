@@ -14,7 +14,6 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Contraseña incorrecta.' });
     }
 
-    // Si todo está bien:
     return res.status(200).json({
       message: 'Inicio de sesión exitoso.',
       user: {
