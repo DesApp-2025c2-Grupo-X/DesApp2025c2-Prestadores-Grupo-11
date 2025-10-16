@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../db/controllers/prestadorController');
+const prestadorController = require('../db/controllers/prestadorController');
 
-router.post('/', controller.login);
+router.get('/', prestadorController.getPrestadores)
+//router.post('/', controller.login);
 
 module.exports = router;
