@@ -5,8 +5,8 @@ import HeaderPrestadores from "../components/HeaderPrestadores";
 import SideBar from "../components/SideBar";
 import { motion } from "framer-motion";
 import { Save, ArrowLeft } from "lucide-react";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; 
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../styles/SituacionesTerapeuticas.css";
 
 export default function AltaSituacionTerapeutica() {
@@ -26,107 +26,126 @@ export default function AltaSituacionTerapeutica() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-  e.preventDefault();
-  console.log("Nueva situación:", formData);
-  // fetch() o localStorage.setItem()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("Nueva situación:", formData);
 
-  toast.success("Situación terapéutica guardada con éxito");
+    try {
+      // TODO: reemplazar por fetch/axios para guardar en backend
+      // await api.post('/situaciones', formData);
 
-  // Redirigir después de mostrar el toast
-  navigate(`/prestadores/situaciones/detalle/${dni}`);
-};
+      // Mostrar toast de éxito (siempre con toastId para evitar duplicados)
+      toast.success("Situación terapéutica guardada con éxito", {
+        toastId: "guardar-situacion",
+        autoClose: 1500,
+      });
 
+      // Navegar después de un breve delay para que el toast sea visible
+      setTimeout(() => {
+        navigate(`/prestadores/situaciones/detalle/${dni}`);
+      }, 1600);
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al guardar la situación. Intenta nuevamente.", {
+        toastId: "error-guardar-situacion",
+        autoClose: 3000,
+      });
+    }
+  };
 
   return (
-   <PrestadoresLayout header={HeaderPrestadores}>
-      <div className="d-flex">
-        <SideBar />
-        <div className="flex-grow-1 p-4">
-          {/* Botón volver */}
-          <motion.button
-            className="btn-volver mb-3"
-            whileHover={{ scale: 1.05, backgroundColor: "var(--verde-agua)" }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => navigate(-1)}
-          >
-            <ArrowLeft size={18} className="me-2" /> Volver
-          </motion.button>
-          <h3> Alta Situacion Terapéutica</h3>
-          <form
-            className="card p-4 shadow-sm rounded formulario-alta"
-            onSubmit={handleSubmit}
-          >
-            <div className="mb-3">
-              <label className="form-label fw-semibold">Especialidad</label>
-              <input
-                type="text"
-                className="form-control"
-                name="especialidad"
-                value={formData.especialidad}
-                onChange={handleChange}
-                required
-              />
-            </div>
+    <>
+      <PrestadoresLayout header={HeaderPrestadores}>
+        <div className="d-flex">
+          <SideBar />
+          <div className="flex-grow-1 p-4">
+            {/* Botón volver */}
+            <motion.button
+              className="btn-volver mb-3"
+              whileHover={{ scale: 1.05, backgroundColor: "var(--verde-agua)" }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate(-1)}
+            >
+              <ArrowLeft size={18} className="me-2" /> Volver
+            </motion.button>
 
-            <div className="mb-3">
-              <label className="form-label fw-semibold">Situación</label>
-              <input
-                type="text"
-                className="form-control"
-                name="situacion"
-                value={formData.situacion}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            <h3> Alta Situacion Terapéutica</h3>
 
-            <div className="row">
-              <div className="col-md-4 mb-3">
-                <label className="form-label fw-semibold">Fecha fin</label>
-                <input
-                  type="date"
-                  className="form-control"
-                  name="fecha"
-                  value={formData.fecha}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="col-md-4 mb-3">
-                <label className="form-label fw-semibold">Prestador</label>
+            <form
+              className="card p-4 shadow-sm rounded formulario-alta"
+              onSubmit={handleSubmit}
+            >
+              <div className="mb-3">
+                <label className="form-label fw-semibold">Especialidad</label>
                 <input
                   type="text"
                   className="form-control"
-                  name="prestador"
-                  value={formData.prestador}
+                  name="especialidad"
+                  value={formData.especialidad}
                   onChange={handleChange}
+                  required
                 />
               </div>
-              <div className="col-md-4 mb-3">
-                <label className="form-label fw-semibold">Estado</label>
-                <select
-                  className="form-select"
-                  name="estado"
-                  value={formData.estado}
-                  onChange={handleChange}
-                >
-                  <option>Activo</option>
-                  <option>Terminado</option>
-                </select>
-              </div>
-            </div>
 
-            <div className="text-end mt-4">
-              <button
-                type="submit"
-                className="btn-accion"
-              >
-                <Save size={18} /> Guardar situación
-              </button>
-            </div>
-          </form>
+              <div className="mb-3">
+                <label className="form-label fw-semibold">Situación</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="situacion"
+                  value={formData.situacion}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="row">
+                <div className="col-md-4 mb-3">
+                  <label className="form-label fw-semibold">Fecha fin</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    name="fecha"
+                    value={formData.fecha}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="col-md-4 mb-3">
+                  <label className="form-label fw-semibold">Prestador</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="prestador"
+                    value={formData.prestador}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="col-md-4 mb-3">
+                  <label className="form-label fw-semibold">Estado</label>
+                  <select
+                    className="form-select"
+                    name="estado"
+                    value={formData.estado}
+                    onChange={handleChange}
+                  >
+                    <option>Activo</option>
+                    <option>Terminado</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="text-end mt-4">
+                <button type="submit" className="btn-accion">
+                  <Save size={18} /> Guardar situación
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
-    </PrestadoresLayout>
+      </PrestadoresLayout>
+
+      {/* ToastContainer en el nivel del componente  */}
+      <ToastContainer position="top-right" theme="colored" />
+    </>
   );
 }
