@@ -1,8 +1,10 @@
 const express = require('express');
+const cors = require('cors'); //Necesario para habilitar conexion frontend/backend
 const app = express();
 const PORT = process.env.PORT ?? 3001;
 const {authRoute, dashboardRoute, historiasRoute, situacionesRoute, solicitudesRoute, turnosRoute} = require('./routes');
 
+app.use(cors());
 app.use(express.json());
 
 app.use('/login', authRoute);
