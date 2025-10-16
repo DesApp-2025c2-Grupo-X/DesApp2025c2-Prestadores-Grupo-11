@@ -19,7 +19,7 @@ export default function LoginPage() {
 
   //  Cargar usuarios desde /users.json (en public/)
   useEffect(() => {
-    fetch("/users.json")
+    /*fetch("/users.json")
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar users.json");
         return res.json();
@@ -32,7 +32,23 @@ export default function LoginPage() {
         console.error("Error fetch users.json:", err);
         setFetchError("Error al cargar datos de usuarios.");
       })
+      .finally(() => setLoadingUsers(false)); */
+    
+    fetch("http://localhost:3001/login")
+      .then((res) => {
+        if (!res.ok) throw new Error("No se pudo hacer fetch de los prestadores");
+        return res.json();
+      })
+      .then((data) => {
+        setUsers(data);
+        setFetchError(null);
+      })
+      .catch((err) => {
+        console.error("Error fetch", err);
+        setFetchError("Error al cargar datos de usuarios.");
+      })
       .finally(() => setLoadingUsers(false));
+    
   }, []);
 
   const handleSubmit = (e) => {
