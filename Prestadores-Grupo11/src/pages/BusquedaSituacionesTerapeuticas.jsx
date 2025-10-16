@@ -70,6 +70,7 @@ export default function BusquedaSituacionesTerapeuticas() {
           >
             <h3>Búsqueda de Situaciones Terapéuticas</h3>
             <Buscador onSearch={handleSearch} />
+          
           </motion.div>
 
           <motion.div

@@ -9,6 +9,8 @@ body { margin: 0; padding: 0; }
   --celeste: #00b4d8;
   --verde-suave: #b4dbdc;
   --gris-claro: #f7f7f7;
+  --toastify-color-success: #b6e4db;  /* Verde menta */
+  --toastify-color-error: #fbc3c2; 
 }
 
 /* ---------- Estructura general ---------- */

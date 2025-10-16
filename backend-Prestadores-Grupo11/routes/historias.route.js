@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const controller = require('../db/controllers/afiliadoController');
 
-router.get('/afiliado/:id', (req, res) => {
-  res.send(`Historia clínica para id ${req.params.id}`);
-});
+router.get('/afiliado/:id', controller.getHistoriaClinica);
 
 module.exports = router;
