@@ -1,12 +1,44 @@
-# React + Vite
+# 🩺 Frontend - Aplicación 3: Prestadores  
+Desarrollo de Aplicaciones - UNaHur  
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📋 Descripción del Proyecto
+Este repositorio contiene el **frontend** de la **Aplicación 3 – Prestadores**, parte del sistema **Medicina Integral**.
 
-Currently, two official plugins are available:
+La aplicación está destinada a los **prestadores médicos y centros de salud**, permitiendo gestionar solicitudes y acceder a la información de los **afiliados** de Medicina Integral.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+###  Alcance funcional
+Desde esta aplicación, los prestadores podrán:
+- Visualizar y procesar **solicitudes de reintegros, autorizaciones y recetas**.  
+- Gestionar **situaciones terapéuticas** de afiliados y su grupo familiar.  
+- Consultar **turnos asignados** y registrar **notas clínicas**.  
+- Acceder y consultar la **historia clínica** de afiliados o miembros del grupo familiar.  
 
-## Expanding the ESLint configuration
+> ⚠️ Los datos de afiliados, prestadores, solicitudes y turnos se cargan directamente en la base de datos (Aplicaciones 1 y 2).
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+##  Workflow de solicitudes
+
+Cada solicitud pasa por los siguientes estados:
+| Estado | Descripción |
+|---------|--------------|
+| **Recibido** | Solicitud registrada y pendiente de análisis. |
+| **En análisis** | El prestador comenzó la evaluación. |
+| **Observado** | Se requiere información adicional del afiliado. |
+| **Aprobado** | Solicitud aceptada. |
+| **Rechazado** | Solicitud denegada, con motivo documentado. |
+
+---
+
+## ⚙️ Tecnologías utilizadas
+- [React](https://react.dev/)  
+- [Vite](https://vitejs.dev/)  
+- [Bootstrap 5](https://getbootstrap.com/)  
+- [Node.js](https://nodejs.org/) (entorno de ejecución)  
+- [React Router DOM](https://reactrouter.com/)  
+- [React Icons](https://react-icons.github.io/react-icons/)  
+- [SweetAlert2](https://sweetalert2.github.io/)  
+
+---
+
+## 🧱 Estructura del proyecto
