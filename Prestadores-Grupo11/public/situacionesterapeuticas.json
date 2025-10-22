@@ -1,0 +1,304 @@
+[
+  {
+    "nombre": "Juan Rodríguez",
+    "edad": 62,
+    "dni": "20114587",
+    "situaciones_terapeuticas": [
+      {
+        "fecha_inicio": "05/03/2024",
+        "especialidad": "Cardiología",
+        "descripcion": "Infarto agudo de miocardio. Se realizó angioplastia con colocación de stent en arteria coronaria izquierda. Evolución favorable con control posterior.",
+        "medico": "Dr. Alejandro Ruiz",
+        "estado": "Finalizado",
+        "fecha_final": "18/03/2024"
+      },
+      {
+        "fecha_inicio": "10/09/2023",
+        "especialidad": "Clínica Médica",
+        "descripcion": "Pico de hipertensión arterial con mareos y cefalea intensa. Se ajustó medicación antihipertensiva y se indicó dieta baja en sodio.",
+        "medico": "Dra. Cecilia López",
+        "estado": "Finalizado",
+        "fecha_final": "20/09/2023"
+      },
+      {
+        "fecha_inicio": "21/10/2025",
+        "especialidad": "Cardiología",
+        "descripcion": "Control postoperatorio tras angioplastia. Corazón compensado, sin signos de insuficiencia cardíaca.",
+        "medico": "Dr. Alejandro Ruiz",
+        "estado": "En proceso",
+        "fecha_final": ""
+      }
+    ]
+  },
+  {
+    "nombre": "María González",
+    "edad": 48,
+    "dni": "25500991",
+    "situaciones_terapeuticas": [
+      {
+        "fecha_inicio": "12/07/2022",
+        "especialidad": "Endocrinología",
+        "descripcion": "Descompensación por pico de diabetes tipo 2. Ingreso para estabilización glucémica. Se inició tratamiento con insulina basal.",
+        "medico": "Dra. Silvia Gómez",
+        "estado": "Finalizado",
+        "fecha_final": "20/07/2022"
+      },
+      {
+        "fecha_inicio": "03/02/2024",
+        "especialidad": "Oftalmología",
+        "descripcion": "Cirugía de cataratas en ojo derecho. Recuperación sin complicaciones. Mejoría significativa en agudeza visual.",
+        "medico": "Dr. Pedro Ledesma",
+        "estado": "Finalizado",
+        "fecha_final": "18/02/2024"
+      },
+      {
+        "fecha_inicio": "25/09/2025",
+        "especialidad": "Endocrinología",
+        "descripcion": "Control de rutina por diabetes. Niveles de glucosa estables con ajuste mínimo de dosis.",
+        "medico": "Dra. Silvia Gómez",
+        "estado": "En seguimiento",
+        "fecha_final": ""
+      }
+    ]
+  },
+  {
+    "nombre": "Luciano Fernández",
+    "edad": 34,
+    "dni": "33012455",
+    "situaciones_terapeuticas": [
+      {
+        "fecha_inicio": "12/10/2025",
+        "especialidad": "Traumatología",
+        "descripcion": "Fractura de clavícula izquierda tras accidente doméstico. Se realizó reducción y colocación de placa metálica.",
+        "medico": "Dr. Roberto Ávila",
+        "estado": "Finalizado",
+        "fecha_final": "15/10/2025"
+      },
+      {
+        "fecha_inicio": "17/10/2025",
+        "especialidad": "Fisioterapia",
+        "descripcion": "Rehabilitación post fractura de clavícula. Mejoría completa de movilidad y fuerza en miembro superior.",
+        "medico": "Lic. Laura Díaz",
+        "estado": "En proceso",
+        "fecha_final": ""
+      },
+      {
+        "fecha_inicio": "10/01/2025",
+        "especialidad": "Medicina Laboral",
+        "descripcion": "Chequeo pre-ocupacional post recuperación de fractura. Apto para reintegro laboral.",
+        "medico": "Dr. Gustavo Peña",
+        "estado": "Finalizado",
+        "fecha_final": "15/01/2025"
+      }
+    ]
+  },
+  {
+    "nombre": "Sofía Herrera",
+    "edad": 28,
+    "dni": "40221543",
+    "situaciones_terapeuticas": [
+      {
+        "fecha_inicio": "04/01/2023",
+        "especialidad": "Ginecología",
+        "descripcion": "Embarazo de riesgo controlado por hipertensión gestacional. Seguimiento cada 15 días hasta parto programado.",
+        "medico": "Dra. Carolina López",
+        "estado": "Finalizado",
+        "fecha_final": "02/09/2023"
+      },
+      {
+        "fecha_inicio": "05/11/2024",
+        "especialidad": "Clínica Médica",
+        "descripcion": "Internación por cuadro febril alto y dolor corporal. Diagnóstico: dengue. Se realizaron controles hematológicos diarios.",
+        "medico": "Dr. Juan Arce",
+        "estado": "Finalizado",
+        "fecha_final": "12/11/2024"
+      },
+      {
+        "fecha_inicio": "15/08/2025",
+        "especialidad": "Clínica Médica",
+        "descripcion": "Control pos dengue. Paciente asintomática, sin secuelas.",
+        "medico": "Dr. Juan Arce",
+        "estado": "En seguimiento",
+        "fecha_final": ""
+      }
+    ]
+  },
+  {
+    "nombre": "Carlos Medina",
+    "edad": 53,
+    "dni": "26099123",
+    "situaciones_terapeuticas": [
+      {
+        "fecha_inicio": "22/03/2022",
+        "especialidad": "Neumonología",
+        "descripcion": "Internación por neumonía bilateral por COVID-19. Requirió oxigenoterapia. Alta médica tras 14 días con evolución favorable.",
+        "medico": "Dr. Marcelo Torres",
+        "estado": "Finalizado",
+        "fecha_final": "05/04/2022"
+      },
+      {
+        "fecha_inicio": "02/07/2023",
+        "especialidad": "Cardiología",
+        "descripcion": "Episodio de taquicardia. Se realizaron estudios complementarios. No se evidenciaron alteraciones estructurales.",
+        "medico": "Dr. Jorge Medina",
+        "estado": "Finalizado",
+        "fecha_final": "10/07/2023"
+      },
+      {
+        "fecha_inicio": "12/08/2025",
+        "especialidad": "Clínica Médica",
+        "descripcion": "Control general post COVID. Capacidad pulmonar normal. Se indica ejercicio aeróbico leve.",
+        "medico": "Dr. Marcelo Torres",
+        "estado": "En seguimiento",
+        "fecha_final": ""
+      }
+    ]
+  },
+  {
+    "nombre": "Ana López",
+    "edad": 40,
+    "dni": "29544100",
+    "situaciones_terapeuticas": [
+      {
+        "fecha_inicio": "09/09/2021",
+        "especialidad": "Cirugía General",
+        "descripcion": "Apendicitis aguda tratada quirúrgicamente. Cirugía laparoscópica sin complicaciones postoperatorias.",
+        "medico": "Dra. Valeria Pardo",
+        "estado": "Finalizado",
+        "fecha_final": "15/09/2021"
+      },
+      {
+        "fecha_inicio": "17/02/2024",
+        "especialidad": "Dermatología",
+        "descripcion": "Reacción alérgica cutánea por contacto. Se indicó antihistamínico y pomada tópica.",
+        "medico": "Dr. Pablo Santoro",
+        "estado": "Finalizado",
+        "fecha_final": "22/02/2024"
+      },
+      {
+        "fecha_inicio": "03/07/2025",
+        "especialidad": "Clínica Médica",
+        "descripcion": "Cuadro febril leve con diagnóstico de gripe A. Tratamiento ambulatorio exitoso.",
+        "medico": "Dra. Valeria Pardo",
+        "estado": "Finalizado",
+        "fecha_final": "10/07/2025"
+      }
+    ]
+  },
+  {
+    "nombre": "Matías Duarte",
+    "edad": 18,
+    "dni": "46001122",
+    "situaciones_terapeuticas": [
+      {
+        "fecha_inicio": "20/05/2024",
+        "especialidad": "Traumatología",
+        "descripcion": "Fractura de radio distal por caída en práctica deportiva. Se colocó yeso por 45 días.",
+        "medico": "Dr. Fabián Cordero",
+        "estado": "Finalizado",
+        "fecha_final": "05/07/2024"
+      },
+      {
+        "fecha_inicio": "15/08/2024",
+        "especialidad": "Fisioterapia",
+        "descripcion": "Rehabilitación post fractura. Recuperación completa sin limitaciones.",
+        "medico": "Lic. Mariana Salas",
+        "estado": "Finalizado",
+        "fecha_final": "20/09/2024"
+      },
+      {
+        "fecha_inicio": "01/10/2025",
+        "especialidad": "Medicina Deportiva",
+        "descripcion": "Evaluación de aptitud física post fractura. Sin contraindicaciones para actividad deportiva.",
+        "medico": "Dr. Fabián Cordero",
+        "estado": "En seguimiento",
+        "fecha_final": ""
+      }
+    ]
+  },
+  {
+    "nombre": "Pedro Castillo",
+    "edad": 67,
+    "dni": "19007458",
+    "situaciones_terapeuticas": [
+      {
+        "fecha_inicio": "03/04/2023",
+        "especialidad": "Cirugía Cardiovascular",
+        "descripcion": "Cirugía a corazón abierto por reemplazo de válvula mitral. Evolución lenta pero estable.",
+        "medico": "Dr. Enrique Ramírez",
+        "estado": "Finalizado",
+        "fecha_final": "05/05/2023"
+      },
+      {
+        "fecha_inicio": "12/02/2024",
+        "especialidad": "Cardiología",
+        "descripcion": "Controles periódicos post cirugía. Buena respuesta al tratamiento anticoagulante.",
+        "medico": "Dr. Enrique Ramírez",
+        "estado": "En seguimiento",
+        "fecha_final": ""
+      }
+    ]
+  },
+  {
+    "nombre": "Lucía Romero",
+    "edad": 23,
+    "dni": "44112090",
+    "situaciones_terapeuticas": [
+      {
+        "fecha_inicio": "28/12/2023",
+        "especialidad": "Clínica Médica",
+        "descripcion": "Internación por cuadro febril con diagnóstico de dengue. Se realizó hidratación y control de plaquetas.",
+        "medico": "Dra. Sofía Martínez",
+        "estado": "Finalizado",
+        "fecha_final": "05/01/2024"
+      },
+      {
+        "fecha_inicio": "10/04/2024",
+        "especialidad": "Dermatología",
+        "descripcion": "Erupción post dengue. Sin prurito. Resolución espontánea en una semana.",
+        "medico": "Dra. Sofía Martínez",
+        "estado": "Finalizado",
+        "fecha_final": "18/04/2024"
+      },
+      {
+        "fecha_inicio": "15/07/2025",
+        "especialidad": "Medicina General",
+        "descripcion": "Chequeo general post dengue. Sin alteraciones hematológicas ni hepáticas.",
+        "medico": "Dr. Daniel Suárez",
+        "estado": "Finalizado",
+        "fecha_final": "20/07/2025"
+      }
+    ]
+  },
+  {
+    "nombre": "Tomás Álvarez",
+    "edad": 9,
+    "dni": "52344912",
+    "situaciones_terapeuticas": [
+      {
+        "fecha_inicio": "05/10/2023",
+        "especialidad": "Pediatría",
+        "descripcion": "Internación por crisis asmática severa. Requirió nebulizaciones y monitoreo respiratorio.",
+        "medico": "Dra. Carla Fernández",
+        "estado": "Finalizado",
+        "fecha_final": "10/10/2023"
+      },
+      {
+        "fecha_inicio": "25/01/2024",
+        "especialidad": "Alergología",
+        "descripcion": "Estudio de alergias ambientales. Diagnóstico: sensibilidad alta al polen y polvo doméstico.",
+        "medico": "Dr. Pablo Fuentes",
+        "estado": "Finalizado",
+        "fecha_final": "30/01/2024"
+      },
+      {
+        "fecha_inicio": "10/05/2025",
+        "especialidad": "Pediatría",
+        "descripcion": "Control respiratorio anual. Sin crisis asmáticas desde el año anterior.",
+        "medico": "Dra. Carla Fernández",
+        "estado": "En seguimiento",
+        "fecha_final": ""
+      }
+    ]
+  }
+]

@@ -6,11 +6,9 @@ import HomePage from "./pages/Home";
 import LoginPage from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import RequireAuth from "./components/RequireAuth";
-
 import BusquedaSituacionesTerapeuticas from "./pages/BusquedaSituacionesTerapeuticas";
-import DetalleSituacionesTerapeuticas from "./pages/DetalleSituacionesTerapeuticas";
-import AltaSituacionTerapeutica from "./pages/AltaSituacionTerapeutica";
 import SituacionesTerapeuticas from "./pages/SituacionesTerapeuticas";
+import AltaSituacionTerapeutica from "./pages/AltaSituacionTerapeutica";
 
 import BusquedaHistorialClinico from "./pages/BusquedaHistorialClinico";
 import HistorialClinico from "./pages/HistorialClinico";
@@ -36,14 +34,6 @@ export default function App() {
         />
 
         {/* Situaciones Terapéuticas - protegidas */}
-        <Route
-          path="/prestadores/situaciones"
-          element={
-            <RequireAuth roles={["medico", "centro_medico"]}>
-              <SituacionesTerapeuticas />
-            </RequireAuth>
-          }
-        />
 
         <Route
           path="/prestadores/situaciones/busqueda"
@@ -55,10 +45,10 @@ export default function App() {
         />
 
         <Route
-          path="/prestadores/situaciones/detalle/:dni"
+          path="/prestadores/situaciones/:dni"
           element={
             <RequireAuth roles={["medico", "centro_medico"]}>
-              <DetalleSituacionesTerapeuticas />
+              <SituacionesTerapeuticas />
             </RequireAuth>
           }
         />
