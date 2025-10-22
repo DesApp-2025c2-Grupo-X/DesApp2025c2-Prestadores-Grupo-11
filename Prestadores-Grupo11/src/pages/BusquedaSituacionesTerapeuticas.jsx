@@ -11,30 +11,30 @@ import "react-toastify/dist/ReactToastify.css";
 import "../styles/SituacionesTerapeuticas.css";
 
 export default function BusquedaSituacionesTerapeuticas() {
-  const [afiliados, setAfiliados] = useState([]);
+  const [pacientes, setPacientes] = useState([]);
   const [resultados, setResultados] = useState([]);
   const [cargando, setCargando] = useState(false);
   const navigate = useNavigate();
 
-  // --- Cargar datos desde JSON ---
+  // --- Cargar datos desde situacionesterapeuticas.json ---
   useEffect(() => {
-    const fetchAfiliados = async () => {
+    const fetchPacientes = async () => {
       setCargando(true);
       try {
-        const res = await fetch("/afiliados.json");
-        if (!res.ok) throw new Error("Error al cargar afiliados.json");
+        const res = await fetch("/situacionesterapeuticas.json");
+        if (!res.ok) throw new Error("Error al cargar situacionesterapeuticas.json");
         const data = await res.json();
-        setAfiliados(data);
-        console.log("Afiliados cargados:", data);
+        setPacientes(data);
+        console.log("Situaciones terapéuticas cargadas:", data);
       } catch (err) {
-        console.error("Error cargando afiliados:", err);
-        toast.error("⚠️ Error al cargar los datos de afiliados.");
+        console.error("Error cargando situaciones terapéuticas:", err);
+        toast.error("⚠️ Error al cargar los datos de situaciones terapéuticas.");
       } finally {
         setCargando(false);
       }
     };
 
-    fetchAfiliados();
+    fetchPacientes();
   }, []);
 
   // --- Búsqueda ---
@@ -46,26 +46,30 @@ export default function BusquedaSituacionesTerapeuticas() {
       return;
     }
 
-    const filtrados = afiliados.filter((a) => {
-      const nombreMatch = a.nombre?.toLowerCase().includes(lower);
-      const dniMatch = a.dni?.toString().includes(lower);
+    const filtrados = pacientes.filter((p) => {
+      const nombreMatch = p.nombre?.toLowerCase().includes(lower);
+      const dniMatch = p.dni?.toString().includes(lower);
       return nombreMatch || dniMatch;
     });
 
+    // Solo mostrar un toast si no hay resultados
     if (filtrados.length === 0) {
-      let tipoBusqueda = "el valor ingresado";
-      if (/^\d+$/.test(lower)) tipoBusqueda = "el DNI ingresado";
-      else if (lower.length > 0) tipoBusqueda = "el nombre ingresado";
-      toast.info(`🔍 No existe afiliado con ${tipoBusqueda}.`);
+      const tipoBusqueda = /^\d+$/.test(lower)
+        ? "el DNI ingresado"
+        : "el nombre ingresado";
+      toast.info(`🔍 No existe paciente con ${tipoBusqueda}.`, {
+        toastId: "sinResultados", 
+      });
     }
 
     setResultados(filtrados);
   };
 
   // --- Ver detalle ---
-  const handleVerAfiliado = (dni) => {
-    navigate(`/prestadores/situaciones?query=${encodeURIComponent(dni)}`);
-  };
+  const handleVerPaciente = (dni) => {
+  navigate(`/prestadores/situaciones/${encodeURIComponent(dni)}`);
+};
+
 
   return (
     <SidebarProvider>
@@ -84,7 +88,7 @@ export default function BusquedaSituacionesTerapeuticas() {
           {/* --- Indicador de carga --- */}
           {cargando && (
             <p style={{ marginTop: "1.5rem", color: "#555" }}>
-              ⏳ Cargando datos de afiliados...
+              ⏳ Cargando datos de pacientes...
             </p>
           )}
 
@@ -102,21 +106,21 @@ export default function BusquedaSituacionesTerapeuticas() {
                     <th>Nombre</th>
                     <th>DNI</th>
                     <th>Edad</th>
-                    <th>Consultas</th>
+                    <th>Situaciones</th>
                     <th>Acción</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {resultados.map((afiliado) => (
-                    <tr key={afiliado.dni}>
-                      <td>{afiliado.nombre}</td>
-                      <td>{afiliado.dni}</td>
-                      <td>{afiliado.edad}</td>
-                      <td>{afiliado.consultas?.length || 0}</td>
+                  {resultados.map((paciente) => (
+                    <tr key={paciente.dni}>
+                      <td>{paciente.nombre}</td>
+                      <td>{paciente.dni}</td>
+                      <td>{paciente.edad}</td>
+                      <td>{paciente.situaciones_terapeuticas?.length || 0}</td>
                       <td>
                         <button
                           className="btn-accion"
-                          onClick={() => handleVerAfiliado(afiliado.dni)}
+                          onClick={() => handleVerPaciente(paciente.dni)}
                         >
                           Ver detalle
                         </button>
@@ -128,7 +132,7 @@ export default function BusquedaSituacionesTerapeuticas() {
             ) : (
               !cargando && (
                 <p style={{ marginTop: "1.5rem", color: "#555" }}>
-                  🔎 Ingresa un nombre o DNI para buscar afiliados.
+                  🔎 Ingresa un nombre o DNI para buscar pacientes.
                 </p>
               )
             )}

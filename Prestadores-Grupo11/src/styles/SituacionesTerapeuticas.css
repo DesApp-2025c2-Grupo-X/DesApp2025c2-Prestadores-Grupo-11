@@ -1,6 +1,9 @@
+/* ======= RESET Y VARIABLES ======= */
 body {
   margin: 0;
   padding: 0;
+  font-family: "Inter", sans-serif;
+  background-color: var(--gris-claro);
 }
 
 :root {
@@ -16,124 +19,43 @@ body {
   --toastify-color-error: #fbc3c2; 
 }
 
-h3,
-h5 {
+/* ====== TITULOS ====== */
+h3, h4, h5 {
   font-weight: 700;
-  color: var(--azul-profundo);
+  color: var(--azul-petroleo);
+  margin-top: 2rem;
   margin-bottom: 1.5rem;
-  margin-top: 3.5rem;
   text-align: center;
 }
 
 .titulo-container {
   display: flex;
-  justify-content: center; /* Centra horizontalmente */
-  align-items: center;    /* Centra verticalmente */
+  justify-content: center;
+  align-items: center;
   text-align: center;
 }
 
-/* ====== CONTENEDORES PRINCIPALES ====== */
+/* ====== TARJETAS DE PACIENTE Y RESULTADOS ====== */
 .familia-card,
 .paciente-card {
-  background: var(--gris-claro);
+  background: white;
   border-left: 5px solid var(--rosa);
   border-radius: 16px;
-  width: 60%;
+  width: 70%;
   padding: 1.5rem;
-  margin: 3rem auto;
+  margin: 2rem auto;
   transition: all 0.3s ease;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .familia-card:hover,
 .paciente-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 0 10px rgba(251, 195, 194, 0.6);
+  transform: scale(1.01);
+  box-shadow: 0 0 10px rgba(251, 195, 194, 0.5);
 }
 
-/* ====== TABLAS ====== */
-
-.table {
-  width: 60%;
-  border-collapse: collapse;
-  font-size: 0.95rem;
-  margin: 5rem auto;
-
-}
-
-.table th {
-  background-color: var(--verde-suave);
+.paciente-avatar {
   color: var(--azul-petroleo);
-  text-align: left;
-  padding: 0.75rem;
-}
-
-.table td {
-  padding: 0.75rem;
-  border-bottom: 1px solid #ddd;
-}
-
-.table-responsive {
-  width: 100%;
-  overflow-x: auto;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-}
-
-/* ====== FILAS ====== */
-.tabla-integrantes tr,
-.tabla-situaciones tr {
-  transition: all 0.3s ease;
-}
-
-.tabla-integrantes tr:hover,
-.tabla-situaciones tr:hover {
-  background-color: var(--verde-menta);
-  cursor: pointer;
-}
-
-/* ====== BOTONES ====== */
-.btn-accion {
-  background-color: var(--verde-agua);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 6px 10px;
-  transition: all 0.25s ease;
-}
-
-.btn-accion:hover {
-  background-color: var(--azul-profundo);
-  transform: scale(1.05);
-}
-
-.btn-volver {
-  background-color: var(--rosa);
-  border: none;
-  color: #222;
-  padding: 8px 16px;
-  border-radius: 10px;
-  margin-bottom: 2rem;
-  margin-left: 2rem;
-  transition: all 0.25s ease;
-}
-
-.btn-volver:hover {
-  background-color: var(--verde-agua);
-  color: white;
-}
-
-/* ====== ESTADOS ====== */
-.estado-terminada {
-  color: var(--azul-petroleo);
-  background-color: var(--verde-menta);
-  font-weight: 600;
-}
-
-.estado-proceso {
-  color: var(--azul-profundo);
-  background-color: var(--verde-suave);
-  font-weight: 600;
 }
 
 /* ====== BUSCADOR ====== */
@@ -143,7 +65,7 @@ h5 {
   gap: 8px;
   width: 100%;
   max-width: 700px;
-  margin: 0 auto;
+  margin: 0 auto 3rem;
   background: white;
   border: 2px solid var(--verde-agua);
   border-radius: 50px;
@@ -158,6 +80,7 @@ h5 {
   outline: none;
   font-size: 1rem;
   background: transparent;
+  color: var(--azul-petroleo);
 }
 
 .buscador button {
@@ -174,124 +97,160 @@ h5 {
   background: var(--azul-profundo);
 }
 
-/* =======DEATLLE SITUACIONES TERAPEUTICAS =====*/
-.paciente-card {
-  background-color: #f8f9fa;
-}
-
-.resumen {
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-.paciente-avatar {
-  color: #6c757d;
-}
-
+/* ====== TABLAS ====== */
 .table {
+  width: 80%;
+  margin: 3rem auto;
+  border-collapse: collapse;
+  background: white;
   border-radius: 12px;
   overflow: hidden;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .table th {
+  background-color: var(--verde-suave);
+  color: var(--azul-petroleo);
+  text-align: center;
+  padding: 0.75rem;
   font-weight: 600;
 }
 
-.btn-outline-primary,
-.btn-outline-secondary {
-  border-radius: 10px;
+.table td {
+  padding: 0.75rem;
+  text-align: center;
+  color: #333;
+  border-bottom: 1px solid #e9ecef;
 }
 
-/* ======== ALTA SITUACIONES TERAPEUTICAS ====== */
+.table-hover tbody tr:hover {
+  background-color: var(--verde-menta);
+  transition: background-color 0.2s ease;
+}
+
+/* ====== DESCRIPCIONES ====== */
+.descripcion-corta {
+  cursor: pointer;
+  transition: color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.descripcion-corta:hover {
+  color: var(--verde-agua);
+  text-decoration: underline;
+}
+
+/* ====== ESTADOS ====== */
+.badge {
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.estado-finalizado {
+  color: var(--azul-petroleo);
+  background-color: var(--verde-menta);
+}
+
+.estado-proceso {
+  color: var(--azul-profundo);
+  background-color: var(--verde-suave);
+}
+
+/* ====== BOTONES ====== */
+.btn-volver {
+  background-color: var(--rosa);
+  color: #222;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  margin: 1rem 0 2rem 2rem;
+  font-weight: 500;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-volver:hover {
+  background-color: var(--verde-agua);
+  color: white;
+  transform: scale(1.03);
+}
+
+.btn-accion {
+  background-color: var(--verde-agua);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  transition: all 0.25s ease;
+}
+
+.btn-accion:hover {
+  background-color: var(--azul-profundo);
+  transform: scale(1.05);
+}
+
+.btn-nueva-situacion {
+  background-color: var(--verde-agua);
+  border: none;
+  color: #fff;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-nueva-situacion:hover {
+  background-color: var(--azul-profundo);
+}
+
+/* ====== FORMULARIO ALTA ====== */
 .formulario-alta {
   max-width: 700px;
   margin: 0 auto;
-  background-color: #fdfdfd;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .form-label {
-  color: #333;
+  color: var(--azul-petroleo);
+  font-weight: 600;
 }
 
 .btn-success {
-  background-color: #2e8b57;
+  background-color: var(--verde-agua);
   border: none;
+  font-weight: 600;
 }
 
 .btn-success:hover {
-  background-color: #267149;
+  background-color: var(--azul-profundo);
 }
 
-
-/* ====== RESPONSIVIDAD ====== */
+/* ====== RESPONSIVE ====== */
 @media (max-width: 992px) {
-
+  .paciente-card,
   .familia-card,
-  .paciente-card {
-    padding: 1rem;
+  .table {
+    width: 90%;
   }
-
-  .table th,
-  .table td {
+  .table th, .table td {
     font-size: 0.9rem;
-    padding: 0.5rem;
-  }
-
-  .btn-volver,
-  .btn-accion {
-    font-size: 0.85rem;
-    padding: 6px 10px;
   }
 }
 
 @media (max-width: 768px) {
-  .d-flex {
-    flex-direction: column;
-  }
-
-  .table-responsive {
-    overflow-x: auto;
-  }
-
-  .buscador {
-    max-width: 90%;
-    padding: 0.4rem 0.8rem;
-  }
-
-  .buscador input {
-    font-size: 0.9rem;
-  }
-
-  .buscador button {
-    padding: 0.4rem;
-  }
-}
-
-@media (max-width: 576px) {
-
-  h4,
-  h5 {
-    font-size: 1rem;
-  }
-
-  .table th,
-  .table td {
-    font-size: 0.8rem;
-  }
-
-  .btn-volver {
-    width: 100%;
-    border-radius: 12px;
-  }
-
-  .familia-card,
-  .paciente-card {
-    text-align: center;
-  }
-
   .buscador {
     flex-direction: column;
     border-radius: 12px;
+    padding: 0.8rem;
   }
 
   .buscador input {
@@ -301,5 +260,30 @@ h5 {
   .buscador button {
     width: 100%;
     border-radius: 8px;
+  }
+
+  .btn-volver {
+    margin: 1rem auto;
+    display: block;
+  }
+
+  .table {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 576px) {
+  h3, h5 {
+    font-size: 1.1rem;
+  }
+
+  .table {
+    width: 100%;
+  }
+
+  .btn-nueva-situacion,
+  .btn-accion {
+    width: 100%;
+    font-size: 0.9rem;
   }
 }
