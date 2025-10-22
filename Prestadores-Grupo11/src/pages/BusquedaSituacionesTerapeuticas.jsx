@@ -6,56 +6,65 @@ import SideBar from "../components/SideBar";
 import { SidebarProvider } from "../context/SidebarContext";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../styles/SituacionesTerapeuticas.css";
 
 export default function BusquedaSituacionesTerapeuticas() {
-  const [familias, setFamilias] = useState([]);
+  const [afiliados, setAfiliados] = useState([]);
   const [resultados, setResultados] = useState([]);
+  const [cargando, setCargando] = useState(false);
   const navigate = useNavigate();
 
   // --- Cargar datos desde JSON ---
   useEffect(() => {
-    const fetchFamilias = async () => {
+    const fetchAfiliados = async () => {
+      setCargando(true);
       try {
-        const res = await fetch("/familias.json");
-        if (!res.ok) throw new Error("Error al cargar familias.json");
+        const res = await fetch("/afiliados.json");
+        if (!res.ok) throw new Error("Error al cargar afiliados.json");
         const data = await res.json();
-        setFamilias(data);
-        console.log("Familias cargadas:", data);
+        setAfiliados(data);
+        console.log("Afiliados cargados:", data);
       } catch (err) {
-        console.error("Error cargando familias:", err);
+        console.error("Error cargando afiliados:", err);
+        toast.error("⚠️ Error al cargar los datos de afiliados.");
+      } finally {
+        setCargando(false);
       }
     };
 
-    fetchFamilias();
+    fetchAfiliados();
   }, []);
 
-  // --- Búsqueda en vivo ---
+  // --- Búsqueda ---
   const handleSearch = (valor) => {
-    const lower = valor?.toLowerCase() || "";
+    const lower = valor?.toLowerCase().trim() || "";
 
     if (!lower) {
       setResultados([]);
       return;
     }
 
-    const filtrados = familias.filter((f) => {
-      const apellidoMatch = f.apellido?.toLowerCase().includes(lower);
-      const integranteMatch = f.integrantes?.some(
-        (i) =>
-          i.nombre?.toLowerCase().includes(lower) ||
-          i.dni?.toString().includes(lower)
-      );
-      return apellidoMatch || integranteMatch;
+    const filtrados = afiliados.filter((a) => {
+      const nombreMatch = a.nombre?.toLowerCase().includes(lower);
+      const dniMatch = a.dni?.toString().includes(lower);
+      return nombreMatch || dniMatch;
     });
+
+    if (filtrados.length === 0) {
+      let tipoBusqueda = "el valor ingresado";
+      if (/^\d+$/.test(lower)) tipoBusqueda = "el DNI ingresado";
+      else if (lower.length > 0) tipoBusqueda = "el nombre ingresado";
+      toast.info(`🔍 No existe afiliado con ${tipoBusqueda}.`);
+    }
 
     setResultados(filtrados);
   };
 
-  // --- Ir al detalle de familia ---
-  const handleVerFamilia = (apellido) => {
-    // Redirige al componente SituacionesTerapeuticas con el query correspondiente
-    navigate(`/prestadores/situaciones?query=${encodeURIComponent(apellido)}`);
+  // --- Ver detalle ---
+  const handleVerAfiliado = (dni) => {
+    navigate(`/prestadores/situaciones?query=${encodeURIComponent(dni)}`);
   };
 
   return (
@@ -70,9 +79,16 @@ export default function BusquedaSituacionesTerapeuticas() {
           >
             <h3>Búsqueda de Situaciones Terapéuticas</h3>
             <Buscador onSearch={handleSearch} />
-          
           </motion.div>
 
+          {/* --- Indicador de carga --- */}
+          {cargando && (
+            <p style={{ marginTop: "1.5rem", color: "#555" }}>
+              ⏳ Cargando datos de afiliados...
+            </p>
+          )}
+
+          {/* --- Tabla de resultados --- */}
           <motion.div
             className="tabla-container"
             initial={{ opacity: 0 }}
@@ -83,35 +99,47 @@ export default function BusquedaSituacionesTerapeuticas() {
               <table className="table table-striped">
                 <thead>
                   <tr>
-                    <th>Familia</th>
-                    <th>Cantidad de integrantes</th>
+                    <th>Nombre</th>
+                    <th>DNI</th>
+                    <th>Edad</th>
+                    <th>Consultas</th>
                     <th>Acción</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {resultados.map((familia) => (
-                    <tr key={familia.apellido}>
-                      <td>{familia.apellido}</td>
-                      <td>{familia.integrantes?.length}</td>
+                  {resultados.map((afiliado) => (
+                    <tr key={afiliado.dni}>
+                      <td>{afiliado.nombre}</td>
+                      <td>{afiliado.dni}</td>
+                      <td>{afiliado.edad}</td>
+                      <td>{afiliado.consultas?.length || 0}</td>
                       <td>
                         <button
                           className="btn-accion"
-                          onClick={() => navigate(`/prestadores/situaciones?query=${encodeURIComponent(familia.apellido)}`)}
+                          onClick={() => handleVerAfiliado(afiliado.dni)}
                         >
-                          Ver grupo familiar
+                          Ver detalle
                         </button>
-
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             ) : (
-              <p style={{ marginTop: "1.5rem", color: "#555" }}>
-                🔎 Ingresa un apellido o DNI para buscar afiliados.
-              </p>
+              !cargando && (
+                <p style={{ marginTop: "1.5rem", color: "#555" }}>
+                  🔎 Ingresa un nombre o DNI para buscar afiliados.
+                </p>
+              )
             )}
           </motion.div>
+
+          {/* Contenedor de Toastify */}
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar
+          />
         </div>
       </PrestadoresLayout>
     </SidebarProvider>
