@@ -160,17 +160,29 @@ export default function SituacionesTerapeuticas() {
                       <button
                         className="btn-ver-mas"
                         data-tooltip-id={`desc-${s.id}`}
-                        data-tooltip-content={s.descripcion || "Sin descripción"}
+                        data-tooltip-content={
+                          s.descripcion || "Sin descripción"
+                        }
                       >
                         Ver más
                       </button>
-                      <Tooltip id={`desc-${s.id}`} place="top" style={{ backgroundColor: "var(--rosa)", color: "var(--azul-petroleo)" ,maxWidth: "300px" }} />
+                      <Tooltip
+                        id={`desc-${s.id}`}
+                        place="top"
+                        style={{
+                          backgroundColor: "var(--rosa)",
+                          color: "var(--azul-petroleo)",
+                          maxWidth: "300px",
+                        }}
+                      />
                     </td>
                     <td>{s.medico || "—"}</td>
                     <td>
                       <select
                         value={s.estado || "Pendiente"}
-                        onChange={(e) => handleEditarEstado(s.id, e.target.value)}
+                        onChange={(e) =>
+                          handleEditarEstado(s.id, e.target.value)
+                        }
                         className={`form-select form-select-sm ${
                           s.estado === "Finalizado"
                             ? "estado-finalizado"
@@ -195,7 +207,13 @@ export default function SituacionesTerapeuticas() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: "center", color: "var(--azul-petroleo)" }}>
+                  <td
+                    colSpan="7"
+                    style={{
+                      textAlign: "center",
+                      color: "var(--azul-petroleo)",
+                    }}
+                  >
                     No hay situaciones registradas.
                   </td>
                 </tr>

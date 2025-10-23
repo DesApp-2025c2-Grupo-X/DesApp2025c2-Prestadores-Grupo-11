@@ -1,8 +1,3 @@
-/* ============================
-   SideBar & Drawer - SideBar.css
-   ============================ */
-
-/* Variables (ajusta a tu tema) */
 :root {
   --verde-menta: #e6f9f2;
   --verde-agua: #6fe3cf;
@@ -10,16 +5,17 @@
   --rosa: #ff6b9a;
 }
 
-/* ---------------------------
-   Sidebar fijo (desktop)
-   --------------------------- */
+/* -------------------------
+   BASE (mobile-first)
+   ------------------------- */
+
 .sidebar-fixed {
+  display: none;
   position: fixed;
   left: 20px;
   top: 50%;
   transform: translateY(-50%);
-  width: 70px;               /* ancho de íconos vertical */
-  display: flex;
+  width: 70px;
   flex-direction: column;
   gap: 18px;
   align-items: center;
@@ -30,7 +26,6 @@
   z-index: 1050;
 }
 
-/* icon links */
 .sidebar-link {
   color: var(--azul-petroleo);
   text-decoration: none;
@@ -39,65 +34,38 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s, color 0.15s, transform 0.12s;
   width: 42px;
   height: 42px;
+  transition: background 0.15s, color 0.15s, transform 0.12s;
 }
 .sidebar-link:hover,
 .sidebar-link:focus {
   background: var(--verde-agua);
   color: white;
   transform: translateY(-2px);
-  outline: none;
 }
 
-/* Reserve space for main content on desktop so it doesn't sit under the fixed sidebar */
-@media (min-width: 1000px) {
-  .main-with-sidebar {
-    margin-left: 120px; /* ajusta según ancho + left offset */
-  }
-}
-
-/* ---------------------------
-   Drawer/backdrop (mobile)
-   --------------------------- */
-
-/* backdrop (oculto por defecto) */
-.sidebar-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.45);
-  z-index: 1040;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.18s ease, visibility 0.18s;
-}
-
-/* drawer panel (por defecto fuera de pantalla) */
+/* Drawer */
 .sidebar-drawer {
   position: fixed;
   top: 0;
-  left: -320px; /* oculto a la izquierda */
+  left: -320px;
   width: 280px;
   height: 100%;
   background: white;
-  z-index: 1050;
+  z-index: 1200;
   padding: 1rem;
-  box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
-  transition: left 0.22s cubic-bezier(.2,.9,.2,1);
+  transition: left 0.25s ease, visibility 0.25s ease;
+  visibility: hidden;
+}
+.sidebar-drawer.open {
+  left: 0;
+  visibility: visible;
 }
 
-/* Contenido del drawer (markup en SideBar.jsx usa sidebar-drawer-content) */
-.sidebar-drawer-content {
-  display: none; /* por defecto oculto (se muestra cuando agregas la clase .open) */
-}
-
-/* Header / close btn */
 .sidebar-drawer-header {
   display: flex;
   justify-content: flex-end;
@@ -112,13 +80,6 @@
   padding: 6px;
   border-radius: 6px;
 }
-.close-drawer-btn:focus,
-.close-drawer-btn:hover {
-  background: var(--verde-menta);
-  outline: none;
-}
-
-/* Drawer menu links */
 .sidebar-drawer-menu {
   margin-top: 1rem;
   display: flex;
@@ -138,21 +99,32 @@
 .sidebar-drawer-link:hover,
 .sidebar-drawer-link:focus {
   background: var(--verde-menta);
-  color: var(--azul-petroleo);
-  outline: none;
 }
 
-/* ---------------------------
-   Toggle button (mobile)
-   --------------------------- */
+/* Backdrop */
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1150;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s;
+  pointer-events: none;
+}
+.sidebar-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
 
-/* Por defecto: ocultar el toggle (desktop) */
+/* Toggle */
 .sidebar-toggle-btn {
   position: fixed;
   left: 16px;
   bottom: 18px;
-  z-index: 1060;
-  background: var(--rosa);
+  z-index: 1250;
+  background: var(--azul-petroleo);
   border: none;
   width: 44px;
   height: 44px;
@@ -160,100 +132,49 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
   color: white;
   cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s;
-  display: none !important; /* oculto por defecto */
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
-.sidebar-toggle-btn:focus,
 .sidebar-toggle-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.18);
-  outline: none;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
-/* Mostrar el toggle en pantallas <= 1000px */
-@media (max-width: 1000px) {
+/* -------------------------
+   DESKTOP (>=1000px)
+   ------------------------- */
+@media (min-width: 1000px) {
+  .sidebar-fixed {
+    display: flex;
+  }
+
+  .sidebar-drawer,
+  .sidebar-backdrop,
   .sidebar-toggle-btn {
-    display: inline-flex !important;
-  }
-
-  /* Es lógico ocultar la sidebar fija cuando el toggle está visible */
-  .sidebar-fixed {
     display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
   }
 
-  /* Si usas main-with-sidebar para dejar espacio en desktop, quita el margin-left en móviles */
-  .main-with-sidebar {
-    margin-left: 0 !important;
-  }
-
-  /* Mostrar el drawer-content en móviles (gestión por JS: .sidebar-open en body o .open en contenedor) */
-  .sidebar-drawer-content {
-    display: block;
+  .prestadores-content {
+    margin-left: 120px;
   }
 }
 
-/* ---------------------------
-   Open state helpers (usa clases con JS)
-   --------------------------- */
-
-.sidebar-open .sidebar-backdrop,
-.sidebar-drawer.open + .sidebar-backdrop,
-.sidebar-backdrop.open {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* mueve el drawer a la posición visible */
-.sidebar-drawer.open,
-.sidebar-open .sidebar-drawer {
-  left: 0;
-}
-
-/* Asegura que el contenido interno (sidebar-drawer-content) sea visible en estado abierto */
-.sidebar-drawer.open .sidebar-drawer-content,
-.sidebar-open .sidebar-drawer-content {
-  display: block;
-}
-
-/* ---------------------------
-   Accessibility helpers
-   --------------------------- */
-.sidebar-backdrop[aria-hidden="false"] {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* ---------------------------
-   Fallback: esconder fixed sidebar en pantallas pequeñas
-   --------------------------- */
-@media (max-width: 999px) {
-  .sidebar-fixed {
-    display: none !important;
-  }
-}
-
-/* ============================
-   Utility / small helpers
-   ============================ */
-.visually-hidden {
-  position: absolute !important;
-  height: 1px; width: 1px;
-  overflow: hidden;
-  clip: rect(1px, 1px, 1px, 1px);
-  white-space: nowrap;
-}
-
-/* Focus visible useful for keyboard navigation */
-:focus {
-  outline: 2px solid var(--verde-agua);
-  outline-offset: 2px;
-}
-
-/* small responsive tweak for sidebar icons on very small screens */
+/* -------------------------
+   SMALL MOBILE
+   ------------------------- */
 @media (max-width: 400px) {
-  .sidebar-toggle-btn { left: 12px; bottom: 12px; width: 40px; height: 40px; }
-  .sidebar-fixed { left: 10px; width: 60px; gap: 12px; }
+  .sidebar-toggle-btn {
+    left: 12px;
+    bottom: 12px;
+    width: 40px;
+    height: 40px;
+  }
+  .sidebar-drawer {
+    width: 240px;
+    left: -280px;
+  }
 }
