@@ -26,7 +26,8 @@ export default function HistorialClinico() {
 
         const encontrado = afiliados.find((af) => af.dni === dni);
 
-        if (!encontrado) throw new Error(`No se encontró un afiliado con DNI ${dni}`);
+        if (!encontrado)
+          throw new Error(`No se encontró un afiliado con DNI ${dni}`);
 
         setAfiliado(encontrado);
       } catch (err) {
@@ -44,7 +45,6 @@ export default function HistorialClinico() {
     return (
       <PrestadoresLayout header={HeaderPrestadores}>
         <div className="d-flex">
-          <SideBar />
           <div className="flex-grow-1 p-4 text-center">
             <p>Cargando información del afiliado...</p>
           </div>
@@ -130,7 +130,6 @@ export default function HistorialClinico() {
                 <p key={idx}>{ant}</p>
               ))}
             </div>
-
           </motion.div>
 
           {/* Tabla ultimas consultas */}
@@ -141,9 +140,9 @@ export default function HistorialClinico() {
             transition={{ duration: 0.4 }}
           >
             <h3>Ultimas consultas</h3>
-            
+
             {/*Checkbox para filtrar entre notas propias*/}
-            <label style={{marginLeft: "20%"}}>
+            <label style={{ marginLeft: "20%" }}>
               <input
                 type="checkbox"
                 checked={filtroNotas}
@@ -186,5 +185,5 @@ export default function HistorialClinico() {
         </div>
       </div>
     </PrestadoresLayout>
-  )
+  );
 }
