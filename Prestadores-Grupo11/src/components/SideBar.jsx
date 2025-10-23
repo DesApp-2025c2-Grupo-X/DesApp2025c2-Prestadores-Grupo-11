@@ -1,7 +1,8 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { Home, Calendar, FileText, Activity, BookOpen } from "lucide-react";
+import { Home, Calendar, FileText, Activity, BookOpen, X, Menu } from "lucide-react";
+import { useSidebar } from "../context/SidebarContext"; // 🔹 importa el contexto
 import "./SideBar.css";
 
 const menuItems = [
@@ -12,11 +13,13 @@ const menuItems = [
   { to: "/prestadores/historialClinico/busqueda", label: "Historia Clínica", Icon: BookOpen },
 ];
 
-export default function SideBar({ onLinkClick }) {
+export default function SideBar() {
+  const { open, toggle, closeSidebar } = useSidebar(); // 🔹 usa el contexto
+
   return (
     <>
-      {/* ===== Fixed sidebar (pantallas grandes) ===== */}
-      <nav className="sidebar-fixed d-none d-lg-flex flex-column align-items-center p-2">
+      {/* ===== Sidebar fijo (desktop) ===== */}
+      <nav className="sidebar-fixed flex-column align-items-center p-2">
         {menuItems.map((m) => (
           <Link key={m.to} to={m.to} className="sidebar-link" title={m.label}>
             <m.Icon size={20} />
@@ -24,25 +27,45 @@ export default function SideBar({ onLinkClick }) {
         ))}
       </nav>
 
-      {/* ===== Contenido del drawer (sólo se muestra en móvil por CSS d-lg-none) ===== */}
-      <div className="sidebar-drawer-content d-lg-none">
-        <div className="sidebar-drawer-header"> </div>
-        <div className="sidebar-drawer-menu">
-          {menuItems.map((m) => (
-            <Link
-              key={m.to}
-              to={m.to}
-              className="sidebar-drawer-link"
-              onClick={() => {
-                if (onLinkClick) onLinkClick(); // cierra el drawer cuando navegás
-              }}
-            >
-              <m.Icon size={18} className="me-2" />
-              <span>{m.label}</span>
-            </Link>
-          ))}
+      {/* ===== Botón toggle (mobile) ===== */}
+      <button
+        className="sidebar-toggle-btn"
+        onClick={toggle}
+        aria-label={open ? "Cerrar menú" : "Abrir menú"}
+      >
+        {open ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* ===== Drawer móvil ===== */}
+      <div className={`sidebar-drawer ${open ? "open" : ""}`}>
+        <div className="sidebar-drawer-header">
+          <button className="close-drawer-btn" onClick={closeSidebar} aria-label="Cerrar menú">
+            <X size={20} />
+          </button>
+        </div>
+        <div className="sidebar-drawer-content">
+          <div className="sidebar-drawer-menu">
+            {menuItems.map((m) => (
+              <Link
+                key={m.to}
+                to={m.to}
+                className="sidebar-drawer-link"
+                onClick={closeSidebar}
+              >
+                <m.Icon size={18} className="me-2" />
+                <span>{m.label}</span>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* ===== Backdrop ===== */}
+      <div
+        className={`sidebar-backdrop ${open ? "open" : ""}`}
+        onClick={closeSidebar}
+        aria-hidden={!open}
+      />
     </>
   );
 }

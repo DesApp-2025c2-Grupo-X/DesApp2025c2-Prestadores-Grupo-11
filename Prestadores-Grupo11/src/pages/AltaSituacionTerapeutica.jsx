@@ -201,7 +201,7 @@ export default function AltaSituacionTerapeutica() {
                     required
                   >
                     <option>Activo</option>
-                    <option>Terminado</option>
+                    <option>Finalizadoo</option>
                   </select>
                 </div>
               </div>

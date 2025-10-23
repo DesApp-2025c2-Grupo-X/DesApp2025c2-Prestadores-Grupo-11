@@ -9,66 +9,84 @@
   --gris-claro: #f7f7f7;
 }
 
-/* ----- Layout principal ----- */
+/* ======== Estructura general ======== */
 .prestadores-layout {
   display: flex;
-  position: relative;
-  height: 100%;
   min-height: 100vh;
-  background-color: var(--gris-claro);
+  position: relative;
 }
 
-/* ----- Botón hamburguesa ----- */
-.sidebar-toggle {
-  display:none;
-  position: fixed;
-  top: 8rem;
-  left: 1rem;
-  z-index: 1050;
-  background-color: var(--azul-profundo);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 0.5rem;
-  cursor: pointer;
-}
-
-/* ----- Contenido principal ----- */
 .prestadores-content {
   flex-grow: 1;
-  padding: 2rem;
+  padding: 1.5rem;
   transition: margin-left 0.3s ease;
 }
 
-/* ----- Sidebar flotante en móvil ----- */
-.sidebar-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 240px;
-  height: 100%;
-  background-color: white;
-  z-index: 1100;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+/* ======== Sidebar fijo (solo escritorio) ======== */
+.sidebar-fixed-container {
+  display: flex;
 }
 
-.sidebar-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: black;
-  z-index: 1000;
-}
-
-/* ----- Responsive ----- */
-@media (min-width: 315px) and (max-width: 470px) {
-  .sidebar-toggle {
+@media (min-width: 1000px) {
+  .sidebar-fixed-container {
     display: block;
   }
 
+  .sidebar-toggle {
+    display: none !important;
+  }
+
   .prestadores-content {
-    padding: 1rem;
+    margin-left: 120px; /* espacio del sidebar fijo */
+  }
+}
+
+/* ======== Sidebar Drawer (móvil) ======== */
+@media (max-width: 999px) {
+  .sidebar-fixed-container {
+    display: none !important;
+  }
+
+  .sidebar-toggle {
+    display: inline-flex;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 1300;
+    background: var(--verde-menta);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  .sidebar-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100vh;
+    background: var(--verde-menta);
+    padding: 20px 12px;
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 4px 0 12px rgba(0,0,0,0.15);
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1100;
+  }
+
+  .prestadores-content {
+    margin-left: 0 !important;
   }
 }
