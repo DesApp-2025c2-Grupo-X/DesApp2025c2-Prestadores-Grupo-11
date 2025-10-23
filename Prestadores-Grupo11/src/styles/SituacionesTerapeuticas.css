@@ -140,7 +140,7 @@ h3, h4, h5 {
 
 .descripcion-corta:hover {
   color: var(--verde-agua);
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 /* ====== ESTADOS ====== */
@@ -234,6 +234,35 @@ h3, h4, h5 {
   background-color: var(--azul-profundo);
 }
 
+
+ /* ====== TOOLTIP ====== */
+
+/* botón "Ver más" */
+.btn-ver-mas {
+  position: relative;
+  background: none;
+  border: none;
+  color: var(--verde-agua);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-ver-mas:hover {
+  text-decoration: underline;
+}
+
+
+
+/* Pequeños estilos para las badges si los querés mantener */
+.estado-finalizado {
+  background-color: #d4edda;
+  color: #155724;
+}
+.estado-proceso {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
 /* ====== RESPONSIVE ====== */
 @media (max-width: 992px) {
   .paciente-card,
@@ -287,3 +316,127 @@ h3, h4, h5 {
     font-size: 0.9rem;
   }
 }
+
+/* ====== TABLAS RESPONSIVAS MEJORADAS ====== */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  margin: 2rem auto;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  scrollbar-width: thin;
+  scrollbar-color: var(--verde-agua) #f1f1f1;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: var(--verde-agua);
+  border-radius: 8px;
+}
+
+/* ====== BOTÓN "VER MÁS" ANIMADO ====== */
+.btn-ver-mas {
+  background: transparent;
+  border: none;
+  color: var(--azul-petroleo);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0 6px;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+}
+
+.btn-ver-mas:hover {
+  color: var(--celeste);
+  transform: scale(1.05);
+}
+
+/* ====== TOOLTIP MEJORADO ====== */
+.tooltip-custom {
+  position: absolute;
+  z-index: 2000;
+  top: -120%;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 220px;
+  max-width: 320px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid var(--verde-suave);
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  color: var(--azul-petroleo);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.tooltip-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-6px);
+  pointer-events: auto;
+}
+
+/* ====== ÍCONO DE EDICIÓN (LÁPIZ) ====== */
+.icono-editar {
+  color: var(--azul-petroleo);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.icono-editar:hover {
+  color: var(--celeste);
+  transform: scale(1.15);
+}
+
+/* ====== SWEETALERT2 CUSTOM ====== */
+.swal2-popup {
+  border-radius: 16px !important;
+  background: var(--gris-claro) !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.swal2-title {
+  color: var(--azul-petroleo) !important;
+  font-weight: 700 !important;
+}
+
+.swal2-confirm {
+  background-color: var(--verde-agua) !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+}
+
+.swal2-confirm:hover {
+  background-color: var(--azul-profundo) !important;
+}
+
+.swal2-cancel {
+  background-color: var(--rosa) !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  color: #333 !important;
+}
+
+.swal2-cancel:hover {
+  background-color: var(--verde-menta) !important;
+}
+
+/* ====== RESPONSIVE FIXES ====== */
+@media (max-width: 768px) {
+  .table-responsive {
+    width: 95%;
+  }
+  .tooltip-custom {
+    top: -150%;
+    width: 90%;
+  }
+}
+
+
+
