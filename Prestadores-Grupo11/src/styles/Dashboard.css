@@ -2,11 +2,18 @@
 body { margin: 0; padding: 0; }
 
 .dashboard-container {
-  background: url("/src/assets/dashboard.webp") center / cover no-repeat;
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
   display: block;
-  padding: 2rem 4rem;
+  padding: 0;
   box-sizing: border-box;
   text-align: left;
+  z-index: 0;
+}
+.dashboard-content {
+  position: relative;
+  z-index: 1;
 }
 
 /* HERO */
@@ -91,6 +98,9 @@ body { margin: 0; padding: 0; }
   .access-container {width: 100%; }
   .info-card {height: 50%; min-height: 100px; }
   .access-grid { gap:0.50rem;}
+  .dashboard-container {
+    background-attachment: scroll;
+  }
 
   
 }

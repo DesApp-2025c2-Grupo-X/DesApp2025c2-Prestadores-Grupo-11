@@ -93,7 +93,7 @@ export default function SituacionesTerapeuticas() {
   return (
     <PrestadoresLayout header={<HeaderPrestadores />}>
       <div className="d-flex">
-        <SideBar />
+       
         <div className="flex-grow-1 p-4">
           <ToastContainer />
 
@@ -133,93 +133,95 @@ export default function SituacionesTerapeuticas() {
           </div>
 
           {/* Tabla */}
-          <motion.table
-            className="table table-hover align-middle shadow-sm rounded text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4 }}
-          >
-            <thead className="table-secondary">
-              <tr>
-                <th>Fecha inicio</th>
-                <th>Especialidad</th>
-                <th>Descripción</th>
-                <th>Prestador</th>
-                <th>Estado</th>
-                <th>Fecha fin</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {situaciones.length > 0 ? (
-                situaciones.map((s) => (
-                  <tr key={s.id}>
-                    <td>{s.fecha_inicio || "—"}</td>
-                    <td>{s.especialidad || "—"}</td>
-                    <td>
-                      <button
-                        className="btn-ver-mas"
-                        data-tooltip-id={`desc-${s.id}`}
-                        data-tooltip-content={
-                          s.descripcion || "Sin descripción"
-                        }
-                      >
-                        Ver más
-                      </button>
-                      <Tooltip
-                        id={`desc-${s.id}`}
-                        place="top"
-                        style={{
-                          backgroundColor: "var(--rosa)",
-                          color: "var(--azul-petroleo)",
-                          maxWidth: "300px",
-                        }}
-                      />
-                    </td>
-                    <td>{s.medico || "—"}</td>
-                    <td>
-                      <select
-                        value={s.estado || "Pendiente"}
-                        onChange={(e) =>
-                          handleEditarEstado(s.id, e.target.value)
-                        }
-                        className={`form-select form-select-sm ${
-                          s.estado === "Finalizado"
-                            ? "estado-finalizado"
-                            : "estado-proceso"
-                        }`}
-                      >
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="EnProceso">En proceso</option>
-                        <option value="Finalizado">Finalizado</option>
-                      </select>
-                    </td>
-                    <td>{s.fecha_final || "—"}</td>
-                    <td>
-                      <button
-                        className="btn btn-sm btn-outline-secondary"
-                        onClick={() => handleArchivar(s.id)}
-                      >
-                        <Folder size={16} />
-                      </button>
+          <div className="table-responsive-xl">
+            <motion.table
+              className="table table-hover align-middle shadow-sm rounded text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
+            >
+              <thead className="table-secondary">
+                <tr>
+                  <th>Fecha inicio</th>
+                  <th>Especialidad</th>
+                  <th>Descripción</th>
+                  <th>Prestador</th>
+                  <th>Estado</th>
+                  <th>Fecha fin</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {situaciones.length > 0 ? (
+                  situaciones.map((s) => (
+                    <tr key={s.id}>
+                      <td>{s.fecha_inicio || "—"}</td>
+                      <td>{s.especialidad || "—"}</td>
+                      <td>
+                        <button
+                          className="btn-ver-mas"
+                          data-tooltip-id={`desc-${s.id}`}
+                          data-tooltip-content={
+                            s.descripcion || "Sin descripción"
+                          }
+                        >
+                          Ver más
+                        </button>
+                        <Tooltip
+                          id={`desc-${s.id}`}
+                          place="top"
+                          style={{
+                            backgroundColor: "var(--rosa)",
+                            color: "var(--azul-petroleo)",
+                            maxWidth: "300px",
+                          }}
+                        />
+                      </td>
+                      <td>{s.medico || "—"}</td>
+                      <td>
+                        <select
+                          value={s.estado || "Pendiente"}
+                          onChange={(e) =>
+                            handleEditarEstado(s.id, e.target.value)
+                          }
+                          className={`form-select form-select-sm ${
+                            s.estado === "Finalizado"
+                              ? "estado-finalizado"
+                              : "estado-proceso"
+                          }`}
+                        >
+                          <option value="Pendiente">Pendiente</option>
+                          <option value="EnProceso">En proceso</option>
+                          <option value="Finalizado">Finalizado</option>
+                        </select>
+                      </td>
+                      <td>{s.fecha_final || "—"}</td>
+                      <td>
+                        <button
+                          className="btn btn-sm btn-outline-secondary"
+                          onClick={() => handleArchivar(s.id)}
+                        >
+                          <Folder size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="7"
+                      style={{
+                        textAlign: "center",
+                        color: "var(--azul-petroleo)",
+                      }}
+                    >
+                      No hay situaciones registradas.
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan="7"
-                    style={{
-                      textAlign: "center",
-                      color: "var(--azul-petroleo)",
-                    }}
-                  >
-                    No hay situaciones registradas.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </motion.table>
+                )}
+              </tbody>
+            </motion.table>
+          </div>
         </div>
       </div>
     </PrestadoresLayout>
