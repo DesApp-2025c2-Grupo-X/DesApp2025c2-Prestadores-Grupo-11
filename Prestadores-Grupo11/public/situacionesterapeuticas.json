@@ -54,7 +54,7 @@
       {
         "fecha_inicio": "25/09/2025",
         "especialidad": "Endocrinología",
-        "descripcion": "Control de rutina por diabetes. Niveles de glucosa estables con ajuste mínimo de dosis.",
+        "odescripcion": "Control de rutina por diabetes. Niveles de glucosa estables con ajuste mínimo de dosis.",
         "medico": "Dra. Silvia Gómez",
         "estado": "En seguimiento",
         "fecha_final": ""
@@ -209,7 +209,7 @@
       {
         "fecha_inicio": "01/10/2025",
         "especialidad": "Medicina Deportiva",
-        "descripcion": "Evaluación de aptitud física post fractura. Sin contraindicaciones para actividad deportiva.",
+        "odescripcion": "Evaluación de aptitud física post fractura. Sin contraindicaciones para actividad deportiva.",
         "medico": "Dr. Fabián Cordero",
         "estado": "En seguimiento",
         "fecha_final": ""

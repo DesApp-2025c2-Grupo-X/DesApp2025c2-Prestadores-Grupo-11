@@ -80,13 +80,8 @@ body { margin: 0; padding: 0; }
 }
 
 /* Mobile <= 576px: accesos 1 columna */
-@media (max-width: 576px) {
+@media (max-width: 1161px) {
   .access-grid { grid-template-columns: 1fr; }
-}
-
-/* Tablet (768px - 1024px): accesos full width  */
-@media (min-width: 768px) and (max-width: 1024px) {
-  
 }
 
 /* Ajuste visual para pantallas pequeñas */

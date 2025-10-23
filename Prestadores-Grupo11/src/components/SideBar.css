@@ -1,4 +1,18 @@
-/* ----- Sidebar fixed (desktop) ----- */
+/* ============================
+   SideBar & Drawer - SideBar.css
+   ============================ */
+
+/* Variables (ajusta a tu tema) */
+:root {
+  --verde-menta: #e6f9f2;
+  --verde-agua: #6fe3cf;
+  --azul-petroleo: #0b3b45;
+  --rosa: #ff6b9a;
+}
+
+/* ---------------------------
+   Sidebar fijo (desktop)
+   --------------------------- */
 .sidebar-fixed {
   position: fixed;
   left: 20px;
@@ -25,22 +39,30 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s, color 0.15s, transform 0.12s;
+  width: 42px;
+  height: 42px;
 }
-
-.sidebar-link:hover {
+.sidebar-link:hover,
+.sidebar-link:focus {
   background: var(--verde-agua);
   color: white;
+  transform: translateY(-2px);
+  outline: none;
 }
 
-/* reserve space for main content on desktop so it doesn't sit under the fixed sidebar */
-@media (min-width: 992px) {
+/* Reserve space for main content on desktop so it doesn't sit under the fixed sidebar */
+@media (min-width: 1000px) {
   .main-with-sidebar {
     margin-left: 120px; /* ajusta según ancho + left offset */
   }
 }
 
-/* ----- Mobile drawer/backdrop ----- */
+/* ---------------------------
+   Drawer/backdrop (mobile)
+   --------------------------- */
+
+/* backdrop (oculto por defecto) */
 .sidebar-backdrop {
   position: fixed;
   top: 0;
@@ -49,13 +71,16 @@
   height: 100%;
   background: rgba(0,0,0,0.45);
   z-index: 1040;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.18s ease, visibility 0.18s;
 }
 
-/* drawer panel */
+/* drawer panel (por defecto fuera de pantalla) */
 .sidebar-drawer {
   position: fixed;
   top: 0;
-  left: 0;
+  left: -320px; /* oculto a la izquierda */
   width: 280px;
   height: 100%;
   background: white;
@@ -64,27 +89,42 @@
   box-shadow: 4px 0 20px rgba(0,0,0,0.15);
   display: flex;
   flex-direction: column;
+  transition: left 0.22s cubic-bezier(.2,.9,.2,1);
 }
 
+/* Contenido del drawer (markup en SideBar.jsx usa sidebar-drawer-content) */
+.sidebar-drawer-content {
+  display: none; /* por defecto oculto (se muestra cuando agregas la clase .open) */
+}
+
+/* Header / close btn */
 .sidebar-drawer-header {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
 }
-
 .close-drawer-btn {
   background: transparent;
   border: none;
   cursor: pointer;
   color: var(--azul-petroleo);
+  font-size: 1.1rem;
+  padding: 6px;
+  border-radius: 6px;
+}
+.close-drawer-btn:focus,
+.close-drawer-btn:hover {
+  background: var(--verde-menta);
+  outline: none;
 }
 
+/* Drawer menu links */
 .sidebar-drawer-menu {
   margin-top: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
-
 .sidebar-drawer-link {
   display: flex;
   align-items: center;
@@ -95,13 +135,18 @@
   text-decoration: none;
   transition: background 0.15s, color 0.15s;
 }
-
-.sidebar-drawer-link:hover {
+.sidebar-drawer-link:hover,
+.sidebar-drawer-link:focus {
   background: var(--verde-menta);
   color: var(--azul-petroleo);
+  outline: none;
 }
 
-/* floating toggle button for mobile (optional) */
+/* ---------------------------
+   Toggle button (mobile)
+   --------------------------- */
+
+/* Por defecto: ocultar el toggle (desktop) */
 .sidebar-toggle-btn {
   position: fixed;
   left: 16px;
@@ -117,12 +162,98 @@
   justify-content: center;
   box-shadow: 0 6px 14px rgba(0,0,0,0.12);
   color: white;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s;
+  display: none !important; /* oculto por defecto */
+}
+.sidebar-toggle-btn:focus,
+.sidebar-toggle-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+  outline: none;
 }
 
-/* Hide the fixed sidebar on small screens (Bootstrap d-none d-lg-flex already handles; keep as fallback) */
-@media (max-width: 991px) {
+/* Mostrar el toggle en pantallas <= 1000px */
+@media (max-width: 1000px) {
+  .sidebar-toggle-btn {
+    display: inline-flex !important;
+  }
+
+  /* Es lógico ocultar la sidebar fija cuando el toggle está visible */
+  .sidebar-fixed {
+    display: none !important;
+  }
+
+  /* Si usas main-with-sidebar para dejar espacio en desktop, quita el margin-left en móviles */
+  .main-with-sidebar {
+    margin-left: 0 !important;
+  }
+
+  /* Mostrar el drawer-content en móviles (gestión por JS: .sidebar-open en body o .open en contenedor) */
+  .sidebar-drawer-content {
+    display: block;
+  }
+}
+
+/* ---------------------------
+   Open state helpers (usa clases con JS)
+   --------------------------- */
+
+.sidebar-open .sidebar-backdrop,
+.sidebar-drawer.open + .sidebar-backdrop,
+.sidebar-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* mueve el drawer a la posición visible */
+.sidebar-drawer.open,
+.sidebar-open .sidebar-drawer {
+  left: 0;
+}
+
+/* Asegura que el contenido interno (sidebar-drawer-content) sea visible en estado abierto */
+.sidebar-drawer.open .sidebar-drawer-content,
+.sidebar-open .sidebar-drawer-content {
+  display: block;
+}
+
+/* ---------------------------
+   Accessibility helpers
+   --------------------------- */
+.sidebar-backdrop[aria-hidden="false"] {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ---------------------------
+   Fallback: esconder fixed sidebar en pantallas pequeñas
+   --------------------------- */
+@media (max-width: 999px) {
   .sidebar-fixed {
     display: none !important;
   }
 }
 
+/* ============================
+   Utility / small helpers
+   ============================ */
+.visually-hidden {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+}
+
+/* Focus visible useful for keyboard navigation */
+:focus {
+  outline: 2px solid var(--verde-agua);
+  outline-offset: 2px;
+}
+
+/* small responsive tweak for sidebar icons on very small screens */
+@media (max-width: 400px) {
+  .sidebar-toggle-btn { left: 12px; bottom: 12px; width: 40px; height: 40px; }
+  .sidebar-fixed { left: 10px; width: 60px; gap: 12px; }
+}

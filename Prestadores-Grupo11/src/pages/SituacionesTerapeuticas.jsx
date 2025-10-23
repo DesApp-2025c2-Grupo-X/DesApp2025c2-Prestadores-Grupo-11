@@ -3,11 +3,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import SideBar from "../components/SideBar";
-import { ArrowLeft, Folder, Pencil, Plus } from "lucide-react";
+import { ArrowLeft, Pencil, Plus, Folder } from "lucide-react";
 import { motion } from "framer-motion";
-import Swal from "sweetalert2";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Tooltip } from "react-tooltip";
 import "../styles/SituacionesTerapeuticas.css";
 
 export default function SituacionesTerapeuticas() {
@@ -21,7 +21,6 @@ export default function SituacionesTerapeuticas() {
     fetch("/situacionesterapeuticas.json")
       .then((res) => res.json())
       .then((data) => {
-        // Buscar paciente por DNI
         const pacienteEncontrado = data.find((p) => p.dni === dni);
 
         if (pacienteEncontrado) {
@@ -31,12 +30,8 @@ export default function SituacionesTerapeuticas() {
             edad: pacienteEncontrado.edad,
           });
 
-          // Ordenar situaciones por fecha inicio descendente
           const ordenadas = pacienteEncontrado.situaciones_terapeuticas
-            .map((s, index) => ({
-              ...s,
-              id: index, // asignar un ID único si no existe
-            }))
+            .map((s, index) => ({ ...s, id: index }))
             .sort(
               (a, b) =>
                 new Date(b.fecha_inicio.split("/").reverse().join("-")) -
@@ -73,50 +68,16 @@ export default function SituacionesTerapeuticas() {
     );
   }
 
-  // Mostrar detalle completo
-  const handleVerDescripcion = (descripcion = "Sin descripción disponible") => {
-    Swal.fire({
-      title: "Detalle de la descripción",
-      html: `<p style="text-align:justify; color: var(--azul-petroleo); font-size: 1rem;">${descripcion}</p>`,
-      icon: "info",
-      confirmButtonColor: "var(--verde-agua)",
-      background: "var(--gris-claro)",
+  // Editar estado inline con select
+  const handleEditarEstado = (id, nuevoEstado) => {
+    const actualizadas = situaciones.map((s) =>
+      s.id === id ? { ...s, estado: nuevoEstado } : s
+    );
+    setSituaciones(actualizadas);
+    toast.success(`Estado actualizado a "${nuevoEstado}" ✅`, {
+      position: "bottom-right",
+      autoClose: 2000,
     });
-  };
-
-  // Editar estado
-  const handleEditarEstado = async (id) => {
-    const situacion = situaciones.find((s) => s.id === id);
-    const { value: nuevoEstado } = await Swal.fire({
-      title: "Editar estado",
-      input: "select",
-      inputOptions: {
-        Pendiente: "Pendiente",
-        EnProceso: "En proceso",
-        Finalizado: "Finalizado",
-      },
-      inputValue: situacion.estado,
-      inputPlaceholder: "Selecciona un nuevo estado",
-      showCancelButton: true,
-      confirmButtonText: "Guardar",
-      confirmButtonColor: "#28a745",
-      cancelButtonText: "Cancelar",
-    });
-
-    if (nuevoEstado) {
-      const actualizadas = situaciones.map((s) =>
-        s.id === id ? { ...s, estado: nuevoEstado } : s
-      );
-      setSituaciones(actualizadas);
-
-      Swal.fire({
-        icon: "success",
-        title: "Estado actualizado",
-        text: `La situación se marcó como "${nuevoEstado}"`,
-        timer: 1800,
-        showConfirmButton: false,
-      });
-    }
   };
 
   // Archivar situación
@@ -195,37 +156,34 @@ export default function SituacionesTerapeuticas() {
                   <tr key={s.id}>
                     <td>{s.fecha_inicio || "—"}</td>
                     <td>{s.especialidad || "—"}</td>
-                    <td className="descripcion-corta">
-                      {s.descripcion
-                        ? `${s.descripcion.slice(0, 10)}...`
-                        : "Sin descripción"}{" "}
+                    <td>
                       <button
-                        onClick={() => handleVerDescripcion(s.descripcion)}
                         className="btn-ver-mas"
+                        data-tooltip-id={`desc-${s.id}`}
+                        data-tooltip-content={s.descripcion || "Sin descripción"}
                       >
                         Ver más
                       </button>
+                      <Tooltip id={`desc-${s.id}`} place="top" style={{ backgroundColor: "var(--rosa)", color: "var(--azul-petroleo)" ,maxWidth: "300px" }} />
                     </td>
                     <td>{s.medico || "—"}</td>
                     <td>
-                      <span
-                        className={`badge ${
+                      <select
+                        value={s.estado || "Pendiente"}
+                        onChange={(e) => handleEditarEstado(s.id, e.target.value)}
+                        className={`form-select form-select-sm ${
                           s.estado === "Finalizado"
                             ? "estado-finalizado"
                             : "estado-proceso"
                         }`}
                       >
-                        {s.estado || "Pendiente"}
-                      </span>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="EnProceso">En proceso</option>
+                        <option value="Finalizado">Finalizado</option>
+                      </select>
                     </td>
                     <td>{s.fecha_final || "—"}</td>
                     <td>
-                      <button
-                        className="btn btn-sm btn-outline-primary me-2"
-                        onClick={() => handleEditarEstado(s.id)}
-                      >
-                        <Pencil size={16} />
-                      </button>
                       <button
                         className="btn btn-sm btn-outline-secondary"
                         onClick={() => handleArchivar(s.id)}
