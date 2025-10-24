@@ -1,5 +1,3 @@
-
-
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
@@ -18,12 +16,20 @@ export default function RequireAuth({ role, roles, children }) {
   // Validación de rol
   if (role && user.role !== role) {
     return <Navigate to="/" replace />;
+    console.log("RequireAuth checking roles:", {
+      allowedRoles: roles,
+      userRole: JSON.parse(localStorage.getItem("miapp_user"))?.role,
+    });
   }
 
   if (roles && !roles.includes(user.role)) {
     return <Navigate to="/" replace />;
   }
 
+  console.log("RequireAuth checking roles:", {
+    allowedRoles: roles,
+    userRole: JSON.parse(localStorage.getItem("miapp_user"))?.role,
+  });
   // Si pasa las validaciones -> renderiza el componente hijo
   return children;
 }
