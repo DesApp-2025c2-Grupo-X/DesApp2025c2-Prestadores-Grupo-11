@@ -11,7 +11,7 @@ export default function Dashboard() {
       <div className="dashboard-container">
           {/* HERO */}
           <div className="dashboard-hero">
-            <h2 className="hero-title">👋 Bienvenido, Dr. Pérez</h2>
+            <h2 className="hero-title">👋 Bienvenido</h2>
             <p className="hero-subtitle">
               Aquí encontrarás la información de tus pacientes y turnos.
             </p>
@@ -57,7 +57,7 @@ export default function Dashboard() {
             <div className="access-container">
               <div className="access-grid">
                 {/* Calendario */}
-                <Link to="/prestadores/turnos" className="access-card">
+                <Link to="/prestadores/calendarioturnosmedico" className="access-card">
                   <span>Calendario de Turnos</span>
                   <Calendar className="text-primary" />
                 </Link>
