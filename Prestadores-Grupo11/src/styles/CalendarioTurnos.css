@@ -1,0 +1,19 @@
+/* ======= RESET Y VARIABLES ======= */
+body {
+  margin: 0;
+  padding: 0;
+
+}
+
+:root {
+  --rosa: #fbc3c2;
+  --verde-agua: #6fb6b6;
+  --verde-menta: #b6e4db;
+  --azul-profundo: #0077b6;
+  --azul-petroleo: #22577a;
+  --celeste: #00b4d8;
+  --verde-suave: #b4dbdc;
+  --gris-claro: #f7f7f7;
+  --toastify-color-success: #b6e4db;  
+  --toastify-color-error: #fbc3c2; 
+}

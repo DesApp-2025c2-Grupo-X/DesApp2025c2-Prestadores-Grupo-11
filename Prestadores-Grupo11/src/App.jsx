@@ -9,7 +9,7 @@ import RequireAuth from "./components/RequireAuth";
 import BusquedaSituacionesTerapeuticas from "./pages/BusquedaSituacionesTerapeuticas";
 import SituacionesTerapeuticas from "./pages/SituacionesTerapeuticas";
 import AltaSituacionTerapeutica from "./pages/AltaSituacionTerapeutica";
-
+import CalendarioTurnosMedico from "./pages/CalendarioTurnosMedico";
 import BusquedaHistorialClinico from "./pages/BusquedaHistorialClinico";
 import HistorialClinico from "./pages/HistorialClinico";
 
@@ -79,6 +79,16 @@ export default function App() {
           element={
             <RequireAuth roles={["medico", "centro_medico"]}>
               <AltaSituacionTerapeutica />
+            </RequireAuth>
+          }
+        />
+
+        {/* Calendario Turnos Medico */}
+        <Route
+          path="/prestadores/calendarioturnosmedico"
+          element={
+            <RequireAuth roles={["medico", "centro_medico"]}>
+              <CalendarioTurnosMedico />
             </RequireAuth>
           }
         />
