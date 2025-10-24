@@ -24,9 +24,11 @@ export default function LoginPage() {
     setSubmitting(true);
 
     try {
+      // Normalizar username a minúsculas para evitar problemas por mayúsculas
+      const usernameNorm = String(username).trim().toLowerCase();
       const payload = {
-        username: String(username).trim(),
-        password: String(password).trim(),
+        username: usernameNorm,
+        password: String(password),
       };
 
       console.log("Enviando payload de login:", payload);
@@ -57,7 +59,7 @@ export default function LoginPage() {
       if (data.message === "Acceso exitoso" && data.prestador) {
         const { username, role } = data.prestador;
 
-        const normalizedRole = role.trim().toLowerCase(); // 👈 normalizado
+        const normalizedRole = role.trim().toLowerCase(); // normalizado evita errores por mayusculas
 
         localStorage.setItem(
           "miapp_user",
@@ -124,11 +126,6 @@ export default function LoginPage() {
                 </button>
               </div>
             </form>
-
-            <p id="login-help" className="mt-3 small text-muted">
-              Usuarios de prueba: <strong>medico / 12345</strong> —{" "}
-              <strong>centro medico / 9876</strong>
-            </p>
           </div>
         </div>
       </div>
