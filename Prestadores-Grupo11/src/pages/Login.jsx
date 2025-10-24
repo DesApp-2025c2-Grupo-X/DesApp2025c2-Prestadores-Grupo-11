@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import HeaderLogin from "../components/HeaderLogin";
@@ -8,105 +8,88 @@ import "react-toastify/dist/ReactToastify.css";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-
-  const [users, setUsers] = useState([]);
-  const [loadingUsers, setLoadingUsers] = useState(true);
-  const [fetchError, setFetchError] = useState(null);
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  //  Cargar usuarios desde /users.json (en public/)
-  useEffect(() => {
-    /*fetch("/users.json")
-      .then((res) => {
-        if (!res.ok) throw new Error("No se pudo cargar users.json");
-        return res.json();
-      })
-      .then((data) => {
-        setUsers(data);
-        setFetchError(null);
-      })
-      .catch((err) => {
-        console.error("Error fetch users.json:", err);
-        setFetchError("Error al cargar datos de usuarios.");
-      })
-      .finally(() => setLoadingUsers(false)); */
-    
-    fetch("http://localhost:3001/login")
-      .then((res) => {
-        if (!res.ok) throw new Error("No se pudo hacer fetch de los prestadores");
-        return res.json();
-      })
-      .then((data) => {
-        setUsers(data);
-        setFetchError(null);
-      })
-      .catch((err) => {
-        console.error("Error fetch", err);
-        setFetchError("Error al cargar datos de usuarios.");
-      })
-      .finally(() => setLoadingUsers(false));
-    
-  }, []);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // === Validaciones iniciales ===
     if (!username.trim() || !password.trim()) {
       toast.error("Completá usuario y contraseña.");
       return;
     }
 
-    if (loadingUsers) {
-      toast.info("Esperá: aún se cargan los datos.");
-      return;
-    }
-
-    if (fetchError) {
-      toast.error("No se pueden validar credenciales ahora.");
-      return;
-    }
-
     setSubmitting(true);
 
-    const userMatch = users.find(
-      (u) => u.username.trim().toLowerCase() === username.trim().toLowerCase()
-    );
+    try {
+      const payload = {
+        username: String(username).trim(),
+        password: String(password).trim(),
+      };
 
-    setTimeout(() => {
-      if (userMatch && userMatch.password === password.trim()) {
-        toast.success(`Bienvenido/a — ${userMatch.username}`);
-        localStorage.setItem(
-          "miapp_user",
-          JSON.stringify({ username: userMatch.username, role: userMatch.role })
-        );
+      console.log("Enviando payload de login:", payload);
 
-        //  Redirigir según rol
-        if (userMatch.role === "medico" || userMatch.role === "centro_medico") {
-          navigate("/dashboard");
-        } else {
-          toast.error("Rol de usuario desconocido.");
-        }
-      } else {
-        toast.error("Credenciales incorrectas.");
+      const res = await fetch("http://localhost:3001/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      console.log("Respuesta HTTP login:", {
+        status: res.status,
+        statusText: res.statusText,
+      });
+
+      const rawBody = await res.text();
+      const data = rawBody ? JSON.parse(rawBody) : {};
+
+      console.log("Body de la respuesta:", data);
+
+      if (!res.ok) {
+        toast.error(data.message || "Credenciales incorrectas.");
+        setSubmitting(false);
+        return;
       }
 
+      // === Manejo de respuesta exitosa ===
+      if (data.message === "Acceso exitoso" && data.prestador) {
+        const { username, role } = data.prestador;
+
+        const normalizedRole = role.trim().toLowerCase(); // 👈 normalizado
+
+        localStorage.setItem(
+          "miapp_user",
+          JSON.stringify({
+            username,
+            role: normalizedRole,
+          })
+        );
+
+        toast.success(`Bienvenido/a — ${username}`);
+
+        console.log("Redirigiendo a /dashboard para role:", normalizedRole);
+
+        // Redirección después de un breve delay para que se vea el toast
+        setTimeout(() => navigate("/dashboard"), 1000);
+      } else {
+        toast.error(data.message || "Error en el inicio de sesión.");
+      }
+    } catch (err) {
+      console.error("Error en login:", err);
+      toast.error("No se pudo conectar con el servidor.");
+    } finally {
       setSubmitting(false);
-    }, 700);
+    }
   };
 
   return (
-     <Layout header={<HeaderLogin />}>
+    <Layout header={<HeaderLogin />}>
       <div className="login-page">
         <div className="d-flex justify-content-center align-items-center w-100">
-          <div className="login-card text-center">
+          <div className="login-card text-center shadow-lg p-4 rounded">
             <h2 className="fw-bold mb-4">Bienvenidos a Medicina Integral</h2>
-
-            {loadingUsers && (
-              <p className="mb-3 text-muted">Cargando datos de acceso...</p>
-            )}
 
             <form onSubmit={handleSubmit} noValidate>
               <div className="mb-3">
@@ -135,7 +118,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   className="btn btn-login"
-                  disabled={submitting || loadingUsers}
+                  disabled={submitting}
                 >
                   {submitting ? "Validando..." : "INGRESAR"}
                 </button>
@@ -143,15 +126,15 @@ export default function LoginPage() {
             </form>
 
             <p id="login-help" className="mt-3 small text-muted">
-              Usuarios de prueba:{" "}
-              <strong>medico / 12345</strong> —{" "}
+              Usuarios de prueba: <strong>medico / 12345</strong> —{" "}
               <strong>centro medico / 9876</strong>
             </p>
           </div>
         </div>
       </div>
-        <ToastContainer position="top-right" autoClose={3000} theme="colored" />
-      </Layout>
-    
+
+      {/* === Toasts globales === */}
+      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
+    </Layout>
   );
 }
