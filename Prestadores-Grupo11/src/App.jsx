@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import "./App.css";
 
 import HomePage from "./pages/Home";
@@ -10,6 +15,7 @@ import BusquedaSituacionesTerapeuticas from "./pages/BusquedaSituacionesTerapeut
 import SituacionesTerapeuticas from "./pages/SituacionesTerapeuticas";
 import AltaSituacionTerapeutica from "./pages/AltaSituacionTerapeutica";
 import CalendarioTurnosMedico from "./pages/CalendarioTurnosMedico";
+import CalendarioTurnosCentro from "./pages/CalendarioTurnosCentro";
 import BusquedaHistorialClinico from "./pages/BusquedaHistorialClinico";
 import HistorialClinico from "./pages/HistorialClinico";
 
@@ -54,7 +60,7 @@ export default function App() {
         />
 
         {/* Historial clinico */}
-        
+
         <Route
           path="/prestadores/historialClinico/busqueda"
           element={
@@ -83,16 +89,41 @@ export default function App() {
           }
         />
 
-        {/* Calendario Turnos Medico */}
+        {/* Calendario Turnos - Rutas separadas por rol */}
         <Route
-          path="/prestadores/calendarioturnosmedico"
+          path="/prestadores/calendario"
           element={
             <RequireAuth roles={["medico", "centro_medico"]}>
+              <Navigate
+                to={`/prestadores/calendario/${
+                  JSON.parse(localStorage.getItem("miapp_user"))?.role ===
+                  "medico"
+                    ? "medico"
+                    : "centro"
+                }`}
+                replace
+              />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/prestadores/calendario/medico"
+          element={
+            <RequireAuth roles={["medico"]}>
               <CalendarioTurnosMedico />
             </RequireAuth>
           }
         />
 
+        <Route
+          path="/prestadores/calendario/centro"
+          element={
+            <RequireAuth roles={["centro_medico"]}>
+              <CalendarioTurnosCentro />
+            </RequireAuth>
+          }
+        />
         {/* Not found -> redirect home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

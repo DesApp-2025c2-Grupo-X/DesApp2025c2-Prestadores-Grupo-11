@@ -24,14 +24,19 @@ export default function LoginPage() {
     setSubmitting(true);
 
     try {
-      // Normalizar username a minúsculas para evitar problemas por mayúsculas
+      // Normalizar username y password
       const usernameNorm = String(username).trim().toLowerCase();
+      const passwordNorm = String(password).trim(); // Convertir a string y remover espacios
+
       const payload = {
         username: usernameNorm,
-        password: String(password),
+        password: passwordNorm, // Usar password normalizado
       };
 
-      console.log("Enviando payload de login:", payload);
+      console.log("Enviando payload de login (normalizado):", {
+        username: usernameNorm,
+        password: "[PROTECTED]", // No logear passwords en producción
+      });
 
       const res = await fetch("http://localhost:3001/login", {
         method: "POST",

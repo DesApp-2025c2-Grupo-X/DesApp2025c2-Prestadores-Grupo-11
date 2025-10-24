@@ -125,7 +125,7 @@ export default function CalendarioTurnos() {
       </div>
 
       <footer className="footer-vista">
-        <small>← Vista actual: Médico</small>
+        <small>Vista actual: Médico</small>
       </footer>
     </div>
     </PrestadoresLayout>

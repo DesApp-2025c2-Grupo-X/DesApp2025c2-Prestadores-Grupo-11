@@ -5,7 +5,19 @@ import HeaderPrestadores from "../components/HeaderPrestadores";
 import { Calendar, FileText, Activity, BookOpen } from "lucide-react";
 import "../styles/Dashboard.css";
 
-export default function Dashboard() {
+  export default function Dashboard() {
+  // determinar ruta de calendario según el role del usuario (case-insensitive)
+  const userStr = localStorage.getItem("miapp_user");
+  let calendarPath = "/prestadores/calendario";
+  try {
+    const role = JSON.parse(userStr)?.role?.toString().trim().toLowerCase();
+    if (role === "medico") calendarPath = "/prestadores/calendario/medico";
+    else if (role === "centro_medico") calendarPath = "/prestadores/calendario/centro";
+  } catch (e) {
+    console.warn("No se pudo parsear miapp_user:", e);
+  }
+
+
   return (
     <PrestadoresLayout header={HeaderPrestadores}>
       <div className="dashboard-container">
@@ -56,12 +68,11 @@ export default function Dashboard() {
             <h2 className="section-title">Accesos Directos</h2>
             <div className="access-container">
               <div className="access-grid">
-                {/* Calendario */}
-                <Link to="/prestadores/calendarioturnosmedico" className="access-card">
+                {/* Calendario: usa calendarPath */}
+                <Link to={calendarPath} className="access-card">
                   <span>Calendario de Turnos</span>
                   <Calendar className="text-primary" />
                 </Link>
-
                 {/* Solicitudes */}
                 <Link to="/prestadores/solicitudes" className="access-card">
                   <span>Gestión de Solicitudes</span>
