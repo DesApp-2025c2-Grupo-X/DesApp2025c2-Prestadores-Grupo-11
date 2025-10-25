@@ -1,0 +1,20 @@
+.Toastify__toast {
+  background-color: var(--rosa) !important; /* Background color */
+  color: white !important; /* Text color */
+}
+
+.Toastify__toast--success {
+  background-color: var(--verde-menta) !important; /* Success toast color */
+}
+
+.Toastify__toast--error {
+  background-color: var(--rosa) !important; /* Error toast color */
+}
+
+.Toastify__toast--info {
+  background-color: var(--verde-menta) !important; /* Info toast color */
+}
+
+.Toastify__toast--warning {
+  background-color: var(--rosa) !important; /* Warning toast color */
+}

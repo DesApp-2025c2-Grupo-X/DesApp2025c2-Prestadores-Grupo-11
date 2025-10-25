@@ -1,77 +1,67 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Buscador from "../components/Buscador";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import PrestadoresLayout from "../components/PrestadoresLayout";
-import SideBar from "../components/SideBar";
-import { SidebarProvider } from "../context/SidebarContext";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/SituacionesTerapeuticas.css";
+import { getIntegrantes } from "../services/IntegrantesApi";
+
 
 export default function BusquedaSituacionesTerapeuticas() {
-  const [pacientes, setPacientes] = useState([]);
   const [resultados, setResultados] = useState([]);
   const [cargando, setCargando] = useState(false);
+  const debounceRef = useRef(null);
+  const controllerRef = useRef(null);
   const navigate = useNavigate();
 
-  // --- Cargar datos desde situacionesterapeuticas.json ---
-  useEffect(() => {
-    const fetchPacientes = async () => {
-      setCargando(true);
-      try {
-        const res = await fetch("/situacionesterapeuticas.json");
-        if (!res.ok)
-          throw new Error("Error al cargar situacionesterapeuticas.json");
-        const data = await res.json();
-        setPacientes(data);
-        console.log("Situaciones terapéuticas cargadas:", data);
-      } catch (err) {
-        console.error("Error cargando situaciones terapéuticas:", err);
-        toast.error(
-          "⚠️ Error al cargar los datos de situaciones terapéuticas."
-        );
-      } finally {
-        setCargando(false);
-      }
-    };
-
-    fetchPacientes();
-  }, []);
-
-  // --- Búsqueda ---
   const handleSearch = (valor) => {
-    const lower = valor?.toLowerCase().trim() || "";
+    const dato = (valor || "").toString().trim();
 
-    if (!lower) {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (controllerRef.current) controllerRef.current.abort();
+
+    if (!dato) {
       setResultados([]);
       return;
     }
 
-    const filtrados = pacientes.filter((p) => {
-      const nombreMatch = p.nombre?.toLowerCase().includes(lower);
-      const dniMatch = p.dni?.toString().includes(lower);
-      return nombreMatch || dniMatch;
-    });
+    debounceRef.current = setTimeout(async () => {
+      try {
+        setCargando(true);
+        controllerRef.current = new AbortController();
+        const data = await getIntegrantes(dato, controllerRef.current.signal);
 
-    // Solo mostrar un toast si no hay resultados
-    if (filtrados.length === 0) {
-      const tipoBusqueda = /^\d+$/.test(lower)
-        ? "el DNI ingresado"
-        : "el nombre ingresado";
-      toast.info(`🔍 No existe paciente con ${tipoBusqueda}.`, {
-        toastId: "sinResultados",
-      });
-    }
+        if (!data || data.length === 0) {
+          const tipo = /^\d+$/.test(dato) ? "el DNI ingresado" : "el nombre ingresado";
+          toast.info(`No existe paciente con ${tipo}.`);
+        }
 
-    setResultados(filtrados);
+        setResultados(data);
+      } catch (err) {
+        if (err.name !== "CanceledError") {
+          toast.error("Error en la búsqueda. Intente nuevamente.");
+        }
+      } finally {
+        setCargando(false);
+      }
+    }, 400);
   };
 
-  // --- Ver detalle ---
   const handleVerPaciente = (dni) => {
-    navigate(`/prestadores/situaciones/${encodeURIComponent(dni)}`);
+    navigate(`/prestadores/situaciones/${dni}`);
   };
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      if (controllerRef.current) controllerRef.current.abort();
+    };
+  }, []);
+
+
 
   return (
     
@@ -89,8 +79,8 @@ export default function BusquedaSituacionesTerapeuticas() {
 
           {/* --- Indicador de carga --- */}
           {cargando && (
-            <p style={{ marginTop: "1.5rem", color: "#555" }}>
-              ⏳ Cargando datos de pacientes...
+            <p style={{ marginTop: "1.5rem" }}>
+               Cargando datos ...
             </p>
           )}
 
@@ -135,7 +125,7 @@ export default function BusquedaSituacionesTerapeuticas() {
               ) : (
                 !cargando && (
                   <p style={{ marginTop: "1.5rem", color: "#555" }}>
-                    🔎 Ingresa un nombre o DNI para buscar pacientes.
+                     Ingresa un nombre o DNI para buscar pacientes.
                   </p>
                 )
               )}

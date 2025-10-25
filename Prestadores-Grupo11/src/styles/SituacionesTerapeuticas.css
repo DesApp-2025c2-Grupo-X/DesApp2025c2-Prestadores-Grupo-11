@@ -14,8 +14,7 @@ body {
   --celeste: #00b4d8;
   --verde-suave: #b4dbdc;
   --gris-claro: #f7f7f7;
-  --toastify-color-success: #b6e4db;  
-  --toastify-color-error: #fbc3c2; 
+  
 }
 
 /* ====== TITULOS ====== */
@@ -260,16 +259,6 @@ h3, h4, h5 {
 }
 
 
-
-/* Pequeños estilos para las badges si los querés mantener */
-.estado-finalizado {
-  background-color: #d4edda;
-  color: #155724;
-}
-.estado-proceso {
-  background-color: #fff3cd;
-  color: #856404;
-}
 
 /* ====== RESPONSIVE ====== */
 /* --- Ajustes para pantallas medianas (<= 992px) --- */

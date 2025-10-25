@@ -74,7 +74,7 @@ export default function SituacionesTerapeuticas() {
       s.id === id ? { ...s, estado: nuevoEstado } : s
     );
     setSituaciones(actualizadas);
-    toast.success(`Estado actualizado a "${nuevoEstado}" ✅`, {
+    toast.success(`Estado actualizado a "${nuevoEstado}" `, {
       position: "bottom-right",
       autoClose: 2000,
     });
@@ -84,7 +84,7 @@ export default function SituacionesTerapeuticas() {
   const handleArchivar = (id) => {
     const actualizadas = situaciones.filter((s) => s.id !== id);
     setSituaciones(actualizadas);
-    toast.success("Situación archivada con éxito 🗂️", {
+    toast.success("Situación archivada con éxito ", {
       position: "bottom-right",
       autoClose: 2000,
     });
