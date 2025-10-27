@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Buscador from "../components/Buscador";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import PrestadoresLayout from "../components/PrestadoresLayout";
@@ -14,7 +14,7 @@ export default function BusquedaHistorialClinico() {
     const [resultados, setResultados] = useState([])
     const navigate = useNavigate();
 
-    const handleSearchAfiliado = (valor) => {
+    const handleSearchAfiliado = useCallback((valor) => {
         const lower = valor?.toLowerCase() || "";
 
         if (!lower) {
@@ -23,13 +23,14 @@ export default function BusquedaHistorialClinico() {
         }
 
         const filtrados = afiliados.filter((af) => {
-            const dniMatch = af.dni.includes(lower)
-            const nombreMatch = af.nombre.toLowerCase().includes(lower)
+            const dniMatch = af.dni.includes(lower);
+            const nombreMatch = af.nombre.toLowerCase().includes(lower);
             return dniMatch || nombreMatch;
         });
-
+        
+        console.log(filtrados)
         setResultados(filtrados);
-    };
+    }, [afiliados]);
 
     //Se traen los datos de los afiliados, desde afiliados.json
     useEffect(() => {
