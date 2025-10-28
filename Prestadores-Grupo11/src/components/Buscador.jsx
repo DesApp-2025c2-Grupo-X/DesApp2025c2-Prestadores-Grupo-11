@@ -7,9 +7,10 @@ import "../styles/SituacionesTerapeuticas.css";
 export default function Buscador({ onSearch, delay = 500, basePath = "/prestadores/situaciones" }) {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const navigate = useNavigate();
 
-  // Debounce
+  // --- Debounce: espera X ms antes de actualizar el valor real de búsqueda ---
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedQuery(query.trim());
@@ -17,7 +18,7 @@ export default function Buscador({ onSearch, delay = 500, basePath = "/prestador
     return () => clearTimeout(handler);
   }, [query, delay]);
 
-  //  Ejecutar búsqueda sólo si hay texto útil
+  // Ejecutar búsqueda sólo si hay texto útil
   useEffect(() => {
     if (debouncedQuery.length >= 2 && onSearch) {
       onSearch(debouncedQuery);
@@ -44,9 +45,11 @@ export default function Buscador({ onSearch, delay = 500, basePath = "/prestador
     >
       <input
         type="text"
-        placeholder="Buscar por nombre o DNI ..."
+        placeholder="Buscar por nombre o DNI..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         onKeyDown={handleKeyDown}
       />
 

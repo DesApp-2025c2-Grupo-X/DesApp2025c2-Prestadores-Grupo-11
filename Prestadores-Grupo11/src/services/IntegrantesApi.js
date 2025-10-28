@@ -1,8 +1,8 @@
-import api from './api';
+import api from './Api';
 
 
 // GET /integrantes?q=valorBusqueda
-export const buscarIntegrantes = async (valorBusqueda, signal) => {
+export const getIntegrantes = async (valorBusqueda, signal) => {
   const res = await api.get('/integrantes', {
     params: { q: valorBusqueda },
     signal,
