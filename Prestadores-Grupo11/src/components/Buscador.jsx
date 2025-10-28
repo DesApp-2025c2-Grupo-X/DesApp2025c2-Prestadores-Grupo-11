@@ -7,6 +7,7 @@ import "../styles/SituacionesTerapeuticas.css";
 export default function Buscador({ onSearch, delay = 500, basePath = "/prestadores/situaciones" }) {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const navigate = useNavigate();
 
   // Debounce
@@ -47,6 +48,8 @@ export default function Buscador({ onSearch, delay = 500, basePath = "/prestador
         placeholder="Buscar por nombre o DNI ..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         onKeyDown={handleKeyDown}
       />
 
