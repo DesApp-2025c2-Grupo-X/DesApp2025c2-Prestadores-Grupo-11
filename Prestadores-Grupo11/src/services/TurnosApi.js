@@ -1,4 +1,4 @@
-import api from './api';
+import api from './Api';
 
 // GET /turnos/integrante/:integranteId
 export const getTurnosByIntegrante = async (integranteId, signal) => {
