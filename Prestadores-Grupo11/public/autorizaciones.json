@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1,
+    "fechaPrevista": "2025-11-02",
+    "integrante": "Martina López",
+    "medico": "Dr. Ricardo Molina",
+    "especialidad": "Kinesiología",
+    "estado": "recibido"
+  },
+  {
+    "id": 2,
+    "fechaPrevista": "2025-11-05",
+    "integrante": "Lucas Fernández",
+    "medico": "Dra. Gabriela Torres",
+    "especialidad": "Neurología",
+    "estado": "en analisis"
+  },
+  {
+    "id": 3,
+    "fechaPrevista": "2025-11-10",
+    "integrante": "Camila Rodríguez",
+    "medico": "Dr. Alejandro Suárez",
+    "especialidad": "Cardiología",
+    "estado": "aprobado"
+  },
+  {
+    "id": 4,
+    "fechaPrevista": "2025-11-12",
+    "integrante": "Julián Morales",
+    "medico": "Dra. Verónica Castro",
+    "especialidad": "Traumatología",
+    "estado": "recibido"
+  },
+  {
+    "id": 5,
+    "fechaPrevista": "2025-11-15",
+    "integrante": "Lucía Navarro",
+    "medico": "Dr. Hernán Cabrera",
+    "especialidad": "Oftalmología",
+    "estado": "en analisis"
+  },
+  {
+    "id": 6,
+    "fechaPrevista": "2025-11-18",
+    "integrante": "Tomás Rivas",
+    "medico": "Dra. Soledad Vargas",
+    "especialidad": "Ginecología",
+    "estado": "rechazado"
+  },
+  {
+    "id": 7,
+    "fechaPrevista": "2025-11-20",
+    "integrante": "Valeria Paredes",
+    "medico": "Dr. Pablo Herrera",
+    "especialidad": "Clínica Médica",
+    "estado": "recibido"
+  },
+  {
+    "id": 8,
+    "fechaPrevista": "2025-11-25",
+    "integrante": "Agustín Pereyra",
+    "medico": "Dra. Cecilia Fuentes",
+    "especialidad": "Dermatología",
+    "estado": "en analisis"
+  }
+]

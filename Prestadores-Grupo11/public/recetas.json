@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1,
+    "integrante": "Sofía Gómez",
+    "medicamento": "Ibuprofeno",
+    "cantidad": 30,
+    "presentacion": "comprimidos 400 mg",
+    "estado": "recibido"
+  },
+  {
+    "id": 2,
+    "integrante": "Matías Roldán",
+    "medicamento": "Amoxicilina",
+    "cantidad": 20,
+    "presentacion": "cápsulas 500 mg",
+    "estado": "en analisis"
+  },
+  {
+    "id": 3,
+    "integrante": "Julieta Martínez",
+    "medicamento": "Paracetamol",
+    "cantidad": 40,
+    "presentacion": "comprimidos 500 mg",
+    "estado": "entregado"
+  },
+  {
+    "id": 4,
+    "integrante": "Nicolás Castro",
+    "medicamento": "Losartán",
+    "cantidad": 30,
+    "presentacion": "comprimidos 50 mg",
+    "estado": "recibido"
+  },
+  {
+    "id": 5,
+    "integrante": "Mariana Díaz",
+    "medicamento": "Salbutamol",
+    "cantidad": 1,
+    "presentacion": "inhalador 100 µg/dosis",
+    "estado": "en analisis"
+  },
+  {
+    "id": 6,
+    "integrante": "Federico Ruiz",
+    "medicamento": "Atorvastatina",
+    "cantidad": 30,
+    "presentacion": "comprimidos 20 mg",
+    "estado": "entregado"
+  },
+  {
+    "id": 7,
+    "integrante": "Carla Benítez",
+    "medicamento": "Metformina",
+    "cantidad": 60,
+    "presentacion": "comprimidos 850 mg",
+    "estado": "recibido"
+  },
+  {
+    "id": 8,
+    "integrante": "Gonzalo Herrera",
+    "medicamento": "Omeprazol",
+    "cantidad": 28,
+    "presentacion": "cápsulas 20 mg",
+    "estado": "en analisis"
+  }
+]

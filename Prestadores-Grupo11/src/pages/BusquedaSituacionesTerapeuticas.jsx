@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Buscador from "../components/Buscador";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import PrestadoresLayout from "../components/PrestadoresLayout";
@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/SituacionesTerapeuticas.css";
-import { getIntegrantes } from "../services/IntegrantesApi";
+import { getIntegranteById } from "../services/IntegrantesApi";
 
 
 export default function BusquedaSituacionesTerapeuticas() {
@@ -17,7 +17,7 @@ export default function BusquedaSituacionesTerapeuticas() {
   const controllerRef = useRef(null);
   const navigate = useNavigate();
 
-  const handleSearch = (valor) => {
+  const handleSearch = useCallback((valor) => {
     const dato = (valor || "").toString().trim();
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -32,7 +32,7 @@ export default function BusquedaSituacionesTerapeuticas() {
       try {
         setCargando(true);
         controllerRef.current = new AbortController();
-        const data = await getIntegrantes(dato, controllerRef.current.signal);
+        const data = await getIntegranteById(dato, controllerRef.current.signal);
 
         if (!data || data.length === 0) {
           const tipo = /^\d+$/.test(dato) ? "el DNI ingresado" : "el nombre ingresado";
@@ -48,7 +48,7 @@ export default function BusquedaSituacionesTerapeuticas() {
         setCargando(false);
       }
     }, 400);
-  };
+  }, []);
 
   const handleVerPaciente = (dni) => {
     navigate(`/prestadores/situaciones/${dni}`);
@@ -64,81 +64,81 @@ export default function BusquedaSituacionesTerapeuticas() {
 
 
   return (
-    
-      <PrestadoresLayout header={<HeaderPrestadores />}>
-       
-        <div className="contenido-principal main-with-sidebar">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+
+    <PrestadoresLayout header={<HeaderPrestadores />}>
+
+      <div className="contenido-principal main-with-sidebar">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h3>Búsqueda de Situaciones Terapéuticas</h3>
+          <Buscador onSearch={handleSearch} />
+        </motion.div>
+
+        {/* --- Indicador de carga --- */}
+        {cargando && (
+          <p style={{ marginTop: "1.5rem" }}>
+            Cargando datos ...
+          </p>
+        )}
+
+        {/* --- Tabla de resultados --- */}
+        <div className="table-responsive-xl">
+          <motion.table
+            className="table table-hover align-middle shadow-sm rounded text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: resultados.length ? 1 : 0 }}
+            transition={{ duration: 0.4 }}
           >
-            <h3>Búsqueda de Situaciones Terapéuticas</h3>
-            <Buscador onSearch={handleSearch} />
-          </motion.div>
-
-          {/* --- Indicador de carga --- */}
-          {cargando && (
-            <p style={{ marginTop: "1.5rem" }}>
-               Cargando datos ...
-            </p>
-          )}
-
-          {/* --- Tabla de resultados --- */}
-          <div className="table-responsive-xl">
-             <motion.table
-              className="table table-hover align-middle shadow-sm rounded text-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: resultados.length ? 1 : 0 }}
-              transition={{ duration: 0.4 }}
-            >
-              {resultados.length > 0 ? (
-                <>
-                  <thead className="table-secondary">
-                    <tr>
-                      <th>Nombre</th>
-                      <th>DNI</th>
-                      <th>Edad</th>
-                      <th>Situaciones</th>
-                      <th>Acción</th>
+            {resultados.length > 0 ? (
+              <>
+                <thead className="table-secondary">
+                  <tr>
+                    <th>Nombre</th>
+                    <th>DNI</th>
+                    <th>Edad</th>
+                    <th>Situaciones</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {resultados.map((paciente) => (
+                    <tr key={paciente.dni}>
+                      <td>{paciente.nombre}</td>
+                      <td>{paciente.dni}</td>
+                      <td>{paciente.edad}</td>
+                      <td>{paciente.situaciones_terapeuticas?.length || 0}</td>
+                      <td>
+                        <button
+                          className="btn-accion"
+                          onClick={() => handleVerPaciente(paciente.dni)}
+                        >
+                          Ver detalle
+                        </button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {resultados.map((paciente) => (
-                      <tr key={paciente.dni}>
-                        <td>{paciente.nombre}</td>
-                        <td>{paciente.dni}</td>
-                        <td>{paciente.edad}</td>
-                        <td>{paciente.situaciones_terapeuticas?.length || 0}</td>
-                        <td>
-                          <button
-                            className="btn-accion"
-                            onClick={() => handleVerPaciente(paciente.dni)}
-                          >
-                            Ver detalle
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </>
-              ) : (
-                !cargando && (
-                  <p style={{ marginTop: "1.5rem", color: "#555" }}>
-                     Ingresa un nombre o DNI para buscar pacientes.
-                  </p>
-                )
-              )}
-            </motion.table>
-          </div>
-          {/* Contenedor de Toastify */}
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            hideProgressBar
-          />
+                  ))}
+                </tbody>
+              </>
+            ) : (
+              !cargando && (
+                <p style={{ marginTop: "1.5rem", color: "#555" }}>
+                  Ingresa un nombre o DNI para buscar pacientes.
+                </p>
+              )
+            )}
+          </motion.table>
         </div>
-      </PrestadoresLayout>
-   
+        {/* Contenedor de Toastify */}
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar
+        />
+      </div>
+    </PrestadoresLayout>
+
   );
 }

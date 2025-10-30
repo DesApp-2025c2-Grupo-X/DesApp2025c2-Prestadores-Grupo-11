@@ -18,6 +18,8 @@ import CalendarioTurnosMedico from "./pages/CalendarioTurnosMedico";
 import CalendarioTurnosCentro from "./pages/CalendarioTurnosCentro";
 import BusquedaHistorialClinico from "./pages/BusquedaHistorialClinico";
 import HistorialClinico from "./pages/HistorialClinico";
+import SolicitudesEntrantes from "./pages/SolicitudesEntrantes";
+import GestionSolicitud from "./pages/GestionSolicitud";
 import "./styles/ToastStyles.css"; 
 
 
@@ -126,6 +128,27 @@ export default function App() {
             </RequireAuth>
           }
         />
+
+        {/* Solicitudes entrantes */}
+        <Route
+          path="/prestadores/solicitudes"
+          element={
+            <RequireAuth roles={["medico", "centro_medico"]}>
+              <SolicitudesEntrantes />
+            </RequireAuth>
+          }
+        />
+
+        {/* Gestion de solicitud */}
+        <Route
+          path="/prestadores/solicitudes/:id"
+          element={
+            <RequireAuth roles={["medico", "centro_medico"]}>
+              <GestionSolicitud />
+            </RequireAuth>
+          }
+        />
+
         {/* Not found -> redirect home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
