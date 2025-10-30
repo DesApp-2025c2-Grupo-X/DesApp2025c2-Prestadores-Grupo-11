@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "fechaPrestacion": "2025-10-20",
+    "integrante": "Juan Pérez",
+    "medico": "Dra. Laura Gómez",
+    "especialidad": "Cardiología",
+    "lugarAtencion": "Clínica San Martín",
+    "factura": {
+      "fecha": "2025-10-21",
+      "cuit": "20-34567890-1",
+      "valorTotal": 18500,
+      "facturadoA": "Juan Pérez"
+    },
+    "formaPago": {
+      "tipo": "Transferencia",
+      "cbu": "0170201230000045678901"
+    },
+    "observaciones": "",
+    "estado": "recibido"
+  },
+  {
+    "id": 2,
+    "fechaPrestacion": "2025-09-15",
+    "integrante": "María López",
+    "medico": "Dr. Andrés Torres",
+    "especialidad": "Traumatología",
+    "lugarAtencion": "Hospital Central",
+    "factura": {
+      "fecha": "2025-09-16",
+      "cuit": "23-87654321-0",
+      "valorTotal": 9500,
+      "facturadoA": "María López"
+    },
+    "formaPago": {
+      "tipo": "Cheque",
+      "cbu": null
+    },
+    "observaciones": "Paciente envió comprobante adicional por correo.",
+    "estado": "en analisis"
+  },
+  {
+    "id": 3,
+    "fechaPrestacion": "2025-08-02",
+    "integrante": "Carlos Fernández",
+    "medico": "Dra. Patricia Díaz",
+    "especialidad": "Dermatología",
+    "lugarAtencion": "Consultorio Independiente",
+    "factura": {
+      "fecha": "2025-08-03",
+      "cuit": "27-12345678-9",
+      "valorTotal": 6700,
+      "facturadoA": "Carlos Fernández"
+    },
+    "formaPago": {
+      "tipo": "Efectivo",
+      "cbu": null
+    },
+    "observaciones": "",
+    "estado": "resuelto"
+  }
+]

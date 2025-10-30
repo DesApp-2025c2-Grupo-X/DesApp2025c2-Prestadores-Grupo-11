@@ -6,7 +6,6 @@ import SideBar from "../components/SideBar";
 import { SidebarProvider } from "../context/SidebarContext";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import "../styles/BusquedaHistorialClinico.css";
 
 export default function BusquedaHistorialClinico() {
     const [dni, setDni] = useState("")
