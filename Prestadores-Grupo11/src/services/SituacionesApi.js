@@ -1,4 +1,4 @@
-import api from './api';
+import api from './Api';
 
 // GET /situaciones/:integranteId
 export const getSituacionesByIntegrante = async (integranteId, signal) => {
