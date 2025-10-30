@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef, useCallback } from "react"
+import { useNavigate } from "react-router-dom"
 import Buscador from "../components/Buscador";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import PrestadoresLayout from "../components/PrestadoresLayout";
@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/SituacionesTerapeuticas.css";
-import { getIntegrantes } from "../services/IntegrantesApi";
+import { getIntegranteById } from "../services/IntegrantesApi";
 
 export default function BusquedaSituacionesTerapeuticas() {
   const [resultados, setResultados] = useState([]);
