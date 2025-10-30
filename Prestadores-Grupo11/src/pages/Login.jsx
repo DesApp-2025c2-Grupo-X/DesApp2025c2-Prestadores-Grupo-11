@@ -6,7 +6,6 @@ import "../styles/Login.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 export default function LoginPage() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -63,14 +62,14 @@ export default function LoginPage() {
 
       // === Manejo de respuesta exitosa ===
       if (data.message === "Acceso exitoso" && data.prestador) {
-        const { username, role } = data.prestador;
-
-        const normalizedRole = role.trim().toLowerCase(); // normalizado evita errores por mayusculas
+        const { id, username, role } = data.prestador;
+        const normalizedRole = role.trim().toLowerCase(); // <-- ¡Asegura que es 'medico'!
 
         localStorage.setItem(
           "miapp_user",
           JSON.stringify({
-            username,
+            id: id,
+            username: username,
             role: normalizedRole,
           })
         );

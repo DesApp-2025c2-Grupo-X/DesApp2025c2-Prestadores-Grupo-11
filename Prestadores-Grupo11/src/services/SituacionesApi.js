@@ -1,13 +1,46 @@
+// src/services/situacionesApi.js
 import api from './Api';
 
-// GET /situaciones/:integranteId
-export const getSituacionesByIntegrante = async (integranteId, signal) => {
-  const res = await api.get(`/situaciones/${integranteId}`, { signal });
-  return res.data;
+/**
+ * Obtiene todas las situaciones de un afiliado según el prestador
+ * GET /situaciones/:id/Afiliado/:afiliadoId
+ * (id = prestadorId)
+ */
+export const getSituacionesByAfiliado = async (prestadorId, afiliadoId, signal) => {
+  try {
+    const res = await api.get(`/situaciones/${prestadorId}/Afiliado/${afiliadoId}`, { signal });
+    return res.data;
+  } catch (error) {
+    if (error.name === 'CanceledError') throw error;
+    console.error(`Error al obtener situaciones del afiliado ${afiliadoId}:`, error);
+    throw error;
+  }
 };
 
-// GET /situaciones/prestador/:prestadorId
-export const getSituacionesByPrestador = async (prestadorId, signal) => {
-  const res = await api.get(`/situaciones/prestador/${prestadorId}`, { signal });
-  return res.data;
+/**
+ * Crear nueva situación
+ * POST /situaciones
+ */
+export const crearSituacion = async (data) => {
+  try {
+    const res = await api.post('/situaciones', data);
+    return res.data;
+  } catch (error) {
+    console.error('Error al crear situación:', error);
+    throw error;
+  }
+};
+
+/**
+ * Actualizar estado de situación
+ * PATCH /situaciones/:id
+ */
+export const actualizarSituacion = async (id, data) => {
+  try {
+    const res = await api.patch(`/situaciones/${id}`, data);
+    return res.data;
+  } catch (error) {
+    console.error(`Error al actualizar situación ${id}:`, error);
+    throw error;
+  }
 };

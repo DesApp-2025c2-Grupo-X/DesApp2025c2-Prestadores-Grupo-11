@@ -3,57 +3,161 @@ import { useNavigate, useParams } from "react-router-dom";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import SideBar from "../components/SideBar";
-import { ArrowLeft, Pencil, Plus, Folder } from "lucide-react";
+import { ArrowLeft, Folder } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { Tooltip } from "react-tooltip";
+import "react-toastify/dist/ReactToastify.css";
 import "../styles/SituacionesTerapeuticas.css";
 
+import { getSituacionesByAfiliado } from "../services/SituacionesApi";
+
 export default function SituacionesTerapeuticas() {
-  const { dni } = useParams();
+  const { id: afiliadoId} = useParams();
   const navigate = useNavigate();
-  const [situaciones, setSituaciones] = useState([]);
+
   const [paciente, setPaciente] = useState(null);
+  const [situaciones, setSituaciones] = useState([]);
+  const [cargando, setCargando] = useState(false);
+  const [error, setError] = useState(false);
 
-  // Cargar datos desde el JSON
   useEffect(() => {
-    fetch("/situacionesterapeuticas.json")
-      .then((res) => res.json())
-      .then((data) => {
-        const pacienteEncontrado = data.find((p) => p.dni === dni);
+    if (!afiliadoId) {
+      console.warn("No se recibió afiliadoId en useParams");
+      return;
+    }
 
-        if (pacienteEncontrado) {
-          setPaciente({
-            nombre: pacienteEncontrado.nombre,
-            dni: pacienteEncontrado.dni,
-            edad: pacienteEncontrado.edad,
+    const controller = new AbortController();
+    const { signal } = controller;
+
+    const fetchData = async () => {
+      try {
+        setCargando(true);
+
+        const user = JSON.parse(localStorage.getItem("miapp_user"));
+        console.log("user guardado en localStorage:", user);
+
+        if (!user || !user.id) {
+          toast.error("Usuario no logueado. Por favor, inicie sesión.", {
+            toastId: "noAuth",
           });
-
-          const ordenadas = pacienteEncontrado.situaciones_terapeuticas
-            .map((s, index) => ({ ...s, id: index }))
-            .sort(
-              (a, b) =>
-                new Date(b.fecha_inicio.split("/").reverse().join("-")) -
-                new Date(a.fecha_inicio.split("/").reverse().join("-"))
-            );
-
-          setSituaciones(ordenadas);
-        } else {
-          setPaciente(null);
-          setSituaciones([]);
+          setError(true);
+          return;
         }
-      })
-      .catch((err) => console.error("Error cargando datos:", err));
-  }, [dni]);
 
-  if (!paciente) {
+        const prestadorId = user.id;
+        console.log("Solicitando datos:", { prestadorId, afiliadoId });
+
+        const data = await getSituacionesByAfiliado(prestadorId, afiliadoId, signal);
+        console.log("Respuesta del backend:", data);
+
+        // ───────────────────────────────────────────────
+        // Acepta tanto objeto afiliado como array plano
+        // ───────────────────────────────────────────────
+        let afiliado = null;
+        let listaSituaciones = [];
+
+        if (Array.isArray(data)) {
+          // backend devuelve array plano de situaciones
+          if (data.length === 0) throw new Error("Sin resultados");
+          afiliado = data[0]?.afiliado || {};
+          listaSituaciones = data.map((s) => ({
+            id: s.id,
+            fecha_inicio: s.fecha_inicio,
+            especialidad: s.especialidad,
+            descripcion: s.descripcion,
+            estado: s.estado,
+            prestador_nombre: s.prestador_nombre,
+            pacienteNombre: s.afiliado?.integrantes?.[0]?.nombre || "—",
+            pacienteDNI: s.afiliado?.integrantes?.[0]?.dni || "—",
+          }));
+        } else if (data && typeof data === "object") {
+          // backend devuelve afiliado con integrantes → situaciones anidadas
+          afiliado = data;
+          listaSituaciones = data.integrantes?.flatMap((i) =>
+            i.situaciones?.map((s) => ({
+              id: s.id,
+              fecha_inicio: s.fecha_inicio,
+              especialidad: s.especialidad,
+              descripcion: s.descripcion,
+              estado: s.estado,
+              prestador_nombre: s.prestador?.nombre || "—",
+              pacienteNombre: i.nombre,
+              pacienteDNI: i.dni,
+            })) || []
+          ) || [];
+        }
+
+        if (!afiliado) throw new Error("Afiliado no encontrado");
+
+        setPaciente({
+          nombre: afiliado.apellido || "—",
+          afiliadoId: afiliado.id || afiliadoId,
+        });
+
+        setSituaciones(listaSituaciones);
+      } catch (err) {
+        if (err.name === "CanceledError") return;
+        console.error("Error cargando datos:", err);
+        toast.error("No se pudieron cargar los datos del paciente", {
+          position: "bottom-right",
+          autoClose: 2500,
+        });
+        setError(true);
+      } finally {
+        if (!controller.signal.aborted) setCargando(false);
+      }
+    };
+
+    fetchData();
+    return () => controller.abort();
+  }, [afiliadoId]);
+
+  // === Acciones ===
+  const handleEditarEstado = (id, nuevoEstado) => {
+    const actualizadas = situaciones.map((s) =>
+      s.id === id ? { ...s, estado: nuevoEstado } : s
+    );
+    setSituaciones(actualizadas);
+    toast.success(`Estado actualizado a "${nuevoEstado}"`, {
+      position: "bottom-right",
+      autoClose: 2000,
+    });
+  };
+
+  const handleArchivar = (id) => {
+    const actualizadas = situaciones.filter((s) => s.id !== id);
+    setSituaciones(actualizadas);
+    toast.success("Situación archivada con éxito", {
+      position: "bottom-right",
+      autoClose: 2000,
+    });
+  };
+
+  // === Vistas de estado ===
+  if (cargando) {
     return (
       <PrestadoresLayout header={<HeaderPrestadores />}>
         <div className="d-flex">
           <SideBar />
           <div className="container mt-5 text-center">
-            <h4>No se encontraron situaciones para este paciente.</h4>
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Cargando...</span>
+            </div>
+            <p className="mt-3">Cargando datos del paciente...</p>
+          </div>
+        </div>
+      </PrestadoresLayout>
+    );
+  }
+
+  if (error || !paciente) {
+    return (
+      <PrestadoresLayout header={<HeaderPrestadores />}>
+        <div className="d-flex">
+          <SideBar />
+          <div className="container mt-5 text-center">
+            <h4>No se pudieron cargar los datos del paciente.</h4>
             <motion.button
               className="btn-volver mt-3"
               whileHover={{ scale: 1.05 }}
@@ -68,32 +172,11 @@ export default function SituacionesTerapeuticas() {
     );
   }
 
-  // Editar estado inline con select
-  const handleEditarEstado = (id, nuevoEstado) => {
-    const actualizadas = situaciones.map((s) =>
-      s.id === id ? { ...s, estado: nuevoEstado } : s
-    );
-    setSituaciones(actualizadas);
-    toast.success(`Estado actualizado a "${nuevoEstado}" `, {
-      position: "bottom-right",
-      autoClose: 2000,
-    });
-  };
-
-  // Archivar situación
-  const handleArchivar = (id) => {
-    const actualizadas = situaciones.filter((s) => s.id !== id);
-    setSituaciones(actualizadas);
-    toast.success("Situación archivada con éxito ", {
-      position: "bottom-right",
-      autoClose: 2000,
-    });
-  };
-
+  // === Vista principal ===
   return (
     <PrestadoresLayout header={<HeaderPrestadores />}>
       <div className="d-flex">
-       
+        <SideBar />
         <div className="flex-grow-1 p-4">
           <ToastContainer />
 
@@ -106,34 +189,9 @@ export default function SituacionesTerapeuticas() {
             <ArrowLeft size={18} className="me-2" /> Volver
           </motion.button>
 
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h3>Situaciones Terapéuticas</h3>
+          <h3>Situaciones Terapéuticas del Afiliado</h3>
 
-            <motion.button
-              className="btn-nueva-situacion"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate(`/prestadores/situaciones/alta/${dni}`)}
-            >
-              <Plus size={18} className="me-2" />
-              Nueva Situación
-            </motion.button>
-          </div>
-
-          <div className="paciente-card p-3 rounded shadow-sm bg-light mb-4">
-            <div className="d-flex align-items-center">
-              <i className="bi bi-person-circle fs-1 me-3"></i>
-              <div>
-                <h5 className="fw-semibold mb-0">{paciente.nombre}</h5>
-                <small className="text-muted">
-                  DNI: {paciente.dni} — Edad: {paciente.edad}
-                </small>
-              </div>
-            </div>
-          </div>
-
-          {/* Tabla */}
-          <div className="table-responsive-xl">
+          <div className="table-responsive-xl mt-4">
             <motion.table
               className="table table-hover align-middle shadow-sm rounded text-center"
               initial={{ opacity: 0 }}
@@ -142,12 +200,13 @@ export default function SituacionesTerapeuticas() {
             >
               <thead className="table-secondary">
                 <tr>
+                  <th>Paciente</th>
+                  <th>DNI</th>
                   <th>Fecha inicio</th>
                   <th>Especialidad</th>
                   <th>Descripción</th>
                   <th>Prestador</th>
                   <th>Estado</th>
-                  <th>Fecha fin</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -155,15 +214,15 @@ export default function SituacionesTerapeuticas() {
                 {situaciones.length > 0 ? (
                   situaciones.map((s) => (
                     <tr key={s.id}>
+                      <td>{s.pacienteNombre}</td>
+                      <td>{s.pacienteDNI}</td>
                       <td>{s.fecha_inicio || "—"}</td>
                       <td>{s.especialidad || "—"}</td>
                       <td>
                         <button
                           className="btn-ver-mas"
                           data-tooltip-id={`desc-${s.id}`}
-                          data-tooltip-content={
-                            s.descripcion || "Sin descripción"
-                          }
+                          data-tooltip-content={s.descripcion || "Sin descripción"}
                         >
                           Ver más
                         </button>
@@ -177,7 +236,7 @@ export default function SituacionesTerapeuticas() {
                           }}
                         />
                       </td>
-                      <td>{s.medico || "—"}</td>
+                      <td>{s.prestador_nombre || "—"}</td>
                       <td>
                         <select
                           value={s.estado || "Pendiente"}
@@ -195,7 +254,6 @@ export default function SituacionesTerapeuticas() {
                           <option value="Finalizado">Finalizado</option>
                         </select>
                       </td>
-                      <td>{s.fecha_final || "—"}</td>
                       <td>
                         <button
                           className="btn btn-sm btn-outline-secondary"
@@ -208,13 +266,7 @@ export default function SituacionesTerapeuticas() {
                   ))
                 ) : (
                   <tr>
-                    <td
-                      colSpan="7"
-                      style={{
-                        textAlign: "center",
-                        color: "var(--azul-petroleo)",
-                      }}
-                    >
+                    <td colSpan="8" style={{ color: "var(--azul-petroleo)" }}>
                       No hay situaciones registradas.
                     </td>
                   </tr>

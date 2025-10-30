@@ -1,44 +1,36 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react"
+import { useNavigate } from "react-router-dom"
 import Buscador from "../components/Buscador";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/SituacionesTerapeuticas.css";
 import { getIntegranteById } from "../services/IntegrantesApi";
 
-
-
 export default function BusquedaSituacionesTerapeuticas() {
   const [resultados, setResultados] = useState([]);
   const [cargando, setCargando] = useState(false);
-  const debounceRef = useRef(null);
   const controllerRef = useRef(null);
   const navigate = useNavigate();
 
-  //  Función para ir al detalle
-  const handleVerPaciente = (dni) => {
-    navigate(`/prestadores/situaciones/${encodeURIComponent(dni)}`);
-  };
+  // Leer prestador del localStorage
+  const storedUser = JSON.parse(localStorage.getItem("miapp_user"));
+  const prestadorId = storedUser?.id;
 
-  //  Búsqueda con debounce y cancelación
-  const handleSearch = (valor) => {
-    const dato = (valor || "").toString().trim();
+  const handleSearch = useCallback(
+    async (valor) => {
+      const dato = (valor || "").trim();
 
-    // Limpiar debounce y request anteriores
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (controllerRef.current) controllerRef.current.abort();
+      if (controllerRef.current) controllerRef.current.abort();
 
-    if (!dato) {
-      setResultados([]);
-      setCargando(false);
-      return;
-    }
+      if (!dato) {
+        setResultados([]);
+        setCargando(false);
+        return;
+      }
 
-    //  debounce (500 ms)
-    debounceRef.current = setTimeout(async () => {
       controllerRef.current = new AbortController();
       setCargando(true);
 
@@ -48,35 +40,46 @@ export default function BusquedaSituacionesTerapeuticas() {
         if (!data || data.length === 0) {
           const tipo = /^\d+$/.test(dato)
             ? "el DNI ingresado"
-            : "el nombre ingresado";
-          toast.info(`No existe paciente con ${tipo}.`, {
+            : "el apellido o nombre ingresado";
+          toast.info(`No se encontraron resultados para ${tipo}.`, {
             toastId: "sinResultados",
           });
+          setResultados([]);
+        } else {
+          setResultados(data);
         }
-
-        setResultados(data);
       } catch (err) {
-        if (err.name === "CanceledError") return; // Ignorar si fue cancelada
-        console.error(err);
+        if (err.name === "CanceledError") return;
+        console.error("Error en la búsqueda:", err);
         toast.error("Error en la búsqueda. Intente nuevamente.", {
           toastId: "errorBusqueda",
         });
       } finally {
-        // Solo desactivar cargando si la request sigue activa
         if (!controllerRef.current.signal.aborted) {
           setCargando(false);
         }
       }
-    }, 500);
-  };
+    },
+    []
+  );
 
-  // Limpiar refs al desmontar
   useEffect(() => {
     return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
       if (controllerRef.current) controllerRef.current.abort();
     };
   }, []);
+
+  // Redirige a Situaciones usando afiliadoId
+  const handleVerPaciente = (afiliadoId) => {
+    if (!afiliadoId) {
+      toast.warning("No se pudo obtener el ID del afiliado.", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+      return;
+    }
+    navigate(`/prestadores/situaciones/${afiliadoId}`);
+  };
 
   return (
     <PrestadoresLayout header={<HeaderPrestadores />}>
@@ -90,60 +93,56 @@ export default function BusquedaSituacionesTerapeuticas() {
           <Buscador onSearch={handleSearch} />
         </motion.div>
 
-        {/* Indicador de carga */}
         {cargando && (
           <p style={{ marginTop: "1.5rem", color: "#555" }}>
-             Cargando datos de pacientes...
+            Cargando datos de pacientes...
           </p>
         )}
 
-        {/* Tabla o mensaje */}
-        <div className="table-responsive-xl">
-          <motion.table
-            className="table table-hover align-middle shadow-sm rounded text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: resultados.length ? 1 : 0.5 }}
-            transition={{ duration: 0.4 }}
-          >
-            {resultados.length > 0 ? (
-              <>
-                <thead className="table-secondary">
-                  <tr>
-                    <th>Nombre</th>
-                    <th>DNI</th>
-                    <th>Edad</th>
-                    <th>Situaciones</th>
-                    <th>Acción</th>
+        {resultados.length > 0 && (
+          <div className="table-responsive-xl">
+            <motion.table
+              className="table table-hover align-middle shadow-sm rounded text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
+            >
+              <thead className="table-secondary">
+                <tr>
+                  <th>Nombre</th>
+                  <th>DNI</th>
+                  <th>Edad</th>
+                  <th>Situaciones</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {resultados.map((paciente) => (
+                  <tr key={paciente.dni}>
+                    <td>{paciente.nombre}</td>
+                    <td>{paciente.dni}</td>
+                    <td>{paciente.edad}</td>
+                    <td>{paciente.situaciones?.length || 0}</td>
+                    <td>
+                      <button
+                        className="btn-accion"
+                        onClick={() =>
+                          handleVerPaciente(paciente.afiliadoId)
+                        }
+                      >
+                        Ver detalle
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {resultados.map((paciente) => (
-                    <tr key={paciente.dni}>
-                      <td>{paciente.nombre}</td>
-                      <td>{paciente.dni}</td>
-                      <td>{paciente.edad}</td>
-                      <td>
-                        {paciente.situaciones_terapeuticas?.length || 0}
-                      </td>
-                      <td>
-                        <button
-                          className="btn-accion"
-                          onClick={() => handleVerPaciente(paciente.dni)}
-                        >
-                          Ver detalle
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </>
-            ) : null}
-          </motion.table>
-        </div>
+                ))}
+              </tbody>
+            </motion.table>
+          </div>
+        )}
 
-        {/* Contenedor de Toastify */}
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       </div>
     </PrestadoresLayout>
   );
 }
+

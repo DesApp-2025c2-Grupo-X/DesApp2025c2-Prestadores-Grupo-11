@@ -1,13 +1,12 @@
+import axios from "axios";
 
-import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_API_BASE || '';
+const API_BASE = import.meta.env.VITE_API_BASE || "";
 
 export const api = axios.create({
   baseURL: API_BASE,
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -15,10 +14,10 @@ export const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (token) config.headers.Authorization = `Bearer ${token}`;
     } catch (err) {
-      console.warn('No se pudo acceder al token:', err);
+      console.warn("No se pudo acceder al token:", err);
     }
     return config;
   },
@@ -29,11 +28,15 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (axios.isCancel(error)) {
+      error.name = "CanceledError"; // homogéneo con tu lógica
+    }
+
     const status = error.response?.status ?? null;
     const data = error.response?.data ?? null;
 
     if (status === 401) {
-      localStorage.removeItem('token');
+      localStorage.removeItem("token");
       // window.location.href = '/login'; // opcional
     }
 
@@ -46,4 +49,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-

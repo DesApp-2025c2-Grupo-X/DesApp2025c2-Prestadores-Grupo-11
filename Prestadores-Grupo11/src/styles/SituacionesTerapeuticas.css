@@ -279,6 +279,36 @@ h3, h4, h5 {
   }
 }
 
+.spinner-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+  color: #555;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--rosa);
+  border-top: 3px solid var(--verde-agua);
+  border-radius: 50%;
+}
+
+.spin {
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* --- Ajustes para tablets (<= 768px) --- */
 @media (max-width: 768px) {
   .d-flex {
