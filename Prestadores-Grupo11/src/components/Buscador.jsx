@@ -1,26 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import "../styles/SituacionesTerapeuticas.css";
 
-export default function Buscador({ onSearch, delay = 500, basePath = "/prestadores/situaciones" }) {
+export default function Buscador({
+  onSearch,
+  delay = 500,
+  basePath = "/prestadores/situaciones",
+}) {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const navigate = useNavigate();
+  const prevQuery = useRef("");
 
-  // --- Debounce: espera X ms antes de actualizar el valor real de búsqueda ---
+  // --- Debounce ---
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedQuery(query.trim());
+      const trimmed = query.trim();
+      if (trimmed !== prevQuery.current) {
+        prevQuery.current = trimmed;
+        setDebouncedQuery(trimmed);
+      }
     }, delay);
     return () => clearTimeout(handler);
   }, [query, delay]);
 
-  // Ejecutar búsqueda sólo si hay texto útil
+  // --- Ejecuta la búsqueda ---
   useEffect(() => {
-    if (debouncedQuery.length >= 2 && onSearch) {
+    if (!onSearch) return;
+    if (debouncedQuery.length >= 2 || debouncedQuery === "") {
       onSearch(debouncedQuery);
     }
   }, [debouncedQuery, onSearch]);

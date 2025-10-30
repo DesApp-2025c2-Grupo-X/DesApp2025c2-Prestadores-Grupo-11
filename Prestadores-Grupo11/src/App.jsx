@@ -18,8 +18,7 @@ import CalendarioTurnosMedico from "./pages/CalendarioTurnosMedico";
 import CalendarioTurnosCentro from "./pages/CalendarioTurnosCentro";
 import BusquedaHistorialClinico from "./pages/BusquedaHistorialClinico";
 import HistorialClinico from "./pages/HistorialClinico";
-import "./styles/ToastStyles.css"; 
-
+import "./styles/ToastStyles.css";
 
 export default function App() {
   return (
@@ -53,7 +52,7 @@ export default function App() {
         />
 
         <Route
-          path="/prestadores/situaciones/:dni"
+          path="/prestadores/:id/afiliado/:afiliadoId/situaciones"
           element={
             <RequireAuth roles={["medico", "centro_medico"]}>
               <SituacionesTerapeuticas />

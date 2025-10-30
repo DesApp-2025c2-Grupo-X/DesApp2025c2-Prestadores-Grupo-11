@@ -12,7 +12,7 @@ export const getTurnosByPrestador = async (prestadorId, signal) => {
   return res.data;
 };
 
-// GET /turnos/prestador/:prestadorId?especialidad=Psicología
+// GET /turnos/prestador/:prestadorId?especialidad=cardiología
 export const getTurnosByPrestadorAndEspecialidad = async (prestadorId, especialidad, signal) => {
   const res = await api.get(`/turnos/prestador/${prestadorId}`, {
     params: { especialidad },
