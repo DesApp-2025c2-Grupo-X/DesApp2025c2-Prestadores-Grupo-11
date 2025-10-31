@@ -17,7 +17,9 @@ import AltaSituacionTerapeutica from "./pages/AltaSituacionTerapeutica";
 import CalendarioTurnosMedico from "./pages/CalendarioTurnosMedico";
 import CalendarioTurnosCentro from "./pages/CalendarioTurnosCentro";
 import BusquedaHistorialClinico from "./pages/BusquedaHistorialClinico";
-import HistorialClinico from "./pages/HistorialClinico"
+import SolicitudesEntrantes from "./pages/SolicitudesEntrantes";
+import GestionSolicitud from "./pages/GestionSolicitud";
+import HistorialClinico from "./pages/HistorialClinico";
 import "./styles/ToastStyles.css"
 
 export default function App() {
