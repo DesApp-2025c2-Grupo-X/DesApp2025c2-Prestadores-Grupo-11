@@ -24,19 +24,12 @@ export default function LoginPage() {
     setSubmitting(true);
 
     try {
-      // Normalizar username y password
-      const usernameNorm = String(username).trim().toLowerCase();
-      const passwordNorm = String(password).trim(); // Convertir a string y remover espacios
-
       const payload = {
-        username: usernameNorm,
-        password: passwordNorm, // Usar password normalizado
+        username: String(username).trim(),
+        password: String(password).trim(),
       };
 
-      console.log("Enviando payload de login (normalizado):", {
-        username: usernameNorm,
-        password: "[PROTECTED]", // No logear passwords en producción
-      });
+      console.log("Enviando payload de login:", payload);
 
       const res = await fetch("http://localhost:3001/login", {
         method: "POST",
@@ -62,14 +55,14 @@ export default function LoginPage() {
 
       // === Manejo de respuesta exitosa ===
       if (data.message === "Acceso exitoso" && data.prestador) {
-        const { id, username, role } = data.prestador;
-        const normalizedRole = role.trim().toLowerCase(); // <-- ¡Asegura que es 'medico'!
+        const { username, role } = data.prestador;
+
+        const normalizedRole = role.trim().toLowerCase(); // 👈 normalizado
 
         localStorage.setItem(
           "miapp_user",
           JSON.stringify({
-            id: id,
-            username: username,
+            username,
             role: normalizedRole,
           })
         );
@@ -131,6 +124,11 @@ export default function LoginPage() {
                 </button>
               </div>
             </form>
+
+            <p id="login-help" className="mt-3 small text-muted">
+              Usuarios de prueba: <strong>medico / 12345</strong> —{" "}
+              <strong>centro medico / 9876</strong>
+            </p>
           </div>
         </div>
       </div>

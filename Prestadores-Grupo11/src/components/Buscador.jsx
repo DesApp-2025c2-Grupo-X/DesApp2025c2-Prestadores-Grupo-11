@@ -1,44 +1,59 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../styles/SituacionesTerapeuticas.css";
 
 export default function Buscador({
   onSearch,
-  delay = 500,
   basePath = "/prestadores/situaciones",
 }) {
   const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const navigate = useNavigate();
-  const prevQuery = useRef("");
 
-  // --- Debounce ---
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      const trimmed = query.trim();
-      if (trimmed !== prevQuery.current) {
-        prevQuery.current = trimmed;
-        setDebouncedQuery(trimmed);
-      }
-    }, delay);
-    return () => clearTimeout(handler);
-  }, [query, delay]);
+  // --- Verifica si es un nombre (solo letras y espacios) ---
+  const esNombre = (valor) => /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(valor);
 
-  // --- Ejecuta la búsqueda ---
-  useEffect(() => {
-    if (!onSearch) return;
-    if (debouncedQuery.length >= 2 || debouncedQuery === "") {
-      onSearch(debouncedQuery);
+  // --- Verifica si es un número de afiliado válido: letras + "-" + números ---
+  const esNumeroAfiliado = (valor) => /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+-\d{4,}$/.test(valor);
+
+  // --- Lógica de búsqueda centralizada ---
+  const ejecutarBusqueda = () => {
+    const trimmed = query.trim();
+
+    if (!trimmed) {
+      toast.error("Por favor, ingresa un nombre o número de afiliado");
+      return;
     }
-  }, [debouncedQuery, onSearch]);
 
+    if (trimmed.length < 8) {
+      toast.warning("Debe tener al menos 8 caracteres para buscar");
+      return;
+    }
+
+    if (esNombre(trimmed) || esNumeroAfiliado(trimmed)) {
+      navigate(`${basePath}?query=${encodeURIComponent(trimmed)}`);
+      if (onSearch) onSearch(trimmed);
+    } else {
+      toast.error(
+        "Formato no válido. Usa solo letras para nombres o formato LETRAS-NÚMEROS (ej: IOMA-00111222)"
+      );
+    }
+  };
+
+  // --- Ejecuta búsqueda solo al presionar Enter ---
   const handleKeyDown = (e) => {
-    if (e.key === "Enter" && query.trim() !== "") {
-      navigate(`${basePath}?query=${encodeURIComponent(query)}`);
+    if (e.key === "Enter") {
+      ejecutarBusqueda();
     }
+  };
+
+  // --- Permite buscar también con el botón ---
+  const handleSearchClick = () => {
+    ejecutarBusqueda();
   };
 
   return (
@@ -55,7 +70,7 @@ export default function Buscador({
     >
       <input
         type="text"
-        placeholder="Buscar por nombre o DNI..."
+        placeholder="Buscar por nombre o número de afiliado (ej: IOMA-00111222)..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => setIsFocused(true)}
@@ -67,10 +82,7 @@ export default function Buscador({
         type="button"
         whileHover={{ scale: 1.15, backgroundColor: "var(--verde-agua)" }}
         whileTap={{ scale: 0.9 }}
-        onClick={() =>
-          query.trim() &&
-          navigate(`${basePath}?query=${encodeURIComponent(query)}`)
-        }
+        onClick={handleSearchClick}
       >
         <Search size={20} />
       </motion.button>
@@ -91,3 +103,4 @@ export default function Buscador({
     </motion.div>
   );
 }
+

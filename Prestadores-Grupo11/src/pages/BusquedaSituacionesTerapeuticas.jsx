@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from "react"
-import { useNavigate } from "react-router-dom"
+<<<<<<< HEAD
+import React, { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import Buscador from "../components/Buscador";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import PrestadoresLayout from "../components/PrestadoresLayout";
@@ -12,64 +13,50 @@ import { getIntegranteById } from "../services/IntegrantesApi";
 export default function BusquedaSituacionesTerapeuticas() {
   const [resultados, setResultados] = useState([]);
   const [cargando, setCargando] = useState(false);
-  const controllerRef = useRef(null);
   const navigate = useNavigate();
 
   // Leer prestador del localStorage
   const storedUser = JSON.parse(localStorage.getItem("miapp_user"));
   const prestadorId = storedUser?.id;
 
-  const handleSearch = useCallback(
-    async (valor) => {
-      const dato = (valor || "").trim();
+  // --- Maneja la búsqueda enviada desde el buscador ---
+  const handleSearch = useCallback(async (valor) => {
+    const dato = (valor || "").trim();
 
-      if (controllerRef.current) controllerRef.current.abort();
+    if (!dato) {
+      setResultados([]);
+      setCargando(false);
+      return;
+    }
 
-      if (!dato) {
-        setResultados([]);
-        setCargando(false);
-        return;
-      }
+    setCargando(true);
 
-      controllerRef.current = new AbortController();
-      setCargando(true);
+    try {
+      const data = await getIntegrantes(dato); 
 
-      try {
-        const data = await getIntegrantes(dato, controllerRef.current.signal);
-
-        if (!data || data.length === 0) {
-          const tipo = /^\d+$/.test(dato)
-            ? "el DNI ingresado"
-            : "el apellido o nombre ingresado";
-          toast.info(`No se encontraron resultados para ${tipo}.`, {
-            toastId: "sinResultados",
-          });
-          setResultados([]);
-        } else {
-          setResultados(data);
-        }
-      } catch (err) {
-        if (err.name === "CanceledError") return;
-        console.error("Error en la búsqueda:", err);
-        toast.error("Error en la búsqueda. Intente nuevamente.", {
-          toastId: "errorBusqueda",
+      if (!data || data.length === 0) {
+        const tipo = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(dato)
+          ? "el nombre ingresado"
+          : "el número de afiliado ingresado";
+        toast.info(`No se encontraron resultados para ${tipo}.`, {
+          toastId: "sinResultados",
         });
-      } finally {
-        if (!controllerRef.current.signal.aborted) {
-          setCargando(false);
-        }
+        setResultados([]);
+      } else {
+        setResultados(data);
       }
-    },
-    []
-  );
-
-  useEffect(() => {
-    return () => {
-      if (controllerRef.current) controllerRef.current.abort();
-    };
+    } catch (err) {
+      console.error("Error en la búsqueda:", err);
+      toast.error("Error en la búsqueda. Intente nuevamente.", {
+        toastId: "errorBusqueda",
+      });
+      setResultados([]);
+    } finally {
+      setCargando(false);
+    }
   }, []);
 
-  // Redirige a Situaciones usando afiliadoId
+  // --- Redirige a Situaciones usando afiliadoId ---
   const handleVerPaciente = (afiliadoId) => {
     if (!afiliadoId) {
       toast.warning("No se pudo obtener el ID del afiliado.", {
@@ -145,4 +132,3 @@ export default function BusquedaSituacionesTerapeuticas() {
     </PrestadoresLayout>
   );
 }
-
