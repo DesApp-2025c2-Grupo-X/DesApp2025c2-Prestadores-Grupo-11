@@ -1,0 +1,30 @@
+.contenedorInfo {
+  background-color: #b6e4db;
+  padding: 10px;
+  border-radius: 15px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr;
+  justify-items: center;
+}
+
+.contenedorSolicitud {
+  display: grid;
+  grid-template-columns: 80% 20%;
+}
+
+strong {
+  text-decoration: underline;
+}
+
+.img-icon {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  display: block;
+  margin: 8px auto;
+}
+
+.img-icon:hover {
+  cursor: pointer;
+}
