@@ -21,6 +21,17 @@ export const getIntegrantes = async (valorBusqueda) => {
   }
 };
 
+export const getAllIntegrantes = async () => {
+  try {
+
+    const res = await api.get('/integrantes');
+    return res.data;
+  } catch (error) {
+    console.error('Error al obtener integrantes:', error);
+    throw error;
+  }
+};
+
 /**
  * Obtiene un integrante por su ID.
  * GET /integrantes/:id
