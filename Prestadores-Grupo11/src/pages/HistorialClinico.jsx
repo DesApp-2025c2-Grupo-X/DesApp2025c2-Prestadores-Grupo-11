@@ -5,40 +5,89 @@ import HeaderPrestadores from "../components/HeaderPrestadores";
 import SideBar from "../components/SideBar";
 import { ArrowLeft, ClipboardList, Users } from "lucide-react";
 import { motion } from "framer-motion";
+import { getAllIntegrantes } from "../services/IntegrantesApi";
+import { getSituacionesByIntegranteId } from "../services/SituacionesApi";
+import { getNombrePrestadorById } from "../services/PrestadoresApi";
 import "../styles/SituacionesTerapeuticas.css";
 
 export default function HistorialClinico() {
   const { dni } = useParams();
   const navigate = useNavigate();
 
-  const [afiliado, setAfiliado] = useState(null);
+  const [paciente, setPaciente] = useState(null);
+  const [situaciones, setSituaciones] = useState([]);
+
+  //Este estado es para manejar el problema en donde tengo el idPrestador, y necesito saber el nombre
+  //Para poder mostrarlo en la tabla de historial clinico
+  const [nombresPrestadores, setNombresPrestadores] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filtroNotas, setFiltroNotas] = useState(false);
 
-  // Cargar datos del afiliado
+  // Cargar datos del paciente
   useEffect(() => {
-    const cargarAfiliado = async () => {
+    //Agregarle despues la busqueda de los afiliados
+    const cargarPaciente = async () => {
       try {
-        const res = await fetch("/afiliados.json");
-        if (!res.ok) throw new Error("Error al cargar afiliados.json");
-        const afiliados = await res.json();
+        const integrantes = await getAllIntegrantes();
+        const encontrado = integrantes.find((integrante) => integrante.dni === dni)
 
-        const encontrado = afiliados.find((af) => af.dni === dni);
+        if (!encontrado) {
+          console.log(`No se encontro el integrante DNI ${dni}`)
+        }
 
-        if (!encontrado)
-          throw new Error(`No se encontró un afiliado con DNI ${dni}`);
-
-        setAfiliado(encontrado);
-      } catch (err) {
-        setError(err.message);
+        setPaciente(encontrado);
+      } catch (error) {
+        console.error('Error al cargar integrantes:', error);
+        setError(error.message)
       } finally {
         setLoading(false);
       }
     };
 
-    cargarAfiliado();
+    cargarPaciente();
   }, [dni]);
+
+  useEffect(() => {
+    const getSituaciones = async () => {
+      if (!paciente || !paciente.id) return; // Si no hay paciente, no hace nada
+
+      try {
+        // POR AHORA MUESTRA TODAS, TENDRIA QUE SER SOLO LAS TERMINADAS
+        const situacionesEncontradas = await getSituacionesByIntegranteId(paciente.id);
+        const situacionesDeBaja = situacionesEncontradas.filter((situacion) => situacion.estado === "baja")
+        setSituaciones(situacionesDeBaja);
+
+        //Todo lo que esta aca para abajo, hasta el catch, se puede solucionar si en el backend
+        //Al traerse la situacion, tambien muestra el username del medico.
+        const idsUnicos = [...new Set(situacionesEncontradas.map(s => s.prestadorId))];
+
+        const respuestas = await Promise.all(
+          idsUnicos.map(async id => {
+            try {
+              const nombre = await getNombrePrestadorById(id);
+              return { id, nombre };
+            } catch (error) {
+              console.error(`Error al traer el prestador ${id}`, error);
+              return { id, nombre: "Desconocido" };
+            }
+          })
+        );
+
+        const diccionario = respuestas.reduce((acc, { id, nombre }) => {
+          acc[id] = nombre;
+          return acc;
+        }, {});
+
+        setNombresPrestadores(diccionario);
+
+      } catch (error) {
+        console.error("Hubo un error al buscar las situaciones", error)
+      }
+    };
+
+    getSituaciones()
+  }, [paciente])
 
   // Estado: cargando
   if (loading) {
@@ -70,14 +119,14 @@ export default function HistorialClinico() {
     );
   }
 
-  // Estado: sin afiliado (por seguridad adicional)
-  if (!afiliado) {
+  // Estado: sin paciente (por seguridad adicional)
+  if (!paciente) {
     return (
       <PrestadoresLayout header={HeaderPrestadores}>
         <div className="d-flex">
           <SideBar />
           <div className="flex-grow-1 p-4 text-center">
-            <p>No se encontraron datos del afiliado con DNI {dni}</p>
+            <p>No se encontraron datos del paciente con DNI {dni}</p>
             <button className="btn-volver mt-3" onClick={() => navigate(-1)}>
               <ArrowLeft size={18} className="me-2" /> Volver
             </button>
@@ -116,19 +165,13 @@ export default function HistorialClinico() {
           >
             <div className="d-flex align-items-center gap-3">
               <Users size={40} color="var(--azul-petroleo)" />
-              <div style={{ borderBottom: "black 1px solid" }}>
-                <h4>{afiliado.nombre}</h4>
+              <div>
+                <h4>{paciente.nombre}</h4>
                 <p>
-                  Edad: <strong>{afiliado.edad}</strong> | DNI:{" "}
-                  <strong>{afiliado.dni}</strong>
+                  Edad: <strong>{paciente.edad}</strong> | DNI:{" "}
+                  <strong>{paciente.dni}</strong>
                 </p>
               </div>
-            </div>
-            <div>
-              <h2 style={{ marginTop: "10px" }}>Antecedentes medicos</h2>
-              {afiliado.antecedentes.map((ant, idx) => (
-                <p key={idx}>{ant}</p>
-              ))}
             </div>
           </motion.div>
 
@@ -162,23 +205,37 @@ export default function HistorialClinico() {
                 </tr>
               </thead>
               <tbody>
-                {afiliado.consultas.map((consulta, idx) => (
-                  <motion.tr
-                    key={idx}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    whileHover={{
-                      scale: 1.02,
-                    }}
-                  >
-                    <td>{consulta.fecha}</td>
-                    <td>{consulta.descripcion}</td>
-                    <td>{consulta.especialidad}</td>
-                    <td>{consulta.medico}</td>
-                    <td>{consulta.notas}</td>
-                  </motion.tr>
-                ))}
+                {situaciones.length > 0 ? (
+                  situaciones.map((consulta, idx) => (
+                    <motion.tr
+                      key={idx}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      whileHover={{ scale: 1.02 }}
+                    >
+                      <td>
+                        {new Date(consulta.fecha_final).toLocaleString("es-AR", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </td>
+                      <td>{consulta.observaciones}</td>
+                      <td>{consulta.especialidad}</td>
+                      <td>{nombresPrestadores[consulta.prestadorId] || "Cargando..."}</td>
+                      <td>
+                        <p>Todavia no hay un atributo notas para mostrar</p>
+                      </td>
+                    </motion.tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5}>Este paciente todavia no tuvo ninguna consulta.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </motion.div>
