@@ -24,7 +24,7 @@ export const getSituacionesByAfiliado = async (prestadorId, afiliadoId, signal) 
 export const getSituacionesByIntegranteId = async (integranteId) => {
   try {
     const res = await api.get(`/situaciones/Integrante/${integranteId}`);
-    return res.data.situaciones || [];
+    return res.data?.situaciones || [];
   } catch (error) {
     console.error("Error al traerse las situaciones del integrante:", error);
     throw error;
