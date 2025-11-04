@@ -10,25 +10,28 @@ export const getIntegrantes = async (prestadorId, valorBusqueda) => {
     const q = (valorBusqueda || "").trim();
 
     if (!prestadorId) throw new Error("Falta el ID del prestador.");
-    if (!q || q.length < 8) {
-      throw new Error("La búsqueda requiere al menos 8 caracteres.");
-    }
+    if (!q) throw new Error("Debe ingresar un valor de búsqueda.");
 
+    // ✅ la ruta CORRECTA incluye /Afiliado/
     const res = await api.get(
       `/situaciones/${prestadorId}/Afiliado/${encodeURIComponent(q)}`
     );
 
-    // El backend devuelve un solo afiliado, no un array
     if (!res.data) return [];
 
-    // Normalizamos la respuesta a un array para que el front pueda mapearlo
+    if (Array.isArray(res.data)) return res.data;
+    if (res.data.afiliado) return [res.data.afiliado];
+    if (res.data.integrantes) return res.data.integrantes;
     return [res.data];
   } catch (error) {
-    console.error("Error al obtener integrantes:", error);
+    console.error("Error al obtener integrantes:", {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message,
+    });
     throw error;
   }
 };
-
 /**
  * Obtiene todos los integrantes (no usado aquí)
  */

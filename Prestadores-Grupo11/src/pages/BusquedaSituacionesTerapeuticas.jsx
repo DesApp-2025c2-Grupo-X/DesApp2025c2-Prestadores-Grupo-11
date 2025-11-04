@@ -20,66 +20,77 @@ export default function BusquedaSituacionesTerapeuticas() {
 
   // --- FUNCIÓN PRINCIPAL DE BÚSQUEDA ---
   const handleSearch = useCallback(
-    async (valor) => {
-      const dato = (valor || "").trim();
+  async (valor) => {
+    const dato = (valor || "").trim();
 
-      if (!dato) {
-        setResultados([]);
-        setCargando(false);
-        return;
-      }
+    if (!dato) {
+      setResultados([]);
+      setCargando(false);
+      return;
+    }
 
-      if (!prestadorId) {
-        toast.error("No se encontró el ID del prestador en sesión.", {
-          toastId: "sinPrestador",
+    if (!prestadorId) {
+      toast.error("No se encontró el ID del prestador en sesión.", {
+        toastId: "sinPrestador",
+      });
+      return;
+    }
+
+    setCargando(true);
+
+    try {
+      const data = await getIntegrantes(prestadorId, dato);
+      console.log("Resultado bruto del backend:", data);
+
+      if (!data || (Array.isArray(data) && data.length === 0)) {
+        const tipo = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(dato)
+          ? "el nombre ingresado"
+          : "el número de afiliado ingresado";
+        toast.info(`No se encontraron resultados para ${tipo}.`, {
+          toastId: "sinResultados",
         });
+        setResultados([]);
         return;
       }
 
-      setCargando(true);
+      let pacientes = [];
 
-      try {
-        const data = await getIntegrantes(prestadorId, dato);
-        console.log("Resultado bruto del backend:", data);
+      if (Array.isArray(data)) {
+        pacientes = data;
+      } else if (data.afiliado) {
+        pacientes = [data.afiliado, ...(data.integrantes || [])];
+      } else if (data.integrantes) {
+        pacientes = data.integrantes;
+      } else {
+        pacientes = [data];
+      }
 
-        if (!data || (Array.isArray(data) && data.length === 0)) {
-          const tipo = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(dato)
-            ? "el nombre ingresado"
-            : "el número de afiliado ingresado";
-          toast.info(`No se encontraron resultados para ${tipo}.`, {
-            toastId: "sinResultados",
-          });
-          setResultados([]);
-          return;
-        }
+      console.log(" Datos normalizados para la tabla:", pacientes);
+      setResultados(pacientes);
+    } catch (err) {
+      console.error("Error en la búsqueda:", err);
 
-        // Normalizar estructura: si el backend devuelve { afiliado, integrantes }
-        let pacientes = [];
-
-        if (Array.isArray(data)) {
-          pacientes = data;
-        } else if (data.afiliado) {
-          pacientes = [data.afiliado, ...(data.integrantes || [])];
-        } else if (data.integrantes) {
-          pacientes = data.integrantes;
-        } else {
-          pacientes = [data];
-        }
-
-        console.log(" Datos normalizados para la tabla:", pacientes);
-        setResultados(pacientes);
-      } catch (err) {
-        console.error(" Error en la búsqueda:", err);
+      if (err.response?.status === 404) {
+        toast.info("No se encontró ningún afiliado con ese nombre o número.", {
+          toastId: "noEncontrado",
+          position: "top-right",
+          autoClose: 3000,
+        });
+      } else {
         toast.error("Error al buscar afiliado. Intente nuevamente.", {
           toastId: "errorBusqueda",
+          position: "top-right",
+          autoClose: 3000,
         });
-        setResultados([]);
-      } finally {
-        setCargando(false);
       }
-    },
-    [prestadorId]
-  );
+
+      setResultados([]);
+    } finally {
+      setCargando(false);
+    }
+  },
+  [prestadorId]
+);
 
   // --- REDIRECCIÓN SEGURA ---
   const handleVerPaciente = (afiliadoId) => {
@@ -153,10 +164,6 @@ export default function BusquedaSituacionesTerapeuticas() {
               </tbody>
             </motion.table>
           </div>
-        )}
-
-        {!cargando && resultados.length === 0 && (
-          <p className="text-muted mt-4">No hay resultados para mostrar.</p>
         )}
 
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
