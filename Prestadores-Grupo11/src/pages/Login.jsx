@@ -55,13 +55,14 @@ export default function LoginPage() {
 
       // === Manejo de respuesta exitosa ===
       if (data.message === "Acceso exitoso" && data.prestador) {
-        const { username, role } = data.prestador;
+        const { id, username, role } = data.prestador;
 
         const normalizedRole = role.trim().toLowerCase(); // normalizado
 
         localStorage.setItem(
           "miapp_user",
           JSON.stringify({
+            id,
             username,
             role: normalizedRole,
           })
