@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Buscador from "../components/Buscador";
@@ -8,55 +7,81 @@ import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/SituacionesTerapeuticas.css";
-import { getIntegrantes} from "../services/IntegrantesApi";
+import { getIntegrantes } from "../services/IntegrantesApi";
 
 export default function BusquedaSituacionesTerapeuticas() {
   const [resultados, setResultados] = useState([]);
   const [cargando, setCargando] = useState(false);
   const navigate = useNavigate();
 
-  // Leer prestador del localStorage
+  // Obtener prestador del localStorage
   const storedUser = JSON.parse(localStorage.getItem("miapp_user"));
   const prestadorId = storedUser?.id;
 
-  // --- Maneja la búsqueda enviada desde el buscador ---
-  const handleSearch = useCallback(async (valor) => {
-    const dato = (valor || "").trim();
+  // --- FUNCIÓN PRINCIPAL DE BÚSQUEDA ---
+  const handleSearch = useCallback(
+    async (valor) => {
+      const dato = (valor || "").trim();
 
-    if (!dato) {
-      setResultados([]);
-      setCargando(false);
-      return;
-    }
+      if (!dato) {
+        setResultados([]);
+        setCargando(false);
+        return;
+      }
 
-    setCargando(true);
+      if (!prestadorId) {
+        toast.error("No se encontró el ID del prestador en sesión.", {
+          toastId: "sinPrestador",
+        });
+        return;
+      }
 
-    try {
-      const data = await getIntegrantes(dato); 
+      setCargando(true);
 
-      if (!data || data.length === 0) {
-        const tipo = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(dato)
-          ? "el nombre ingresado"
-          : "el número de afiliado ingresado";
-        toast.info(`No se encontraron resultados para ${tipo}.`, {
-          toastId: "sinResultados",
+      try {
+        const data = await getIntegrantes(prestadorId, dato);
+        console.log("Resultado bruto del backend:", data);
+
+        if (!data || (Array.isArray(data) && data.length === 0)) {
+          const tipo = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(dato)
+            ? "el nombre ingresado"
+            : "el número de afiliado ingresado";
+          toast.info(`No se encontraron resultados para ${tipo}.`, {
+            toastId: "sinResultados",
+          });
+          setResultados([]);
+          return;
+        }
+
+        // Normalizar estructura: si el backend devuelve { afiliado, integrantes }
+        let pacientes = [];
+
+        if (Array.isArray(data)) {
+          pacientes = data;
+        } else if (data.afiliado) {
+          pacientes = [data.afiliado, ...(data.integrantes || [])];
+        } else if (data.integrantes) {
+          pacientes = data.integrantes;
+        } else {
+          pacientes = [data];
+        }
+
+        console.log(" Datos normalizados para la tabla:", pacientes);
+        setResultados(pacientes);
+      } catch (err) {
+        console.error(" Error en la búsqueda:", err);
+        toast.error("Error al buscar afiliado. Intente nuevamente.", {
+          toastId: "errorBusqueda",
         });
         setResultados([]);
-      } else {
-        setResultados(data);
+      } finally {
+        setCargando(false);
       }
-    } catch (err) {
-      console.error("Error en la búsqueda:", err);
-      toast.error("Error en la búsqueda. Intente nuevamente.", {
-        toastId: "errorBusqueda",
-      });
-      setResultados([]);
-    } finally {
-      setCargando(false);
-    }
-  }, []);
+    },
+    [prestadorId]
+  );
 
-  // --- Redirige a Situaciones usando afiliadoId ---
+  // --- REDIRECCIÓN SEGURA ---
   const handleVerPaciente = (afiliadoId) => {
     if (!afiliadoId) {
       toast.warning("No se pudo obtener el ID del afiliado.", {
@@ -65,6 +90,8 @@ export default function BusquedaSituacionesTerapeuticas() {
       });
       return;
     }
+
+    console.log("Redirigiendo a /prestadores/situaciones/" + afiliadoId);
     navigate(`/prestadores/situaciones/${afiliadoId}`);
   };
 
@@ -87,7 +114,7 @@ export default function BusquedaSituacionesTerapeuticas() {
         )}
 
         {resultados.length > 0 && (
-          <div className="table-responsive-xl">
+          <div className="table-responsive-xl mt-4">
             <motion.table
               className="table table-hover align-middle shadow-sm rounded text-center"
               initial={{ opacity: 0 }}
@@ -104,27 +131,32 @@ export default function BusquedaSituacionesTerapeuticas() {
                 </tr>
               </thead>
               <tbody>
-                {resultados.map((paciente) => (
-                  <tr key={paciente.dni}>
-                    <td>{paciente.nombre}</td>
-                    <td>{paciente.dni}</td>
-                    <td>{paciente.edad}</td>
-                    <td>{paciente.situaciones?.length || 0}</td>
-                    <td>
-                      <button
-                        className="btn-accion"
-                        onClick={() =>
-                          handleVerPaciente(paciente.afiliadoId)
-                        }
-                      >
-                        Ver detalle
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {resultados.map((paciente) => {
+                  const id = paciente.id || paciente.afiliadoId;
+                  return (
+                    <tr key={id}>
+                      <td>{paciente.nombre || "Sin nombre"}</td>
+                      <td>{paciente.dni || "-"}</td>
+                      <td>{paciente.edad || "-"}</td>
+                      <td>{paciente.situaciones?.length || 0}</td>
+                      <td>
+                        <button
+                          className="btn btn-outline-primary btn-sm"
+                          onClick={() => handleVerPaciente(id)}
+                        >
+                          Ver detalle
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </motion.table>
           </div>
+        )}
+
+        {!cargando && resultados.length === 0 && (
+          <p className="text-muted mt-4">No hay resultados para mostrar.</p>
         )}
 
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar />

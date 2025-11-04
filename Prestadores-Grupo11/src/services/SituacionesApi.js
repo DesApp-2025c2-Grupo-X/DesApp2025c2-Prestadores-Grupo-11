@@ -58,3 +58,15 @@ export const actualizarSituacion = async (id, data) => {
     throw error;
   }
 };
+
+// Elimina una situación
+export const eleminarSituacion = async (id) => {
+  try {
+    const response = await api.delete(`/situaciones/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al eliminar situación:", error);
+    throw error;
+  }
+
+};

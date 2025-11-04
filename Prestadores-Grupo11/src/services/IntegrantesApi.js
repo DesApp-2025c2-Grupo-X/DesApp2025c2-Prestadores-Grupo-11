@@ -1,40 +1,49 @@
-import api from './Api';
+import api from "./Api";
 
 /**
- * Busca integrantes (pacientes) por nombre o número de afiliado.
- * GET /integrantes?q=valorBusqueda
+ * Busca afiliados (con integrantes y situaciones)
+ * por número de afiliado o apellido, filtrados por prestador.
+ * GET /situaciones/:prestadorId/Afiliado/:nroOApellido
  */
-export const getIntegrantes = async (valorBusqueda) => {
+export const getIntegrantes = async (prestadorId, valorBusqueda) => {
   try {
-    if (!valorBusqueda || valorBusqueda.trim().length < 8) {
-      throw new Error('La búsqueda requiere al menos 8 caracteres.');
+    const q = (valorBusqueda || "").trim();
+
+    if (!prestadorId) throw new Error("Falta el ID del prestador.");
+    if (!q || q.length < 8) {
+      throw new Error("La búsqueda requiere al menos 8 caracteres.");
     }
 
-    const res = await api.get('/integrantes', {
-      params: { q: valorBusqueda.trim() },
-    });
+    const res = await api.get(
+      `/situaciones/${prestadorId}/Afiliado/${encodeURIComponent(q)}`
+    );
 
-    return res.data;
+    // El backend devuelve un solo afiliado, no un array
+    if (!res.data) return [];
+
+    // Normalizamos la respuesta a un array para que el front pueda mapearlo
+    return [res.data];
   } catch (error) {
-    console.error('Error al obtener integrantes:', error);
-    throw error;
-  }
-};
-
-export const getAllIntegrantes = async () => {
-  try {
-
-    const res = await api.get('/integrantes');
-    return res.data;
-  } catch (error) {
-    console.error('Error al obtener integrantes:', error);
+    console.error("Error al obtener integrantes:", error);
     throw error;
   }
 };
 
 /**
- * Obtiene un integrante por su ID.
- * GET /integrantes/:id
+ * Obtiene todos los integrantes (no usado aquí)
+ */
+export const getAllIntegrantes = async () => {
+  try {
+    const res = await api.get("/integrantes");
+    return res.data;
+  } catch (error) {
+    console.error("Error al obtener integrantes:", error);
+    throw error;
+  }
+};
+
+/**
+ * Obtiene un integrante por ID
  */
 export const getIntegranteById = async (id) => {
   try {
@@ -45,4 +54,3 @@ export const getIntegranteById = async (id) => {
     throw error;
   }
 };
-
