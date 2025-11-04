@@ -57,7 +57,7 @@ export default function LoginPage() {
       if (data.message === "Acceso exitoso" && data.prestador) {
         const { username, role } = data.prestador;
 
-        const normalizedRole = role.trim().toLowerCase(); // 👈 normalizado
+        const normalizedRole = role.trim().toLowerCase(); // normalizado
 
         localStorage.setItem(
           "miapp_user",

@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Buscador from "../components/Buscador";
@@ -7,7 +8,7 @@ import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/SituacionesTerapeuticas.css";
-import { getIntegranteById } from "../services/IntegrantesApi";
+import { getIntegrantes} from "../services/IntegrantesApi";
 
 export default function BusquedaSituacionesTerapeuticas() {
   const [resultados, setResultados] = useState([]);
