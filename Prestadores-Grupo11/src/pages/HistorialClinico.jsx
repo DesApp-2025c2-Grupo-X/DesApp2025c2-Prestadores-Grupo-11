@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { getAllIntegrantes } from "../services/IntegrantesApi";
 import { getSituacionesByIntegranteId } from "../services/SituacionesApi";
 import { getNombrePrestadorById } from "../services/PrestadoresApi";
+import { getTurnosByIntegranteId } from "../services/TurnosApi";
 import "../styles/SituacionesTerapeuticas.css";
 
 export default function HistorialClinico() {
@@ -16,10 +17,13 @@ export default function HistorialClinico() {
 
   const [paciente, setPaciente] = useState(null);
   const [situaciones, setSituaciones] = useState([]);
+  const [consultas, setConsultas] = useState([]);
+
 
   //Este estado es para manejar el problema en donde tengo el idPrestador, y necesito saber el nombre
   //Para poder mostrarlo en la tabla de historial clinico
   const [nombresPrestadores, setNombresPrestadores] = useState({});
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filtroNotas, setFiltroNotas] = useState(false);
@@ -49,14 +53,43 @@ export default function HistorialClinico() {
   }, [dni]);
 
   useEffect(() => {
-    const getSituaciones = async () => {
+
+    const getConsultas = async () => {
       if (!paciente || !paciente.id) return; // Si no hay paciente, no hace nada
 
       try {
-        // POR AHORA MUESTRA TODAS, TENDRIA QUE SER SOLO LAS TERMINADAS
         const situacionesEncontradas = await getSituacionesByIntegranteId(paciente.id);
         const situacionesDeBaja = situacionesEncontradas.filter((situacion) => situacion.estado === "baja")
-        setSituaciones(situacionesDeBaja);
+
+        const turnosEncontrados = await getTurnosByIntegranteId(paciente.id);
+        const ahora = new Date();
+        const turnosFinalizados = turnosEncontrados.filter(turno => {
+          const fechaTurno = new Date(turno.date);
+          return fechaTurno.getTime() < ahora.getTime();
+        });
+
+        //Transformo el nombre de los atributos de situaciones y turnos, para que
+        //sea mas facil mostrarlos en la tabla.
+        const unificados = [
+          ...situacionesDeBaja.map(s => ({
+            fecha: s.fecha_final,
+            descripcion: s.observaciones,
+            especialidad: s.especialidad,
+            medico: `Nombre de prestador id ${s.prestadorId}`,
+            notas: ""
+          })),
+          ...turnosFinalizados.map(t => ({
+            fecha: t.date,
+            descripcion: "",
+            especialidad: t.prestador?.especialidad || "",
+            medico: t.prestador?.username || "",
+            notas: t.notes || ""
+          }))
+        ];
+
+        const ordenadosPorFecha = unificados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+        setConsultas(ordenadosPorFecha);
 
         //Todo lo que esta aca para abajo, hasta el catch, se puede solucionar si en el backend
         //Al traerse la situacion, tambien muestra el username del medico.
@@ -82,11 +115,11 @@ export default function HistorialClinico() {
         setNombresPrestadores(diccionario);
 
       } catch (error) {
-        console.error("Hubo un error al buscar las situaciones", error)
+        console.error("Hubo un error al buscar las consultas", error)
       }
     };
 
-    getSituaciones()
+    getConsultas()
   }, [paciente])
 
   // Estado: cargando
@@ -185,14 +218,12 @@ export default function HistorialClinico() {
             <h3>Ultimas consultas</h3>
 
             {/*Checkbox para filtrar entre notas propias*/}
-            <label style={{ marginLeft: "20%" }}>
-              <input
-                type="checkbox"
-                checked={filtroNotas}
-                onChange={(e) => setFiltroNotas(e.target.checked)}
-              />
-              Filtrar por notas propias
-            </label>
+            <div className="form-check">
+              <input className="form-check-input" type="checkbox" value="" id="checkDefault" />
+              <label className="form-check-label" htmlFor="checkDefault">
+                Filtrar por notas propias
+              </label>
+            </div>
 
             <table className="table table-striped" style={{ marginTop: "0px" }}>
               <thead>
@@ -205,8 +236,8 @@ export default function HistorialClinico() {
                 </tr>
               </thead>
               <tbody>
-                {situaciones.length > 0 ? (
-                  situaciones.map((consulta, idx) => (
+                {consultas.length > 0 ? (
+                  consultas.map((consulta, idx) => (
                     <motion.tr
                       key={idx}
                       initial={{ opacity: 0, y: 10 }}
@@ -215,7 +246,7 @@ export default function HistorialClinico() {
                       whileHover={{ scale: 1.02 }}
                     >
                       <td>
-                        {new Date(consulta.fecha_final).toLocaleString("es-AR", {
+                        {new Date(consulta.fecha).toLocaleString("es-AR", {
                           day: "2-digit",
                           month: "2-digit",
                           year: "numeric",
@@ -223,12 +254,11 @@ export default function HistorialClinico() {
                           minute: "2-digit",
                         })}
                       </td>
-                      <td>{consulta.observaciones}</td>
+                      <td>{consulta.descripcion}</td>
                       <td>{consulta.especialidad}</td>
-                      <td>{nombresPrestadores[consulta.prestadorId] || "Cargando..."}</td>
-                      <td>
-                        <p>Todavia no hay un atributo notas para mostrar</p>
-                      </td>
+                      {/* <td>{nombresPrestadores[consulta.prestadorId] || "Cargando..."}</td> */}
+                      <td>{consulta.medico}</td>
+                      <td>{consulta.notas}</td>
                     </motion.tr>
                   ))
                 ) : (
