@@ -102,7 +102,7 @@ export default function Buscador({
         )}
       </AnimatePresence>
       {/* === Toasts globales === */}
-      <TostContainer position="top-right" autoClose={3000} theme="colored" />
+      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </motion.div>
   );
 }
