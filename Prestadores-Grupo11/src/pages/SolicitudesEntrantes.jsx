@@ -5,7 +5,7 @@ import "../styles/SituacionesTerapeuticas.css";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import SideBar from "../components/SideBar";
-import { getAutorizacionesPropias } from "../services/Solicitudes";
+import { getAutorizacionesPropias, getRecetasPropias, getReintegrosPropias, cantSolicitudesAnalisisApi, cantSolicitudesDiaApi, cantSolicitudesSemanaApi } from "../services/Solicitudes";
 import { SidebarProvider } from "../context/SidebarContext";
 
 export default function SolicitudesEntrantes() {
@@ -16,10 +16,23 @@ export default function SolicitudesEntrantes() {
 	const [autorizaciones, setAutorizaciones] = useState([])
 	const [recetas, setRecetas] = useState([])
 
+	//Para mostrar la info de las solicitudes
+	const [cantSolicitudesAnalisis, setCantSolicitudesAnalisis] = useState(0);
+	const [cantSolicitudesDia, setCantSolicitudesDia] = useState(0);
+	const [cantSolicitudesSemana, setCantSolicitudesSemana] = useState(0);
+
 	//solicitudesDisponibles contiene los reintegros/autorizaciones/recetas a mostrar (estado "recibido" o "en analisis")
 	const [solicitudesDisponibles, setSolicitudesDisponibles] = useState([])
 
-	const mostrarSolicitudesDisponibles = () => {
+	const user = JSON.parse(localStorage.getItem("miapp_user"));
+
+	//Funcion para capitalizar la primera letra de cada palabra
+	// const mayusculas = (str) => {
+	// 	if (typeof str !== "string") return str; // evita errores con undefined o null
+	// 	str.toLowerCase().replace(/(^|\s)\p{L}/gu, (c) => c.toUpperCase())
+	// };
+
+	const mostrarSolicitudesDisponibles = async () => {
 
 		const solicitudes = {
 			reintegro: reintegros,
@@ -34,12 +47,28 @@ export default function SolicitudesEntrantes() {
 			return;
 		}
 
-		const filtradas = lista.filter(
-			(item) => item.estado === "recibido" || item.estado === "en analisis"
-		);
+		setSolicitudesDisponibles(lista);
+	}
 
-		console.log("Solicitudes a mostrar", filtradas)
-		setSolicitudesDisponibles(filtradas);
+	const infoCantSolicitudes = async () => {
+		try {
+			//Solicitudes pendientes
+			const cantidadSolicitudesAnalisis = await cantSolicitudesAnalisisApi(user.id)
+			setCantSolicitudesAnalisis(cantidadSolicitudesAnalisis)
+
+			//Todas las solicitudes resueltas del dia
+			const cantidadSolicitudesDia = await cantSolicitudesSemanaApi()
+			setCantSolicitudesDia(cantidadSolicitudesDia)
+
+			//Todas las solicitudes resueltas de la semana
+			const cantidadSolicitudesSemana = await cantSolicitudesSemanaApi()
+			setCantSolicitudesSemana(cantidadSolicitudesSemana)
+
+
+		} catch (error) {
+			console.log("Error al contar cuantas solicitudes en analisis hay", error)
+			throw error;
+		}
 	}
 
 	//Esta funcion se borrara cuando se haga el vinculo con el backend
@@ -61,21 +90,18 @@ export default function SolicitudesEntrantes() {
 	};
 
 
-	// Primer useEffect, se obtiene la informacion de reintegros, autrizaciones y recetas.
+	// Primer useEffect, se obtiene la informacion de reintegros, autorizaciones y recetas.
 	useEffect(() => {
 		const fetchDatos = async () => {
 			try {
-				const resReintegros = await fetch("/reintegros.json");
-				if (!resReintegros.ok) throw new Error("Error al cargar reintegros.json");
-				const dataReintegros = await resReintegros.json();
+
+				const dataReintegros = await getReintegrosPropias(user.id);
 				setReintegros(dataReintegros);
 
-				const resRecetas = await fetch("/recetas.json");
-				if (!resRecetas.ok) throw new Error("Error al cargar recetas.json");
-				const dataRecetas = await resRecetas.json();
-				setRecetas(dataRecetas);
+				const dataRecetas = await getRecetasPropias(user.id);
+				setRecetas(dataRecetas)
 
-				const dataAutorizaciones = await getAutorizacionesPropias();
+				const dataAutorizaciones = await getAutorizacionesPropias(user.id);
 				setAutorizaciones(dataAutorizaciones);
 
 			} catch (err) {
@@ -89,6 +115,7 @@ export default function SolicitudesEntrantes() {
 	// Segundo useEffect: filtrar cuando los datos o el tipo cambian
 	useEffect(() => {
 		mostrarSolicitudesDisponibles();
+		infoCantSolicitudes();
 	}, [reintegros, autorizaciones, recetas, tipoSolicitud]);
 
 	return (
@@ -104,15 +131,15 @@ export default function SolicitudesEntrantes() {
 					>
 						<div className="info-card">
 							<h5>Solicitudes Pendientes</h5>
-							<p>14</p>
+							<p>{cantSolicitudesAnalisis}</p>
 						</div>
 						<div className="info-card">
 							<h5>Solicitudes resueltas del dia</h5>
-							<p>12</p>
+							<p>{cantSolicitudesDia}</p>
 						</div>
 						<div className="info-card">
 							<h5>Solicitudes resueltas de la semana</h5>
-							<p>114</p>
+							<p>{cantSolicitudesSemana}</p>
 						</div>
 					</motion.div>
 
@@ -151,8 +178,14 @@ export default function SolicitudesEntrantes() {
 									<tbody>
 										{solicitudesDisponibles.map((s) => (
 											<tr key={s.id}>
-												<td>{s.fechaPrestacion}</td>
-												<td>{s.integrante}</td>
+												<td>{new Date(s.fecha_prestacion).toLocaleString("es-AR", {
+													day: "2-digit",
+													month: "2-digit",
+													year: "numeric",
+													hour: "2-digit",
+													minute: "2-digit",
+												})}</td>
+												<td>{s.integrante?.nombre ?? "Sin datos"}</td>
 												<td>{s.medico}</td>
 												<td>{s.especialidad}</td>
 												<td>{s.estado}</td>
@@ -197,8 +230,6 @@ export default function SolicitudesEntrantes() {
 									<tbody>
 										{solicitudesDisponibles && solicitudesDisponibles.length > 0 ? (
 											solicitudesDisponibles.map((s) => {
-												console.log("Renderizando solicitud:", s);
-
 												return (
 													<tr key={s.id}>
 														<td>
@@ -210,7 +241,7 @@ export default function SolicitudesEntrantes() {
 																minute: "2-digit",
 															})}
 														</td>
-														<td>{s.integrante.nombre}</td>
+														<td>{s.integrante?.nombre ?? "Sin datos"}</td>
 														<td>{s.medico}</td>
 														<td>{s.especialidad}</td>
 														<td>{s.estado}</td>
@@ -263,7 +294,7 @@ export default function SolicitudesEntrantes() {
 									<tbody>
 										{solicitudesDisponibles.map((s) => (
 											<tr key={s.id}>
-												<td>{s.integrante}</td>
+												<td>{s.integrante?.nombre ?? "Sin datos"}</td>
 												<td>{s.medicamento}</td>
 												<td>{s.cantidad}</td>
 												<td>{s.presentacion}</td>
