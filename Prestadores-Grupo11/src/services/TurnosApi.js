@@ -33,3 +33,17 @@ export const getTurnosByIntegranteId = async (pacienteId) => {
     return [];
   }
 };
+
+// Devuelve todos los turnos que le corresponden al paciente de id **pacienteId**
+export const getTurnosByPacienteId = async (pacienteId, tipoPaciente) => {
+  const tipoLowercase = tipoPaciente.toLowerCase()
+  try {
+    const res = await api.get("/turnos/centro/3");
+    const data = Array.isArray(res.data) ? res.data : []; //Si no hay turnos, devuelve array vacio
+    const filtrados = data.filter(turno => turno[`${tipoLowercase}Id`] === pacienteId);
+    return filtrados;
+  } catch (error) {
+    console.error("Hubo un error al traerse los turnos del integrante", error);
+    return [];
+  }
+};

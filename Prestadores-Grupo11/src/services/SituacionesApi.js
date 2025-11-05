@@ -32,6 +32,20 @@ export const getSituacionesByIntegranteId = async (integranteId) => {
 }
 
 /**
+ * Obtiene todas las situaciones de un paciente (Afiliado o Integrante)
+ * GET /situaciones/:tipoPaciente/:idIntegrante
+ */
+export const getSituacionesByPacienteId = async (pacienteId, tipoPaciente) => {
+  try {
+    const res = await api.get(`/situaciones/${tipoPaciente}/${pacienteId}`);
+    return res.data?.situaciones || [];
+  } catch (error) {
+    console.error("Error al traerse las situaciones del paciente:", error);
+    throw error;
+  }
+}
+
+/**
  * Crear nueva situación
  * POST /situaciones
  */

@@ -1,32 +1,44 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import SideBar from "../components/SideBar";
 import { ArrowLeft, ClipboardList, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import { getAllIntegrantes } from "../services/IntegrantesApi";
-import { getSituacionesByIntegranteId } from "../services/SituacionesApi";
+import { getAllAfiliados } from "../services/AfiliadosApi";
+import { getSituacionesByPacienteId } from "../services/SituacionesApi";
 import { getNombrePrestadorById } from "../services/PrestadoresApi";
-import { getTurnosByIntegranteId } from "../services/TurnosApi";
+import { getTurnosByPacienteId } from "../services/TurnosApi";
 import "../styles/SituacionesTerapeuticas.css";
 
 export default function HistorialClinico() {
   const { dni } = useParams();
   const navigate = useNavigate();
 
-  const [paciente, setPaciente] = useState(null);
-  const [situaciones, setSituaciones] = useState([]);
-  const [consultas, setConsultas] = useState([]);
+  //Me traigo el tipo de paciente de los query parameters
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const tipo = queryParams.get("tipo"); // "afiliados", "integrantes"
 
+  const [paciente, setPaciente] = useState(null);
+  //const [situaciones, setSituaciones] = useState([]);
+  const [consultas, setConsultas] = useState([]);
 
   //Este estado es para manejar el problema en donde tengo el idPrestador, y necesito saber el nombre
   //Para poder mostrarlo en la tabla de historial clinico
-  const [nombresPrestadores, setNombresPrestadores] = useState({});
+  //const [nombresPrestadores, setNombresPrestadores] = useState({});
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filtroNotas, setFiltroNotas] = useState(false);
+
+  //Obtiene el user guardado en el localStorage
+  const storedUser = JSON.parse(localStorage.getItem("miapp_user") || "null");
+  const user = storedUser;
+
+  //Funcion para capitalizar la primera letra de cada palabra
+  const mayusculas = (str) => str.toLowerCase().replace(/(^|\s)\p{L}/gu, (c) => c.toUpperCase());
 
   // Cargar datos del paciente
   useEffect(() => {
@@ -34,7 +46,8 @@ export default function HistorialClinico() {
     const cargarPaciente = async () => {
       try {
         const integrantes = await getAllIntegrantes();
-        const encontrado = integrantes.find((integrante) => integrante.dni === dni)
+        const afiliados = await getAllAfiliados();
+        const encontrado = integrantes.find((integrante) => integrante.dni === dni) || afiliados.find(afiliado => afiliado.dni === dni)
 
         if (!encontrado) {
           console.log(`No se encontro el integrante DNI ${dni}`)
@@ -50,6 +63,7 @@ export default function HistorialClinico() {
     };
 
     cargarPaciente();
+
   }, [dni]);
 
   useEffect(() => {
@@ -58,10 +72,15 @@ export default function HistorialClinico() {
       if (!paciente || !paciente.id) return; // Si no hay paciente, no hace nada
 
       try {
-        const situacionesEncontradas = await getSituacionesByIntegranteId(paciente.id);
+        const situacionesEncontradas = await getSituacionesByPacienteId(paciente.id, tipo);
         const situacionesDeBaja = situacionesEncontradas.filter((situacion) => situacion.estado === "baja")
 
-        const turnosEncontrados = await getTurnosByIntegranteId(paciente.id);
+        let turnosEncontrados = await getTurnosByPacienteId(paciente.id, tipo);
+
+        if (filtroNotas) {
+          turnosEncontrados = turnosEncontrados.filter(turno => turno.notes && turno.prestadorId == user?.id)
+        }
+
         const ahora = new Date();
         const turnosFinalizados = turnosEncontrados.filter(turno => {
           const fechaTurno = new Date(turno.date);
@@ -75,12 +94,12 @@ export default function HistorialClinico() {
             fecha: s.fecha_final,
             descripcion: s.observaciones,
             especialidad: s.especialidad,
-            medico: `Nombre de prestador id ${s.prestadorId}`,
+            medico: s.prestador.username,
             notas: ""
           })),
           ...turnosFinalizados.map(t => ({
             fecha: t.date,
-            descripcion: "",
+            descripcion: t.descripción,
             especialidad: t.prestador?.especialidad || "",
             medico: t.prestador?.username || "",
             notas: t.notes || ""
@@ -93,26 +112,26 @@ export default function HistorialClinico() {
 
         //Todo lo que esta aca para abajo, hasta el catch, se puede solucionar si en el backend
         //Al traerse la situacion, tambien muestra el username del medico.
-        const idsUnicos = [...new Set(situacionesEncontradas.map(s => s.prestadorId))];
+        // const idsUnicos = [...new Set(situacionesEncontradas.map(s => s.prestadorId))];
 
-        const respuestas = await Promise.all(
-          idsUnicos.map(async id => {
-            try {
-              const nombre = await getNombrePrestadorById(id);
-              return { id, nombre };
-            } catch (error) {
-              console.error(`Error al traer el prestador ${id}`, error);
-              return { id, nombre: "Desconocido" };
-            }
-          })
-        );
+        // const respuestas = await Promise.all(
+        //   idsUnicos.map(async id => {
+        //     try {
+        //       const nombre = await getNombrePrestadorById(id);
+        //       return { id, nombre };
+        //     } catch (error) {
+        //       console.error(`Error al traer el prestador ${id}`, error);
+        //       return { id, nombre: "Desconocido" };
+        //     }
+        //   })
+        // );
 
-        const diccionario = respuestas.reduce((acc, { id, nombre }) => {
-          acc[id] = nombre;
-          return acc;
-        }, {});
+        // const diccionario = respuestas.reduce((acc, { id, nombre }) => {
+        //   acc[id] = nombre;
+        //   return acc;
+        // }, {});
 
-        setNombresPrestadores(diccionario);
+        // setNombresPrestadores(diccionario);
 
       } catch (error) {
         console.error("Hubo un error al buscar las consultas", error)
@@ -120,7 +139,7 @@ export default function HistorialClinico() {
     };
 
     getConsultas()
-  }, [paciente])
+  }, [paciente, filtroNotas, tipo])
 
   // Estado: cargando
   if (loading) {
@@ -219,7 +238,13 @@ export default function HistorialClinico() {
 
             {/*Checkbox para filtrar entre notas propias*/}
             <div className="form-check">
-              <input className="form-check-input" type="checkbox" value="" id="checkDefault" />
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="checkDefault"
+                checked={filtroNotas}
+                onChange={(e) => setFiltroNotas(e.target.checked)}
+              />
               <label className="form-check-label" htmlFor="checkDefault">
                 Filtrar por notas propias
               </label>
@@ -255,9 +280,9 @@ export default function HistorialClinico() {
                         })}
                       </td>
                       <td>{consulta.descripcion}</td>
-                      <td>{consulta.especialidad}</td>
+                      <td>{mayusculas(consulta.especialidad)}</td>
                       {/* <td>{nombresPrestadores[consulta.prestadorId] || "Cargando..."}</td> */}
-                      <td>{consulta.medico}</td>
+                      <td>{mayusculas(consulta.medico)}</td>
                       <td>{consulta.notas}</td>
                     </motion.tr>
                   ))
