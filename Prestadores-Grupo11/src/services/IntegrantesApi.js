@@ -1,35 +1,49 @@
 import api from "./Api";
 
 /**
- * Busca afiliados (integrantes) por nombre, apellido o número de afiliado.
- * @param {string|number} prestadorId - ID del prestador
- * @param {string} query - término de búsqueda (nombre completo o número)
+ * Busca afiliados (con integrantes y situaciones)
+ * por número de afiliado o apellido, filtrados por prestador.
+ * GET /situaciones/:prestadorId/Afiliado/:nroOApellido
  */
-export const getIntegrantes = async (prestadorId, query) => {
+export const getIntegrantes = async (prestadorId, valorBusqueda) => {
   try {
-    const search = (query || "").trim();
+    const q = (valorBusqueda || "").trim();
 
-    // Siempre usa la ruta con /situaciones/:prestadorId/Afiliado/:nroOApellido
-    const endpoint = `/situaciones/${prestadorId}/Afiliado/${encodeURIComponent(search)}`;
+    if (!prestadorId) throw new Error("Falta el ID del prestador.");
+    if (!q || q.length < 8) {
+      throw new Error("La búsqueda requiere al menos 8 caracteres.");
+    }
 
-    console.log("🛰️ Llamando a backend:", endpoint);
+    const res = await api.get(
+      `/situaciones/${prestadorId}/Afiliado/${encodeURIComponent(q)}`
+    );
 
-    const response = await api.get(endpoint, { timeout: 7000 });
+    // El backend devuelve un solo afiliado, no un array
+    if (!res.data) return [];
 
-    console.log(" Respuesta búsqueda integrantes:", {
-      status: response.status,
-      data: response.data,
-    });
-
-    return response.data;
+    // Normalizamos la respuesta a un array para que el front pueda mapearlo
+    return [res.data];
   } catch (error) {
-    console.error(" Error búsqueda integrantes:", error);
+    console.error("Error al obtener integrantes:", error);
     throw error;
   }
 };
 
 /**
- * Obtiene un integrante específico por su ID
+ * Obtiene todos los integrantes (no usado aquí)
+ */
+export const getAllIntegrantes = async () => {
+  try {
+    const res = await api.get("/integrantes");
+    return res.data;
+  } catch (error) {
+    console.error("Error al obtener integrantes:", error);
+    throw error;
+  }
+};
+
+/**
+ * Obtiene un integrante por ID
  */
 export const getIntegranteById = async (afiliadoId) => {
   try {

@@ -18,6 +18,34 @@ export const getSituacionesByAfiliado = async (prestadorId, afiliadoId, signal) 
 };
 
 /**
+ * Obtiene todas las situaciones de un integrante
+ * GET /situaciones/Integrante/:idIntegrante
+ */
+export const getSituacionesByIntegranteId = async (integranteId) => {
+  try {
+    const res = await api.get(`/situaciones/Integrante/${integranteId}`);
+    return res.data?.situaciones || [];
+  } catch (error) {
+    console.error("Error al traerse las situaciones del integrante:", error);
+    throw error;
+  }
+}
+
+/**
+ * Obtiene todas las situaciones de un paciente (Afiliado o Integrante)
+ * GET /situaciones/:tipoPaciente/:idIntegrante
+ */
+export const getSituacionesByPacienteId = async (pacienteId, tipoPaciente) => {
+  try {
+    const res = await api.get(`/situaciones/${tipoPaciente}/${pacienteId}`);
+    return res.data?.situaciones || [];
+  } catch (error) {
+    console.error("Error al traerse las situaciones del paciente:", error);
+    throw error;
+  }
+}
+
+/**
  * Crear nueva situación
  * POST /situaciones
  */
@@ -43,4 +71,16 @@ export const actualizarSituacion = async (id, data) => {
     console.error(`Error al actualizar situación ${id}:`, error);
     throw error;
   }
+};
+
+// Elimina una situación
+export const eleminarSituacion = async (id) => {
+  try {
+    const response = await api.delete(`/situaciones/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al eliminar situación:", error);
+    throw error;
+  }
+
 };

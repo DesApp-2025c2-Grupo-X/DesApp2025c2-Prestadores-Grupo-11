@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import SideBar from "../components/SideBar";
+import { modificarEstado } from "../services/Solicitudes";
 import { SidebarProvider } from "../context/SidebarContext";
 import { motion } from "framer-motion";
 import "../styles/GestionSolicitud.css";
@@ -21,49 +22,45 @@ export default function GestionSolicitud() {
   const queryParams = new URLSearchParams(location.search);
   const tipo = queryParams.get("tipo"); // "reintegro", "receta", "autorizacion"
 
-  const [solicitud, setSolicitud] = useState(null);
+  const { solicitud } = location.state || {}; // Aquí recibís la solicitud
+
+  // if (!solicitud) {
+  //   return <p>No se recibió la solicitud. Tal vez debas volver a la lista.</p>;
+  // }
+
   const [estadoSeleccionado, setEstadoSeleccionado] = useState(null)
   const [motivo, setMotivo] = useState("")
 
-  const revisarMotivoYActualizarEstado = () => {
+  const revisarMotivoYActualizarEstado = async () => {
+    const usuario = JSON.parse(localStorage.getItem("miapp_user"));
+
     if (!motivo && (estadoSeleccionado === "rechazado" || estadoSeleccionado === "observado")) {
-      toast.error("No se cargo el motivo")
-    } else {
-      navigate(-1)
+      toast.error("No se cargó el motivo");
+      return;
     }
-  }
 
-  useEffect(() => {
-    const fetchSolicitud = async () => {
-      let res = []
-      let data = []
+    if (!usuario || !usuario.id) {
+      toast.error("No se encontró el usuario en el localStorage");
+      return;
+    }
 
-      try {
-        switch (tipo) {
-          case "reintegro":
-            res = await fetch("/reintegros.json");
-            if (!res.ok) throw new Error("Error al cargar reintegros.json");
-            data = await res.json();
-            break;
-          case "autorizacion":
-            res = await fetch("/autorizaciones.json");
-            if (!res.ok) throw new Error("Error al cargar autorizaciones.json");
-            data = await res.json();
-            break;
-          case "receta":
-            res = await fetch("/recetas.json");
-            if (!res.ok) throw new Error("Error al cargar recetas.json");
-            data = await res.json();
-            break;
-        }
-        setSolicitud(data.find(soli => soli.id.toString() === id));
-      } catch (err) {
-        console.error("Error cargando solicitud:", err);
-      }
-    };
+    try {
+      const body =
+        estadoSeleccionado === "rechazado" || estadoSeleccionado === "observado"
+          ? { nuevoEstado: estadoSeleccionado, motivo, usuarioId: usuario.id }
+          : { nuevoEstado: "aprobado", usuarioId: usuario.id };
 
-    fetchSolicitud();
-  }, [id, tipo]);
+      console.log("Body que se envía:", body); // 🔍 Comprobá esto en consola
+
+      await modificarEstado(solicitud.id, body);
+
+      toast.success("Estado actualizado correctamente");
+      navigate(-1);
+    } catch (error) {
+      console.error("Error al actualizar estado:", error);
+      toast.error("Hubo un error al actualizar el estado");
+    }
+  };
 
   if (!solicitud) return <p>Cargando o solicitud no encontrada...</p>;
 
@@ -81,12 +78,12 @@ export default function GestionSolicitud() {
               className="contenedorInfo"
             >
               <span>
-                <strong>Fecha de prestacion</strong>
-                <p>{solicitud.fechaPrestacion}</p>
+                <strong>Fecha prevista</strong>
+                <p>{solicitud.fecha_prevista}</p>
               </span>
               <span>
                 <strong>Integrante</strong>
-                <p>{solicitud.integrante}</p>
+                <p>{solicitud.integranteId}</p>
               </span>
               <span>
                 <strong>Medico</strong>
@@ -97,24 +94,12 @@ export default function GestionSolicitud() {
                 <p>{solicitud.especialidad}</p>
               </span>
               <span>
-                <strong>Lugar donde fue atendido</strong>
-                <p>{solicitud.lugarAtencion}</p>
+                <strong>Lugar donde se realizara la prestacion</strong>
+                <p>{solicitud.lugar}</p>
               </span>
               <span>
-                <strong>Datos de la factura</strong>
-                <ul>
-                  <li>{solicitud.factura.fecha}</li>
-                  <li>{solicitud.factura.cuit}</li>
-                  <li>{solicitud.factura.valorTotal}</li>
-                  <li>{solicitud.factura.facturadoA}</li>
-                </ul>
-              </span>
-              <span>
-                <strong>Forma de pago</strong>
-                <ul>
-                  <li>{solicitud.formaPago.tipo}</li>
-                  <li>{solicitud.formaPago.cbu}</li>
-                </ul>
+                <strong>Dias de internacion</strong>
+                <p>{solicitud.dias_internacion}</p>
               </span>
               <span>
                 <strong>Observaciones</strong>

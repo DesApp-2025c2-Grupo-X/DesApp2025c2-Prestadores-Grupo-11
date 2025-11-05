@@ -5,6 +5,7 @@ import "../styles/SituacionesTerapeuticas.css";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import SideBar from "../components/SideBar";
+import { getAutorizacionesPropias } from "../services/Solicitudes";
 import { SidebarProvider } from "../context/SidebarContext";
 
 export default function SolicitudesEntrantes() {
@@ -62,46 +63,28 @@ export default function SolicitudesEntrantes() {
 
 	// Primer useEffect, se obtiene la informacion de reintegros, autrizaciones y recetas.
 	useEffect(() => {
-		const fetchReintegros = async () => {
+		const fetchDatos = async () => {
 			try {
-				const res = await fetch("/reintegros.json");
-				if (!res.ok) throw new Error("Error al cargar reintegros.json");
-				const data = await res.json();
-				setReintegros(data);
-				console.log("Reintegros cargados:", data);
-			} catch (err) {
-				console.error("Error cargando reintegros:", err);
-			}
-		}
+				const resReintegros = await fetch("/reintegros.json");
+				if (!resReintegros.ok) throw new Error("Error al cargar reintegros.json");
+				const dataReintegros = await resReintegros.json();
+				setReintegros(dataReintegros);
 
-		const fetchAutorizaciones = async () => {
-			try {
-				const res = await fetch("/autorizaciones.json");
-				if (!res.ok) throw new Error("Error al cargar autorizaciones.json");
-				const data = await res.json();
-				setAutorizaciones(data);
-				console.log("Autorizaciones cargados:", data);
-			} catch (err) {
-				console.error("Error cargando autorizaciones:", err);
-			}
-		}
+				const resRecetas = await fetch("/recetas.json");
+				if (!resRecetas.ok) throw new Error("Error al cargar recetas.json");
+				const dataRecetas = await resRecetas.json();
+				setRecetas(dataRecetas);
 
-		const fetchRecetas = async () => {
-			try {
-				const res = await fetch("/recetas.json");
-				if (!res.ok) throw new Error("Error al cargar recetas.json");
-				const data = await res.json();
-				setRecetas(data);
-				console.log("Recetas cargados:", data);
-			} catch (err) {
-				console.error("Error cargando recetas:", err);
-			}
-		}
+				const dataAutorizaciones = await getAutorizacionesPropias();
+				setAutorizaciones(dataAutorizaciones);
 
-		fetchReintegros();
-		fetchAutorizaciones();
-		fetchRecetas();
-	}, [])
+			} catch (err) {
+				console.error("Error cargando datos:", err);
+			}
+		};
+
+		fetchDatos();
+	}, []);
 
 	// Segundo useEffect: filtrar cuando los datos o el tipo cambian
 	useEffect(() => {
@@ -181,10 +164,15 @@ export default function SolicitudesEntrantes() {
 													) : (
 														<button
 															className="btn-accion"
-															onClick={() => navigate(`/prestadores/solicitudes/${s.id}?tipo=${tipoSolicitud}`)}
+															onClick={() =>
+																navigate(`/prestadores/solicitudes/${s.id}?tipo=${tipoSolicitud}`, {
+																	state: { solicitud: s } // Se pasa la solicitud clickeada a la siguiente página
+																})
+															}
 														>
 															Ver más y gestionar
 														</button>
+
 													)}
 												</td>
 											</tr>
@@ -207,29 +195,54 @@ export default function SolicitudesEntrantes() {
 										</tr>
 									</thead>
 									<tbody>
-										{solicitudesDisponibles.map((s) => (
-											<tr key={s.id}>
-												<td>{s.fechaPrevista}</td>
-												<td>{s.integrante}</td>
-												<td>{s.medico}</td>
-												<td>{s.especialidad}</td>
-												<td>{s.estado}</td>
-												<td>
-													{s.estado === "recibido" ? (
-														<button className="btn-accion" onClick={() => tomarSolicitud(s.id)}>
-															Tomar solicitud
-														</button>
-													) : (
-														<button
-															className="btn-accion"
-															onClick={() => navigate(`/prestadores/solicitudes/${s.id}?tipo=${tipoSolicitud}`)}
-														>
-															Ver más y gestionar
-														</button>
-													)}
+										{solicitudesDisponibles && solicitudesDisponibles.length > 0 ? (
+											solicitudesDisponibles.map((s) => {
+												console.log("Renderizando solicitud:", s);
+
+												return (
+													<tr key={s.id}>
+														<td>
+															{new Date(s.fecha_prevista).toLocaleString("es-AR", {
+																day: "2-digit",
+																month: "2-digit",
+																year: "numeric",
+																hour: "2-digit",
+																minute: "2-digit",
+															})}
+														</td>
+														<td>{s.integrante.nombre}</td>
+														<td>{s.medico}</td>
+														<td>{s.especialidad}</td>
+														<td>{s.estado}</td>
+														<td>
+															{s.estado === "recibido" ? (
+																<button className="btn-accion" onClick={() => tomarSolicitud(s.id)}>
+																	Tomar solicitud
+																</button>
+															) : (
+																<button
+																	className="btn-accion"
+																	onClick={() => {
+																		console.log("Solicitud enviada al navigate:", s);
+																		navigate(`/prestadores/solicitudes/${s.id}?tipo=${tipoSolicitud}`, {
+																			state: { solicitud: s }, // se pasa el objeto completo
+																		});
+																	}}
+																>
+																	Ver más y gestionar
+																</button>
+															)}
+														</td>
+													</tr>
+												);
+											})
+										) : (
+											<tr>
+												<td colSpan="6" style={{ textAlign: "center" }}>
+													No hay solicitudes disponibles
 												</td>
 											</tr>
-										))}
+										)}
 									</tbody>
 								</table>
 							)}

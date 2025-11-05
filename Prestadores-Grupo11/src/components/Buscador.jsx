@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/SituacionesTerapeuticas.css";
 
@@ -37,8 +37,8 @@ export default function Buscador({
       return;
     }
 
-    // --- Si es nombre completo o número de afiliado válido ---
-    if (esNombreCompleto(trimmed) || esNumeroAfiliado(trimmed)) {
+    if (esNombre(trimmed) || esNumeroAfiliado(trimmed)) {
+      console.log(`${basePath}?query=${encodeURIComponent(trimmed)}`) // de prueba
       navigate(`${basePath}?query=${encodeURIComponent(trimmed)}`);
       if (onSearch) onSearch(trimmed);
     } else {
@@ -102,6 +102,8 @@ export default function Buscador({
           </motion.div>
         )}
       </AnimatePresence>
+      {/* === Toasts globales === */}
+      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </motion.div>
   );
 }
