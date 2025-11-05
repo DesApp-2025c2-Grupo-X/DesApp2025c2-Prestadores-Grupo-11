@@ -68,11 +68,11 @@ export default function LoginPage() {
           })
         );
 
-        toast.success(`Bienvenido/a — ${username}`);
+        toast.success(`Bienvenido/a — ${prestador.username}`);
 
         console.log("Redirigiendo a /dashboard para role:", normalizedRole);
 
-        // Redirección después de un breve delay para que se vea el toast
+        // Redirección con pequeño delay para mostrar el toast
         setTimeout(() => navigate("/dashboard"), 1000);
       } else {
         toast.error(data.message || "Error en el inicio de sesión.");

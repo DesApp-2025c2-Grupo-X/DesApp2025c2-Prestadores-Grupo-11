@@ -12,6 +12,7 @@ import { getIntegrantes } from "../services/IntegrantesApi";
 export default function BusquedaSituacionesTerapeuticas() {
   const [resultados, setResultados] = useState([]);
   const [cargando, setCargando] = useState(false);
+  const [buscado, setBuscado] = useState(false);
   const navigate = useNavigate();
 
   // Obtener prestador del localStorage
@@ -95,23 +96,16 @@ export default function BusquedaSituacionesTerapeuticas() {
     navigate(`/prestadores/situaciones/${afiliadoId}`);
   };
 
+  // --- Renderizado ---
   return (
     <PrestadoresLayout header={<HeaderPrestadores />}>
       <div className="contenido-principal main-with-sidebar">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <h3>Búsqueda de Situaciones Terapéuticas</h3>
           <Buscador onSearch={handleSearch} />
         </motion.div>
 
-        {cargando && (
-          <p style={{ marginTop: "1.5rem", color: "#555" }}>
-            Cargando datos de pacientes...
-          </p>
-        )}
+        {cargando && <p style={{ marginTop: "1.5rem", color: "#555" }}>Cargando datos de pacientes...</p>}
 
         {resultados.length > 0 && (
           <div className="table-responsive-xl mt-4">

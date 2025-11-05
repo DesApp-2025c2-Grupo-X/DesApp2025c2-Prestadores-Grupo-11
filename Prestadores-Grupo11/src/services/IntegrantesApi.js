@@ -45,12 +45,16 @@ export const getAllIntegrantes = async () => {
 /**
  * Obtiene un integrante por ID
  */
-export const getIntegranteById = async (id) => {
+export const getIntegranteById = async (afiliadoId) => {
   try {
-    const res = await api.get(`/integrantes/${id}`);
-    return res.data;
+    // Esta ruta es la que existe en backend para buscar por ID
+    const endpoint = `/situaciones/Afiliado/${afiliadoId}`;
+    const response = await api.get(endpoint);
+
+    console.log("Detalle afiliado:", response.data);
+    return response.data;
   } catch (error) {
-    console.error(`Error al obtener integrante con ID ${id}:`, error);
+    console.error(`Error obteniendo afiliado ${afiliadoId}:`, error);
     throw error;
   }
 };
