@@ -3,12 +3,15 @@ import { Link } from "react-router-dom";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import { Calendar, FileText, Activity, BookOpen } from "lucide-react";
-import { getAutorizacionesPropias } from "../services/Solicitudes";
+import { getAutorizacionesPropiasAnalisis, getReintegrosPropiasAnalisis, getRecetasPropiasAnalisis } from "../services/Solicitudes";
 import "../styles/Dashboard.css";
 
 export default function Dashboard() {
 
-  const [cantAutorizaciones, setCantAutorizaciones] = useState(0);
+  const [cantAutorizacionesPendientes, setCantAutorizacionesPendientes] = useState(0);
+  const [cantRecetasPendientes, setCantRecetasPendientes] = useState(0);
+  const [cantReintegrosPendientes, setCantReintegrosPendientes] = useState(0);
+
 
   // determinar ruta de calendario según el role del usuario (case-insensitive)
   const userStr = localStorage.getItem("miapp_user");
@@ -30,8 +33,13 @@ export default function Dashboard() {
         return;
       }
 
-      const cantidadAutorizaciones = await getAutorizacionesPropias(prestador.id);
-      setCantAutorizaciones(cantidadAutorizaciones);
+      const autorizaciones = await getAutorizacionesPropiasAnalisis(prestador.id);
+      const recetas = await getRecetasPropiasAnalisis(prestador.id);
+      const reintegros = await getReintegrosPropiasAnalisis(prestador.id);
+
+      setCantAutorizacionesPendientes(autorizaciones.length)
+      setCantRecetasPendientes(recetas.length)
+      setCantReintegrosPendientes(reintegros.length)
     }
 
     fetchCantidadSolicitudes()
@@ -55,29 +63,29 @@ export default function Dashboard() {
             <div className="row g-4">
               <div className="col-12 col-sm-6 col-lg-3">
                 <div className="info-card">
-                  <h5>Solicitudes Pendientes</h5>
-                  <p>20</p>
+                  <h5>Solicitudes "En analisis" pendientes</h5>
+                  <p>{cantAutorizacionesPendientes + cantRecetasPendientes + cantReintegrosPendientes}</p>
                 </div>
               </div>
 
               <div className="col-12 col-sm-6 col-lg-3">
                 <div className="info-card">
-                  <h5>Autorizaciones Pendientes</h5>
-                  <p>{cantAutorizaciones.length}</p>
+                  <h5>Autorizaciones "En analisis" Pendientes</h5>
+                  <p>{cantAutorizacionesPendientes}</p>
                 </div>
               </div>
 
               <div className="col-12 col-sm-6 col-lg-3">
                 <div className="info-card">
-                  <h5>Recetas Pendientes</h5>
-                  <p>12</p>
+                  <h5>Recetas "En analisis" Pendientes</h5>
+                  <p>{cantRecetasPendientes}</p>
                 </div>
               </div>
 
               <div className="col-12 col-sm-6 col-lg-3">
                 <div className="info-card">
-                  <h5>Reintegros Pendientes</h5>
-                  <p>35</p>
+                  <h5>Reintegros "En analisis" Pendientes</h5>
+                  <p>{cantReintegrosPendientes}</p>
                 </div>
               </div>
             </div>
