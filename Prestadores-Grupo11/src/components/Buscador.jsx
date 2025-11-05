@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -14,18 +15,20 @@ export default function Buscador({
   const [isFocused, setIsFocused] = useState(false);
   const navigate = useNavigate();
 
-  // --- Verifica si es un nombre (solo letras y espacios) ---
-  const esNombre = (valor) => /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(valor);
+  // --- Verifica si es nombre y/o apellido (letras y espacios) ---
+  const esNombreCompleto = (valor) =>
+    /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{3,}$/.test(valor.trim());
 
-  // --- Verifica si es un número de afiliado válido: letras + "-" + números ---
-  const esNumeroAfiliado = (valor) => /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+-\d{4,}$/.test(valor);
+  // --- Verifica si es un número de afiliado válido ---
+  const esNumeroAfiliado = (valor) =>
+    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+-\d{4,}$/.test(valor.trim());
 
   // --- Lógica de búsqueda centralizada ---
   const ejecutarBusqueda = () => {
     const trimmed = query.trim();
 
     if (!trimmed) {
-      toast.error("Por favor, ingresa un nombre o número de afiliado");
+      toast.error("Por favor, ingresa un nombre, apellido o número de afiliado");
       return;
     }
 
@@ -34,24 +37,23 @@ export default function Buscador({
       return;
     }
 
-    if (esNombre(trimmed) || esNumeroAfiliado(trimmed)) {
+    // --- Si es nombre completo o número de afiliado válido ---
+    if (esNombreCompleto(trimmed) || esNumeroAfiliado(trimmed)) {
       navigate(`${basePath}?query=${encodeURIComponent(trimmed)}`);
       if (onSearch) onSearch(trimmed);
     } else {
       toast.error(
-        "Formato no válido. Usa solo letras para nombres o formato LETRAS-NÚMEROS (ej: IOMA-00111222)"
+        "Formato no válido. Usa solo letras (nombre/apellido) o formato LETRAS-NÚMEROS (ej: IOMA-00111222)"
       );
     }
   };
 
-  // --- Ejecuta búsqueda solo al presionar Enter ---
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       ejecutarBusqueda();
     }
   };
 
-  // --- Permite buscar también con el botón ---
   const handleSearchClick = () => {
     ejecutarBusqueda();
   };
@@ -70,7 +72,7 @@ export default function Buscador({
     >
       <input
         type="text"
-        placeholder="Buscar por nombre o número de afiliado (ej: IOMA-00111222)..."
+        placeholder="Buscar por nombre, apellido o número de afiliado (ej: IOMA-00111222)..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => setIsFocused(true)}
@@ -103,4 +105,3 @@ export default function Buscador({
     </motion.div>
   );
 }
-
