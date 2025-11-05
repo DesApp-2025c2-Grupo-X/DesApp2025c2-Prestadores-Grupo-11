@@ -15,3 +15,13 @@ export const getAfiliadoConSituaciones = async (prestadorId, afiliadoId, signal)
     throw error;
   }
 };
+
+export const getAllAfiliados = async () => {
+  try {
+    const res = await api.get("/afiliados/");
+    return res.data;
+  } catch (error) {
+    console.error("Error al traerse todos los afiliados", error)
+    throw error;
+  }
+}

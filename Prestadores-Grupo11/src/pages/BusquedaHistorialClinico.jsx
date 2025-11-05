@@ -7,126 +7,119 @@ import { SidebarProvider } from "../context/SidebarContext";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { getAllIntegrantes } from "../services/IntegrantesApi";
+import { getAllAfiliados } from "../services/AfiliadosApi";
 
 export default function BusquedaHistorialClinico() {
-    //const [dni, setDni] = useState("")
-    //const [afiliados, setAfiliados] = useState([])
-    //const [resultados, setResultados] = useState([])
-    const [integrantes, setIntegrantes] = useState([])
-    const navigate = useNavigate();
+  //const [dni, setDni] = useState("")
+  //const [resultados, setResultados] = useState([])
+  // const [afiliados, setAfiliados] = useState([])
+  // const [integrantes, setIntegrantes] = useState([])
+  const [pacientes, setPacientes] = useState([]);
+  const navigate = useNavigate();
 
-    const handleSearchAfiliado = (valor) => {
-        const lower = valor?.toLowerCase() || "";
+  const handleSearchAfiliado = (valor) => {
+    // const lower = valor?.toLowerCase() || "";
 
-        if (!lower) {
-            setResultados([]);
-            return;
-        }
+    // if (!lower) {
+    //   setResultados([]);
+    //   return;
+    // }
 
-        const filtrados = afiliados.filter((af) => {
-            const dniMatch = af.dni.includes(lower);
-            const nombreMatch = af.nombre.toLowerCase().includes(lower);
-            return dniMatch || nombreMatch;
-        });
+    // const filtrados = afiliados.filter((af) => {
+    //   const dniMatch = af.dni.includes(lower);
+    //   const nombreMatch = af.nombre.toLowerCase().includes(lower);
+    //   return dniMatch || nombreMatch;
+    // });
 
-        console.log(filtrados)
-        setResultados(filtrados);
-    };
+    // console.log(filtrados)
+    // setResultados(filtrados);
+  };
 
-    //Se traen los datos de los afiliados, desde afiliados.json
-    useEffect(() => {
-        // const fetchAfiliados = async () => {
-        //     try {
-        //         const res = await fetch("/afiliados.json");
-        //         if (!res.ok) throw new Error("Error al cargar afiliados.json");
-        //         const data = await res.json();
-        //         setAfiliados(data);
-        //         console.log("Afiliados cargadas:", data);
-        //     } catch (err) {
-        //         console.error("Error cargando afiliados:", err);
-        //     }
-        // };
 
-        // fetchAfiliados();
+  useEffect(() => {
 
-        const fetchIntegrantes = async () => {
-            try {
-                const data = await getAllIntegrantes();
-                setIntegrantes(data);
-            } catch (error) {
-                console.error('Error al cargar integrantes:', error);
-            }
-        };
+    const getPacientes = async () => {
+      try {
+        const integrantes = await getAllIntegrantes();
+        const afiliados = await getAllAfiliados();
 
-        fetchIntegrantes();
-    }, [])
+        //Unifico los afiliados e integrantes en una unica lista.
+        const pacientesUnificados = [
+          ...integrantes.map(integrante => ({
+            nombre: integrante.nombre,
+            dni: integrante.dni,
+            tipo: "Integrante"
+          })),
+          ...afiliados.map(afiliado => ({
+            nombre: `${afiliado.nombre} ${afiliado.apellido}`,
+            dni: afiliado.dni,
+            tipo: "Afiliado"
+          }))
+        ];
 
-    return (
-        <SidebarProvider>
-            <PrestadoresLayout header={<HeaderPrestadores />}>
-                <SideBar />
-                <div className="contenido-principal main-with-sidebar">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <h3>Búsqueda de Historial clinico</h3>
-                        <Buscador onSearch={handleSearchAfiliado} />  {/*basePath={`historialClinico/${dni}`}*/}
-                    </motion.div>
+        console.log(pacientesUnificados) //BORRAR
+        setPacientes(pacientesUnificados);
 
-                    <motion.div
-                        className="tabla-container"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }} //opacity: resultados.length ? 1 : 0
-                        transition={{ duration: 0.4 }}
-                    >
+      } catch (error) {
+        console.error("Error al traerse todos los pacientes", error)
+      }
 
-                        <table className="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Nombre completo</th>
-                                    <th>DNI</th>
-                                    <th>Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {/* {resultados.map((afiliado) => (
-                                        <tr key={afiliado.dni}>
-                                            <td>{afiliado.nombre}</td>
-                                            <td>{afiliado.dni}</td>
-                                            <td>
-                                                <button
-                                                    className="btn-accion"
-                                                    onClick={() => navigate(`/prestadores/historialClinico/${afiliado.dni}`)}
-                                                >
-                                                    Ver historial clinico
-                                                </button>
+    }
 
-                                            </td>
-                                        </tr>
-                                    ))} */}
-                                {integrantes.map((integrante) => (
-                                    <tr key={integrante.dni}>
-                                        <td>{integrante.nombre}</td>
-                                        <td>{integrante.dni}</td>
-                                        <td>
-                                            <button
-                                                className="btn-accion"
-                                                onClick={() => navigate(`/prestadores/historialClinico/${integrante.dni}`)}
-                                            >
-                                                Ver historial clinico
-                                            </button>
+    getPacientes();
+  }, [])
 
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+  return (
+    <SidebarProvider>
+      <PrestadoresLayout header={<HeaderPrestadores />}>
+        <SideBar />
+        <div className="contenido-principal main-with-sidebar">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h3>Búsqueda de Historial clinico</h3>
+            <Buscador onSearch={handleSearchAfiliado} />  {/*basePath={`historialClinico/${dni}`}*/}
+          </motion.div>
 
-                    </motion.div>
-                </div>
-            </PrestadoresLayout>
-        </SidebarProvider>
-    );
+          <motion.div
+            className="tabla-container"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: pacientes.length ? 1 : 0 }} //opacity: resultados.length ? 1 : 0
+            transition={{ duration: 0.4 }}
+          >
+
+            <table className="table table-striped">
+              <thead>
+                <tr>
+                  <th>Nombre completo</th>
+                  <th>DNI</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pacientes.map((paciente) => (
+                  <tr key={paciente.dni}>
+                    <td>{paciente.nombre}</td>
+                    <td>{paciente.dni}</td>
+                    <td>
+                      <button
+                        className="btn-accion"
+                        onClick={() => navigate(`/prestadores/historialClinico/${paciente.dni}?tipo=${paciente.tipo}`)}
+                      >
+                        Ver historial clinico
+                      </button>
+
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+          </motion.div>
+        </div>
+      </PrestadoresLayout>
+    </SidebarProvider>
+  );
 }
