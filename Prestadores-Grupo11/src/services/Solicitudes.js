@@ -137,11 +137,6 @@ export const cambiarEstadoReintegro = async (reintegroId, body) => {
   }
 };
 
-
-//BORRAR
-
-export const modificarEstado = () => {return hola}
-
 // Obtiene la cantidad de solicitudes en estado "En analisis", del prestador **idPrestador**
 
 export const cantSolicitudesAnalisisApi = async (prestadorId) => {
@@ -166,9 +161,9 @@ export const cantSolicitudesDiaApi = async () => {
     const resRecet = await api.get("/recetas/dashboard/")
     const resReint = await api.get("/reintegros/dashboard")
 
-    const cantAutor = resAutor.data.diario.length
-    const cantRecet = resRecet.data.diario.length
-    const cantReint = resReint.data.diario.length
+    const cantAutor = resAutor.data.diario.reduce((acc, item) => acc + Number(item.cantidad), 0);
+    const cantRecet = resRecet.data.diario.reduce((acc, item) => acc + Number(item.cantidad), 0);
+    const cantReint = resReint.data.diario.reduce((acc, item) => acc + Number(item.cantidad), 0);
 
     const total = cantAutor + cantRecet + cantReint
 
@@ -189,9 +184,9 @@ export const cantSolicitudesSemanaApi = async () => {
     const resRecet = await api.get("/recetas/dashboard/")
     const resReint = await api.get("/reintegros/dashboard")
 
-    const cantAutor = resAutor.data.semanal.length
-    const cantRecet = resRecet.data.semanal.length
-    const cantReint = resReint.data.semanal.length
+    const cantAutor = Number(resAutor.data.semanal[0]?.cantidad || 0)
+    const cantRecet = Number(resRecet.data.semanal[0]?.cantidad || 0)
+    const cantReint = Number(resReint.data.semanal[0]?.cantidad || 0)
 
     const total = cantAutor + cantRecet + cantReint
 
