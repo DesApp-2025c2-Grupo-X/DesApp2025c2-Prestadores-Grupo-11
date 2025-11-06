@@ -38,8 +38,6 @@ export default function Buscador({
     }
 
     if (esNombreCompleto(trimmed) || esNumeroAfiliado(trimmed)) {
-      //console.log(`${basePath}?query=${encodeURIComponent(trimmed)}`) // de prueba
-      //navigate(`${basePath}?query=${encodeURIComponent(trimmed)}`);
       if (onSearch) onSearch(trimmed);
     } else {
       toast.error(
