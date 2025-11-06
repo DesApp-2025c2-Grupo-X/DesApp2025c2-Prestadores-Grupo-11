@@ -9,19 +9,26 @@ import "../styles/SituacionesTerapeuticas.css";
 
 export default function Buscador({
   onSearch,
-  basePath = "/prestadores/situaciones",
+  permitirDNI = false, // Para poder tambien hacer la busqueda por dni, solo en historial clinico.
 }) {
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); //BORRAR
 
   // --- Verifica si es nombre y/o apellido (letras y espacios) ---
   const esNombreCompleto = (valor) =>
     /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{3,}$/.test(valor.trim());
 
   // --- Verifica si es un número de afiliado válido ---
-  const esNumeroAfiliado = (valor) =>
-    /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+-\d{4,}$/.test(valor.trim());
+  const esNumeroAfiliado = (valor) => {
+    if (permitirDNI) {
+      // Permite solo números puros (DNI)
+      return /^\d{5,10}$/.test(valor.trim());
+    } else {
+      // Formato IOMA-XXXX
+      return /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+-\d{4,}$/.test(valor.trim());
+    }
+  };
 
   // --- Lógica de búsqueda centralizada ---
   const ejecutarBusqueda = () => {
@@ -32,9 +39,16 @@ export default function Buscador({
       return;
     }
 
-    if (trimmed.length < 8) {
-      toast.warning("Debe tener al menos 8 caracteres para buscar");
-      return;
+    if (permitirDNI) {
+      if (trimmed.length < 5) {
+        toast.warning("Debe tener al menos 5 caracteres para buscar");
+        return;
+      }
+    } else {
+      if (trimmed.length < 8) {
+        toast.warning("Debe tener al menos 8 caracteres para buscar");
+        return;
+      }
     }
 
     if (esNombreCompleto(trimmed) || esNumeroAfiliado(trimmed)) {
