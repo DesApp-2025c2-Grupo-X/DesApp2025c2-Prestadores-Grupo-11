@@ -146,35 +146,65 @@ body {
 .btn-ver:hover {
   background: var(--azul-profundo);
 }
-
-/* ======= NOTAS ======= */
-.notas-box {
-  margin-top: 0.5rem;
+/*======= BOTONES DE NOTAS ======= */
+.botones-turno {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
 }
 
-.notas-box textarea {
-  width: 100%;
-  resize: none;
-  border-radius: 8px;
-  border: 1px solid var(--verde-agua);
-  padding: 0.5rem;
+/* Botón Historia clínica */
+.btn-historia {
+  background: var(--verde-agua);
+  border: none;
+  color: white;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
+.btn-historia:hover {
+  background: var(--azul-profundo);
+  transform: scale(1.03);
+}
+
+/* Botón Guardar nota */
 .btn-guardar {
   background: var(--verde-agua);
   border: none;
   color: white;
   border-radius: 6px;
   padding: 6px 10px;
-  align-self: flex-end;
   cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .btn-guardar:hover {
   background: var(--azul-profundo);
+  transform: scale(1.03);
+}
+
+/* ======= SCROLL EN TEXTAREA ======= */
+.notas-box textarea {
+  width: 100%;
+  resize: none;
+  border-radius: 8px;
+  border: 1px solid var(--verde-agua);
+  padding: 0.5rem;
+  max-height: 120px; /* límite visual */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--verde-agua) transparent;
+}
+
+.notas-box textarea::-webkit-scrollbar {
+  width: 6px;
+}
+.notas-box textarea::-webkit-scrollbar-thumb {
+  background-color: var(--verde-agua);
+  border-radius: 6px;
 }
 
 /* ======= FOOTER ======= */
