@@ -54,7 +54,7 @@ export default function App() {
         />
 
         <Route
-          path="/prestadores/:id/afiliado/:afiliadoId/situaciones"
+          path="/prestadores/situaciones/:afiliadoId"
           element={
             <RequireAuth roles={["medico", "centro_medico"]}>
               <SituacionesTerapeuticas />

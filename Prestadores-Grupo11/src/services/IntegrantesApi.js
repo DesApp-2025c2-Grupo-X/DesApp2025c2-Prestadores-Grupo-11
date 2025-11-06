@@ -22,7 +22,7 @@ export const getIntegrantes = async (prestadorId, valorBusqueda) => {
     if (!res.data) return [];
 
     // Normalizamos la respuesta a un array para que el front pueda mapearlo
-    return [res.data];
+    return res.data;
   } catch (error) {
     console.error("Error al obtener integrantes:", error);
     throw error;

@@ -54,16 +54,17 @@ export default function BusquedaSituacionesTerapeuticas() {
           return;
         }
 
-        // Normalizar estructura: si el backend devuelve { afiliado, integrantes }
+        // Normalizar estructura de pacientes
         let pacientes = [];
 
         if (Array.isArray(data)) {
+          // Si ya es un array, usarlo directamente
           pacientes = data;
-        } else if (data.afiliado) {
-          pacientes = [data.afiliado, ...(data.integrantes || [])];
-        } else if (data.integrantes) {
-          pacientes = data.integrantes;
+        } else if (data.integrantes && Array.isArray(data.integrantes)) {
+          // Si hay afiliado con integrantes, incluir ambos
+          pacientes = [data, ...data.integrantes];
         } else {
+          // Caso genérico
           pacientes = [data];
         }
 
@@ -92,6 +93,7 @@ export default function BusquedaSituacionesTerapeuticas() {
       return;
     }
 
+    console.log(afiliadoId)
     console.log("Redirigiendo a /prestadores/situaciones/" + afiliadoId);
     navigate(`/prestadores/situaciones/${afiliadoId}`);
   };
@@ -128,8 +130,12 @@ export default function BusquedaSituacionesTerapeuticas() {
                 {resultados.map((paciente) => {
                   const id = paciente.id || paciente.afiliadoId;
                   return (
-                    <tr key={id}>
-                      <td>{paciente.nombre || "Sin nombre"}</td>
+                    <tr key={paciente.dni}>
+                      <td>
+                        {paciente.nombre || paciente.apellido
+                          ? `${paciente.nombre || ""} ${paciente.apellido || ""}`.trim()
+                          : "Sin nombre"}
+                      </td>
                       <td>{paciente.dni || "-"}</td>
                       <td>{paciente.edad || "-"}</td>
                       <td>{paciente.situaciones?.length || 0}</td>
