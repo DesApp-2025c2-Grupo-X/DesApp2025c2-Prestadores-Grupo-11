@@ -68,7 +68,7 @@ export default function LoginPage() {
           })
         );
 
-        toast.success(`Bienvenido/a — ${prestador.username}`);
+        toast.success(`Bienvenido/a — ${username}`);
 
         console.log("Redirigiendo a /dashboard para role:", normalizedRole);
 
