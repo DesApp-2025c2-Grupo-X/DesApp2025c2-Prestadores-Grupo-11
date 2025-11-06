@@ -5,13 +5,16 @@ import "../styles/SituacionesTerapeuticas.css";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import SideBar from "../components/SideBar";
-import { getAutorizacionesPropias, getRecetasPropias, getReintegrosPropias, cantSolicitudesAnalisisApi, cantSolicitudesDiaApi, cantSolicitudesSemanaApi } from "../services/Solicitudes";
+import {
+	getAutorizacionesPropias, getRecetasPropias, getReintegrosPropias, cantSolicitudesAnalisisApi, getSolicitudesByTipo,
+	cantSolicitudesDiaApi, cantSolicitudesSemanaApi, cambiarEstadoAutorizacion, cambiarEstadoReceta, cambiarEstadoReintegro
+} from "../services/Solicitudes";
 import { SidebarProvider } from "../context/SidebarContext";
 
 export default function SolicitudesEntrantes() {
 	const navigate = useNavigate();
 
-	const [tipoSolicitud, setTipoSolicitud] = useState("reintegro")
+	const [tipoSolicitud, setTipoSolicitud] = useState("reintegros")
 	const [reintegros, setReintegros] = useState([])
 	const [autorizaciones, setAutorizaciones] = useState([])
 	const [recetas, setRecetas] = useState([])
@@ -35,9 +38,9 @@ export default function SolicitudesEntrantes() {
 	const mostrarSolicitudesDisponibles = async () => {
 
 		const solicitudes = {
-			reintegro: reintegros,
-			autorizacion: autorizaciones,
-			receta: recetas,
+			reintegros: reintegros,
+			autorizaciones: autorizaciones,
+			recetas: recetas,
 		};
 
 		const lista = solicitudes[tipoSolicitud];
@@ -57,7 +60,7 @@ export default function SolicitudesEntrantes() {
 			setCantSolicitudesAnalisis(cantidadSolicitudesAnalisis)
 
 			//Todas las solicitudes resueltas del dia
-			const cantidadSolicitudesDia = await cantSolicitudesSemanaApi()
+			const cantidadSolicitudesDia = await cantSolicitudesDiaApi()
 			setCantSolicitudesDia(cantidadSolicitudesDia)
 
 			//Todas las solicitudes resueltas de la semana
@@ -71,22 +74,51 @@ export default function SolicitudesEntrantes() {
 		}
 	}
 
-	//Esta funcion se borrara cuando se haga el vinculo con el backend
-	const tomarSolicitud = (id) => {
-		const actualizarLista = (lista, setLista) => {
-			const actualizada = lista.map((item) =>
-				item.id === id ? { ...item, estado: "en analisis" } : item
-			);
-			setLista(actualizada);
-		};
+	const tomarSolicitud = async (id) => {
+		try {
+			if (!tipoSolicitud) {
+				console.error("Tipo de solicitud no definido");
+				return;
+			}
 
-		if (tipoSolicitud === "reintegro") {
-			actualizarLista(reintegros, setReintegros);
-		} else if (tipoSolicitud === "autorizacion") {
-			actualizarLista(autorizaciones, setAutorizaciones);
-		} else if (tipoSolicitud === "receta") {
-			actualizarLista(recetas, setRecetas);
+			const body = {
+				nuevoEstado: "en analisis",
+				usuarioUltimoCambio: user.id,
+				usuarioId: user.id
+			};
+
+			let response;
+
+			switch (tipoSolicitud) {
+				case "autorizaciones":
+					response = await cambiarEstadoAutorizacion(id, body);
+					break;
+
+				case "recetas":
+					response = await cambiarEstadoReceta(id, body);
+					break;
+
+				case "reintegros":
+					response = await cambiarEstadoReintegro(id, body);
+					break;
+
+				default:
+					console.error("Tipo de solicitud no válido:", tipoSolicitud);
+					return;
+			}
+
+			console.log(`${tipoSolicitud} ahora en análisis:`, response.data);
+
+			//Actualiza la lista nuevamente tras hacer el cambio, asi se ve la solicitud cambiada
+			const nuevasSolicitudes = await getSolicitudesByTipo(tipoSolicitud, user.id);
+			setSolicitudesDisponibles(nuevasSolicitudes);
+
+		} catch (error) {
+			console.error("Error al reclamar solicitud:", error);
 		}
+
+		//Para actualizar el contador de cuantos en analisis hay
+		infoCantSolicitudes()
 	};
 
 
@@ -127,14 +159,19 @@ export default function SolicitudesEntrantes() {
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.5 }}
-						style={{ display: "flex", justifyContent: "center", gap: "30px", marginBottom: "30px" }}
+						style={{
+							display: "flex",
+							justifyContent: "center",
+							gap: "30px",
+							marginBottom: "30px",
+						}}
 					>
 						<div className="info-card">
-							<h5>Solicitudes Pendientes</h5>
+							<h5>Solicitudes "En análisis" Pendientes</h5>
 							<p>{cantSolicitudesAnalisis}</p>
 						</div>
 						<div className="info-card">
-							<h5>Solicitudes resueltas del dia</h5>
+							<h5>Solicitudes resueltas del día</h5>
 							<p>{cantSolicitudesDia}</p>
 						</div>
 						<div className="info-card">
@@ -149,21 +186,20 @@ export default function SolicitudesEntrantes() {
 						value={tipoSolicitud}
 						onChange={(e) => setTipoSolicitud(e.target.value)}
 					>
-						<option value="reintegro">Reintegro</option>
-						<option value="autorizacion">Autorización</option>
-						<option value="receta">Receta</option>
+						<option value="reintegros">Reintegro</option>
+						<option value="autorizaciones">Autorización</option>
+						<option value="recetas">Receta</option>
 					</select>
 
 					<motion.div
 						className="tabla-container"
 						initial={{ opacity: 0 }}
-						animate={{ opacity: solicitudesDisponibles.length ? 1 : 0 }}
+						animate={{ opacity: 1 }}
 						transition={{ duration: 0.4 }}
 					>
 						<div className="tabla-container">
-
-							{/*Tabla para los reintegros*/}
-							{tipoSolicitud === "reintegro" && (
+							{/* Tabla para los reintegros */}
+							{tipoSolicitud === "reintegros" && (
 								<table className="table table-striped">
 									<thead>
 										<tr>
@@ -176,46 +212,59 @@ export default function SolicitudesEntrantes() {
 										</tr>
 									</thead>
 									<tbody>
-										{solicitudesDisponibles.map((s) => (
-											<tr key={s.id}>
-												<td>{new Date(s.fecha_prestacion).toLocaleString("es-AR", {
-													day: "2-digit",
-													month: "2-digit",
-													year: "numeric",
-													hour: "2-digit",
-													minute: "2-digit",
-												})}</td>
-												<td>{s.integrante?.nombre ?? "Sin datos"}</td>
-												<td>{s.medico}</td>
-												<td>{s.especialidad}</td>
-												<td>{s.estado}</td>
-												<td>
-													{s.estado === "recibido" ? (
-														<button className="btn-accion" onClick={() => tomarSolicitud(s.id)}>
-															Tomar solicitud
-														</button>
-													) : (
-														<button
-															className="btn-accion"
-															onClick={() =>
-																navigate(`/prestadores/solicitudes/${s.id}?tipo=${tipoSolicitud}`, {
-																	state: { solicitud: s } // Se pasa la solicitud clickeada a la siguiente página
-																})
-															}
-														>
-															Ver más y gestionar
-														</button>
-
-													)}
+										{solicitudesDisponibles && solicitudesDisponibles.length > 0 ? (
+											solicitudesDisponibles.map((s) => (
+												<tr key={s.id}>
+													<td>
+														{new Date(s.fecha_prestacion).toLocaleString("es-AR", {
+															day: "2-digit",
+															month: "2-digit",
+															year: "numeric",
+															hour: "2-digit",
+															minute: "2-digit",
+														})}
+													</td>
+													<td>{s.integrante?.nombre ?? "Sin datos"}</td>
+													<td>{s.medico}</td>
+													<td>{s.especialidad}</td>
+													<td>{s.estado}</td>
+													<td>
+														{s.estado === "recibido" ? (
+															<button
+																className="btn-accion"
+																onClick={() => tomarSolicitud(s.id)}
+															>
+																Tomar solicitud
+															</button>
+														) : (
+															<button
+																className="btn-accion"
+																onClick={() =>
+																	navigate(
+																		`/prestadores/solicitudes/${s.id}?tipo=${tipoSolicitud}`,
+																		{ state: { solicitud: s } }
+																	)
+																}
+															>
+																Ver más y gestionar
+															</button>
+														)}
+													</td>
+												</tr>
+											))
+										) : (
+											<tr>
+												<td colSpan="6" style={{ textAlign: "center" }}>
+													No hay solicitudes disponibles
 												</td>
 											</tr>
-										))}
+										)}
 									</tbody>
 								</table>
 							)}
 
-							{/*Tabla para las autorizaciones*/}
-							{tipoSolicitud === "autorizacion" && (
+							{/* Tabla para las autorizaciones */}
+							{tipoSolicitud === "autorizaciones" && (
 								<table className="table table-striped">
 									<thead>
 										<tr>
@@ -229,44 +278,45 @@ export default function SolicitudesEntrantes() {
 									</thead>
 									<tbody>
 										{solicitudesDisponibles && solicitudesDisponibles.length > 0 ? (
-											solicitudesDisponibles.map((s) => {
-												return (
-													<tr key={s.id}>
-														<td>
-															{new Date(s.fecha_prevista).toLocaleString("es-AR", {
-																day: "2-digit",
-																month: "2-digit",
-																year: "numeric",
-																hour: "2-digit",
-																minute: "2-digit",
-															})}
-														</td>
-														<td>{s.integrante?.nombre ?? "Sin datos"}</td>
-														<td>{s.medico}</td>
-														<td>{s.especialidad}</td>
-														<td>{s.estado}</td>
-														<td>
-															{s.estado === "recibido" ? (
-																<button className="btn-accion" onClick={() => tomarSolicitud(s.id)}>
-																	Tomar solicitud
-																</button>
-															) : (
-																<button
-																	className="btn-accion"
-																	onClick={() => {
-																		console.log("Solicitud enviada al navigate:", s);
-																		navigate(`/prestadores/solicitudes/${s.id}?tipo=${tipoSolicitud}`, {
-																			state: { solicitud: s }, // se pasa el objeto completo
-																		});
-																	}}
-																>
-																	Ver más y gestionar
-																</button>
-															)}
-														</td>
-													</tr>
-												);
-											})
+											solicitudesDisponibles.map((s) => (
+												<tr key={s.id}>
+													<td>
+														{new Date(s.fecha_prevista).toLocaleString("es-AR", {
+															day: "2-digit",
+															month: "2-digit",
+															year: "numeric",
+															hour: "2-digit",
+															minute: "2-digit",
+														})}
+													</td>
+													<td>{s.integrante?.nombre ?? "Sin datos"}</td>
+													<td>{s.medico}</td>
+													<td>{s.especialidad}</td>
+													<td>{s.estado}</td>
+													<td>
+														{s.estado === "recibido" ? (
+															<button
+																className="btn-accion"
+																onClick={() => tomarSolicitud(s.id)}
+															>
+																Tomar solicitud
+															</button>
+														) : (
+															<button
+																className="btn-accion"
+																onClick={() =>
+																	navigate(
+																		`/prestadores/solicitudes/${s.id}?tipo=${tipoSolicitud}`,
+																		{ state: { solicitud: s } }
+																	)
+																}
+															>
+																Ver más y gestionar
+															</button>
+														)}
+													</td>
+												</tr>
+											))
 										) : (
 											<tr>
 												<td colSpan="6" style={{ textAlign: "center" }}>
@@ -278,8 +328,8 @@ export default function SolicitudesEntrantes() {
 								</table>
 							)}
 
-							{/*Tabla para las recetas*/}
-							{tipoSolicitud === "receta" && (
+							{/* Tabla para las recetas */}
+							{tipoSolicitud === "recetas" && (
 								<table className="table table-striped">
 									<thead>
 										<tr>
@@ -292,38 +342,52 @@ export default function SolicitudesEntrantes() {
 										</tr>
 									</thead>
 									<tbody>
-										{solicitudesDisponibles.map((s) => (
-											<tr key={s.id}>
-												<td>{s.integrante?.nombre ?? "Sin datos"}</td>
-												<td>{s.medicamento}</td>
-												<td>{s.cantidad}</td>
-												<td>{s.presentacion}</td>
-												<td>{s.estado}</td>
-												<td>
-													{s.estado === "recibido" ? (
-														<button className="btn-accion" onClick={() => tomarSolicitud(s.id)}>
-															Tomar solicitud
-														</button>
-													) : (
-														<button
-															className="btn-accion"
-															onClick={() => navigate(`/prestadores/solicitudes/${s.id}?tipo=${tipoSolicitud}`)}
-														>
-															Ver más y gestionar
-														</button>
-													)}
+										{solicitudesDisponibles && solicitudesDisponibles.length > 0 ? (
+											solicitudesDisponibles.map((s) => (
+												<tr key={s.id}>
+													<td>{s.integrante?.nombre ?? "Sin datos"}</td>
+													<td>{s.medicamento}</td>
+													<td>{s.cantidad}</td>
+													<td>{s.presentacion}</td>
+													<td>{s.estado}</td>
+													<td>
+														{s.estado === "recibido" ? (
+															<button
+																className="btn-accion"
+																onClick={() => tomarSolicitud(s.id)}
+															>
+																Tomar solicitud
+															</button>
+														) : (
+															<button
+																className="btn-accion"
+																onClick={() =>
+																	navigate(
+																		`/prestadores/solicitudes/${s.id}?tipo=${tipoSolicitud}`,
+																		{ state: { solicitud: s } }
+																	)
+																}
+															>
+																Ver más y gestionar
+															</button>
+														)}
+													</td>
+												</tr>
+											))
+										) : (
+											<tr>
+												<td colSpan="6" style={{ textAlign: "center" }}>
+													No hay solicitudes disponibles
 												</td>
 											</tr>
-										))}
+										)}
 									</tbody>
 								</table>
 							)}
-
 						</div>
-
 					</motion.div>
 				</div>
 			</PrestadoresLayout>
 		</SidebarProvider>
-	)
+	);
 }

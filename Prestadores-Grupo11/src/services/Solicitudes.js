@@ -99,9 +99,9 @@ export const getReintegrosPropiasAnalisis = async (prestadorId) => {
 }
 
 
-// Modificar el estado de una autorizacion (Capaz se puede usar esta misma para los 3 tipos de solicitud)
+// Modificar el estado de una autorizacion
 
-export const modificarEstado = async (autorizacionId, body) => {
+export const cambiarEstadoAutorizacion = async (autorizacionId, body) => {
   try {
     const res = await api.put(`/autorizaciones/estado/${autorizacionId}`, body);
     return res.data;
@@ -111,6 +111,31 @@ export const modificarEstado = async (autorizacionId, body) => {
   }
 };
 
+
+// Modificar el estado de una receta
+
+export const cambiarEstadoReceta = async (recetaId, body) => {
+  try {
+    const res = await api.put(`/recetas/${recetaId}/estado`, body);
+    return res.data;
+  } catch (error) {
+    console.error("Error al cambiar el estado de la solicitud", error);
+    throw error;
+  }
+};
+
+
+// Modificar el estado de una reintegro
+
+export const cambiarEstadoReintegro = async (reintegroId, body) => {
+  try {
+    const res = await api.put(`/reintegros/${reintegroId}/estado`, body);
+    return res.data;
+  } catch (error) {
+    console.error("Error al cambiar el estado de la solicitud", error);
+    throw error;
+  }
+};
 
 // Obtiene la cantidad de solicitudes en estado "En analisis", del prestador **idPrestador**
 
@@ -136,9 +161,9 @@ export const cantSolicitudesDiaApi = async () => {
     const resRecet = await api.get("/recetas/dashboard/")
     const resReint = await api.get("/reintegros/dashboard")
 
-    const cantAutor = resAutor.data.diario.length
-    const cantRecet = resRecet.data.diario.length
-    const cantReint = resReint.data.diario.length
+    const cantAutor = resAutor.data.diario.reduce((acc, item) => acc + Number(item.cantidad), 0);
+    const cantRecet = resRecet.data.diario.reduce((acc, item) => acc + Number(item.cantidad), 0);
+    const cantReint = resReint.data.diario.reduce((acc, item) => acc + Number(item.cantidad), 0);
 
     const total = cantAutor + cantRecet + cantReint
 
@@ -159,9 +184,9 @@ export const cantSolicitudesSemanaApi = async () => {
     const resRecet = await api.get("/recetas/dashboard/")
     const resReint = await api.get("/reintegros/dashboard")
 
-    const cantAutor = resAutor.data.semanal.length
-    const cantRecet = resRecet.data.semanal.length
-    const cantReint = resReint.data.semanal.length
+    const cantAutor = Number(resAutor.data.semanal[0]?.cantidad || 0)
+    const cantRecet = Number(resRecet.data.semanal[0]?.cantidad || 0)
+    const cantReint = Number(resReint.data.semanal[0]?.cantidad || 0)
 
     const total = cantAutor + cantRecet + cantReint
 
@@ -172,3 +197,29 @@ export const cantSolicitudesSemanaApi = async () => {
     throw error
   }
 }
+
+//Trae todas las solicitudes del tipo **tipoSolicitud**
+export const getSolicitudesByTipo = async (tipoSolicitud, prestadorId) => {
+  try {
+
+    let res;
+    switch (tipoSolicitud) {
+      case "autorizaciones":
+        res = await getAutorizacionesPropias(prestadorId);
+        break;
+      case "recetas":
+        res = await getRecetasPropias(prestadorId);
+        break;
+      case "reintegros":
+        res = await getReintegrosPropias(prestadorId);
+        break;
+      default:
+        throw new Error(`Tipo de solicitud no válido: ${tipoSolicitud}`);
+    }
+
+    return Array.isArray(res) ? res : [];
+  } catch (error) {
+    console.error(`Error al obtener ${tipoSolicitud}:`, error);
+    return [];
+  }
+};
