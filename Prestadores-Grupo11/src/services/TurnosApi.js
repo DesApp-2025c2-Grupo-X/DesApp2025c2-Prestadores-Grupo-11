@@ -18,6 +18,7 @@ export const getTurnosByPrestador = async (prestadorId) => {
     throw error;
   }
 };
+
 export const updateNotasTurno = async (prestadorId, turnoId, notas) => {
   return await api.patch(`/turnos/${prestadorId}/turno/${turnoId}`, { notas });
 };

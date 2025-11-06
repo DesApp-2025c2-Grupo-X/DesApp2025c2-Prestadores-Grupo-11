@@ -41,11 +41,14 @@ export default function CalendarioTurnosMedico() {
       }
 
       try {
+
         const response = await getTurnosByPrestador(prestadorId);
-        const data = response?.data ?? [];
-        const turnosValidos = Array.isArray(data) ? data : [];
+        //const data = response?.data ?? [];
+        const turnosValidos = response
 
         setTurnos(turnosValidos);
+
+        console.log("Turnos recibidos del backend:", turnosValidos);
         localStorage.setItem("turnos_medico", JSON.stringify(turnosValidos));
       } catch (error) {
         console.error("Error al obtener turnos:", error);
@@ -92,10 +95,15 @@ export default function CalendarioTurnosMedico() {
 
   // === Filtrar los turnos del día seleccionado ===
   const turnosDelDia = turnos.filter((t) => {
-    if (!t.fecha) return false;
-    const fechaTurno = new Date(t.fecha);
-    return format(fechaTurno, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd");
+    if (!t.date) return false;
+    const fechaTurno = new Date(t.date);
+    return (
+      fechaTurno.getDate() === selectedDate.getDate() &&
+      fechaTurno.getMonth() === selectedDate.getMonth() &&
+      fechaTurno.getFullYear() === selectedDate.getFullYear()
+    );
   });
+
 
   // === Estado inicial o error de login ===
   if (!prestadorId) {
@@ -145,13 +153,16 @@ export default function CalendarioTurnosMedico() {
                         setSelectedTurno(selectedTurno === turno.id ? null : turno.id)
                       }
                     >
-                      <span className="hora">{turno.hora}</span>
+                      <span className="hora">{turno.date}</span>
                       <span className="paciente">
-                        {turno.afiliado?.nombre} {turno.afiliado?.apellido}
+                        {turno.afiliado
+                          ? `${turno.afiliado.nombre} ${turno.afiliado.apellido}`
+                          : turno.integrante
+                            ? turno.integrante.nombre
+                            : "Paciente no especificado"}
                       </span>
                       <button className="btn-ver">📝 Ver</button>
                     </div>
-
                     {selectedTurno === turno.id && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
