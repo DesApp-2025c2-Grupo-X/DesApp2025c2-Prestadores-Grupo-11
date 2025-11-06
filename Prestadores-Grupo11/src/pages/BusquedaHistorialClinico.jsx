@@ -11,28 +11,28 @@ import { getAllAfiliados } from "../services/AfiliadosApi";
 
 export default function BusquedaHistorialClinico() {
   //const [dni, setDni] = useState("")
-  //const [resultados, setResultados] = useState([])
+  const [resultados, setResultados] = useState([])
   // const [afiliados, setAfiliados] = useState([])
   // const [integrantes, setIntegrantes] = useState([])
   const [pacientes, setPacientes] = useState([]);
   const navigate = useNavigate();
 
-  const handleSearchAfiliado = (valor) => {
-    // const lower = valor?.toLowerCase() || "";
+  const handleSearchPacientes = (valor) => {
+    const lower = valor?.toLowerCase() || "";
 
-    // if (!lower) {
-    //   setResultados([]);
-    //   return;
-    // }
+    if (!lower) {
+      setResultados([]);
+      return;
+    }
 
-    // const filtrados = afiliados.filter((af) => {
-    //   const dniMatch = af.dni.includes(lower);
-    //   const nombreMatch = af.nombre.toLowerCase().includes(lower);
-    //   return dniMatch || nombreMatch;
-    // });
+    const filtrados = pacientes.filter((paciente) => {
+      const dniMatch = paciente.dni.includes(lower);
+      const nombreMatch = paciente.nombre.toLowerCase().includes(lower);
+      return dniMatch || nombreMatch;
+    });
 
-    // console.log(filtrados)
-    // setResultados(filtrados);
+    console.log(filtrados)
+    setResultados(filtrados);
   };
 
 
@@ -80,13 +80,13 @@ export default function BusquedaHistorialClinico() {
             transition={{ duration: 0.5 }}
           >
             <h3>Búsqueda de Historial clinico</h3>
-            <Buscador onSearch={handleSearchAfiliado} />  {/*basePath={`historialClinico/${dni}`}*/}
+            <Buscador onSearch={handleSearchPacientes} permitirDNI={true} />  {/*basePath={`historialClinico/${dni}`}*/}
           </motion.div>
 
           <motion.div
             className="tabla-container"
             initial={{ opacity: 0 }}
-            animate={{ opacity: pacientes.length ? 1 : 0 }} //opacity: resultados.length ? 1 : 0
+            animate={{ opacity: resultados.length ? 1 : 0 }} //opacity: resultados.length ? 1 : 0
             transition={{ duration: 0.4 }}
           >
 
@@ -99,7 +99,7 @@ export default function BusquedaHistorialClinico() {
                 </tr>
               </thead>
               <tbody>
-                {pacientes.map((paciente) => (
+                {resultados.map((paciente) => (
                   <tr key={paciente.dni}>
                     <td>{paciente.nombre}</td>
                     <td>{paciente.dni}</td>
