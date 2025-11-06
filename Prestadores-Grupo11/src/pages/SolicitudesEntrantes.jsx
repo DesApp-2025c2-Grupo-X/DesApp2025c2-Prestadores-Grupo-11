@@ -5,13 +5,16 @@ import "../styles/SituacionesTerapeuticas.css";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import SideBar from "../components/SideBar";
-import { getAutorizacionesPropias, getRecetasPropias, getReintegrosPropias, cantSolicitudesAnalisisApi, cantSolicitudesDiaApi, cantSolicitudesSemanaApi } from "../services/Solicitudes";
+import {
+	getAutorizacionesPropias, getRecetasPropias, getReintegrosPropias, cantSolicitudesAnalisisApi, getSolicitudesByTipo,
+	cantSolicitudesDiaApi, cantSolicitudesSemanaApi, cambiarEstadoAutorizacion, cambiarEstadoReceta, cambiarEstadoReintegro
+} from "../services/Solicitudes";
 import { SidebarProvider } from "../context/SidebarContext";
 
 export default function SolicitudesEntrantes() {
 	const navigate = useNavigate();
 
-	const [tipoSolicitud, setTipoSolicitud] = useState("reintegro")
+	const [tipoSolicitud, setTipoSolicitud] = useState("reintegros")
 	const [reintegros, setReintegros] = useState([])
 	const [autorizaciones, setAutorizaciones] = useState([])
 	const [recetas, setRecetas] = useState([])
@@ -35,9 +38,9 @@ export default function SolicitudesEntrantes() {
 	const mostrarSolicitudesDisponibles = async () => {
 
 		const solicitudes = {
-			reintegro: reintegros,
-			autorizacion: autorizaciones,
-			receta: recetas,
+			reintegros: reintegros,
+			autorizaciones: autorizaciones,
+			recetas: recetas,
 		};
 
 		const lista = solicitudes[tipoSolicitud];
@@ -57,7 +60,7 @@ export default function SolicitudesEntrantes() {
 			setCantSolicitudesAnalisis(cantidadSolicitudesAnalisis)
 
 			//Todas las solicitudes resueltas del dia
-			const cantidadSolicitudesDia = await cantSolicitudesSemanaApi()
+			const cantidadSolicitudesDia = await cantSolicitudesDiaApi()
 			setCantSolicitudesDia(cantidadSolicitudesDia)
 
 			//Todas las solicitudes resueltas de la semana
@@ -71,21 +74,48 @@ export default function SolicitudesEntrantes() {
 		}
 	}
 
-	//Esta funcion se borrara cuando se haga el vinculo con el backend
-	const tomarSolicitud = (id) => {
-		const actualizarLista = (lista, setLista) => {
-			const actualizada = lista.map((item) =>
-				item.id === id ? { ...item, estado: "en analisis" } : item
-			);
-			setLista(actualizada);
-		};
+	const tomarSolicitud = async (id) => {
+		try {
+			if (!tipoSolicitud) {
+				console.error("Tipo de solicitud no definido");
+				return;
+			}
 
-		if (tipoSolicitud === "reintegro") {
-			actualizarLista(reintegros, setReintegros);
-		} else if (tipoSolicitud === "autorizacion") {
-			actualizarLista(autorizaciones, setAutorizaciones);
-		} else if (tipoSolicitud === "receta") {
-			actualizarLista(recetas, setRecetas);
+			const body = {
+				nuevoEstado: "en analisis",
+				usuarioUltimoCambio: user.id,
+				usuarioId: user.id
+			};
+
+			let response;
+
+			switch (tipoSolicitud) {
+				case "autorizaciones":
+					response = await cambiarEstadoAutorizacion(id, body);
+					break;
+
+				case "recetas":
+					response = await cambiarEstadoReceta(id, body);
+					break;
+
+				case "reintegros":
+					response = await cambiarEstadoReintegro(id, body);
+					break;
+
+				default:
+					console.error("Tipo de solicitud no válido:", tipoSolicitud);
+					return;
+			}
+
+			console.log(`${tipoSolicitud} ahora en análisis:`, response.data);
+
+			//Actualiza la lista nuevamente tras hacer el cambio, asi se ve la solicitud cambiada
+			const nuevasSolicitudes = await getSolicitudesByTipo(tipoSolicitud, user.id);
+			console.log("nuevas solicitudes", nuevasSolicitudes) // ME DEVUELVE VACIO!!!!
+			setSolicitudesDisponibles(nuevasSolicitudes);
+
+		} catch (error) {
+			console.error("Error al reclamar solicitud:", error);
 		}
 	};
 
@@ -99,6 +129,7 @@ export default function SolicitudesEntrantes() {
 				setReintegros(dataReintegros);
 
 				const dataRecetas = await getRecetasPropias(user.id);
+				console.log("recetubi", dataRecetas)
 				setRecetas(dataRecetas)
 
 				const dataAutorizaciones = await getAutorizacionesPropias(user.id);
@@ -149,21 +180,21 @@ export default function SolicitudesEntrantes() {
 						value={tipoSolicitud}
 						onChange={(e) => setTipoSolicitud(e.target.value)}
 					>
-						<option value="reintegro">Reintegro</option>
-						<option value="autorizacion">Autorización</option>
-						<option value="receta">Receta</option>
+						<option value="reintegros">Reintegro</option>
+						<option value="autorizaciones">Autorización</option>
+						<option value="recetas">Receta</option>
 					</select>
 
 					<motion.div
 						className="tabla-container"
 						initial={{ opacity: 0 }}
-						animate={{ opacity: solicitudesDisponibles.length ? 1 : 0 }}
+						animate={{ opacity: 1 }} //solicitudesDisponibles.length ? 1 : 0
 						transition={{ duration: 0.4 }}
 					>
 						<div className="tabla-container">
 
 							{/*Tabla para los reintegros*/}
-							{tipoSolicitud === "reintegro" && (
+							{tipoSolicitud === "reintegros" && (
 								<table className="table table-striped">
 									<thead>
 										<tr>
@@ -215,7 +246,7 @@ export default function SolicitudesEntrantes() {
 							)}
 
 							{/*Tabla para las autorizaciones*/}
-							{tipoSolicitud === "autorizacion" && (
+							{tipoSolicitud === "autorizaciones" && (
 								<table className="table table-striped">
 									<thead>
 										<tr>
@@ -279,7 +310,7 @@ export default function SolicitudesEntrantes() {
 							)}
 
 							{/*Tabla para las recetas*/}
-							{tipoSolicitud === "receta" && (
+							{tipoSolicitud === "recetas" && (
 								<table className="table table-striped">
 									<thead>
 										<tr>
