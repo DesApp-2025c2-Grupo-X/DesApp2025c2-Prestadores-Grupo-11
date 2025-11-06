@@ -53,6 +53,7 @@ export default function HistorialClinico() {
           console.log(`No se encontro el integrante DNI ${dni}`)
         }
 
+        console.log(encontrado)
         setPaciente(encontrado);
       } catch (error) {
         console.error('Error al cargar integrantes:', error);
@@ -218,7 +219,7 @@ export default function HistorialClinico() {
             <div className="d-flex align-items-center gap-3">
               <Users size={40} color="var(--azul-petroleo)" />
               <div>
-                <h4>{paciente.nombre}</h4>
+                <h4>{paciente.nombre} {paciente.apellido ? paciente.apellido : ""}</h4>
                 <p>
                   Edad: <strong>{paciente.edad}</strong> | DNI:{" "}
                   <strong>{paciente.dni}</strong>

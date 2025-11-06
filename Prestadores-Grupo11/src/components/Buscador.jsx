@@ -23,7 +23,7 @@ export default function Buscador({
   const esNumeroAfiliado = (valor) => {
     if (permitirDNI) {
       // Permite solo números puros (DNI)
-      return /^\d{5,10}$/.test(valor.trim());
+      return /^\d{4,10}$/.test(valor.trim());
     } else {
       // Formato IOMA-XXXX
       return /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+-\d{4,}$/.test(valor.trim());
@@ -40,8 +40,8 @@ export default function Buscador({
     }
 
     if (permitirDNI) {
-      if (trimmed.length < 5) {
-        toast.warning("Debe tener al menos 5 caracteres para buscar");
+      if (trimmed.length < 4) {
+        toast.warning("Debe tener al menos 4 caracteres para buscar");
         return;
       }
     } else {
@@ -84,7 +84,11 @@ export default function Buscador({
     >
       <input
         type="text"
-        placeholder="Buscar por nombre, apellido o número de afiliado (ej: IOMA-00111222)..."
+        placeholder={
+          permitirDNI
+            ? "Buscar por nombre, apellido o DNI"
+            : "Buscar por nombre, apellido o número de afiliado (ej: IOMA-00111222)..."
+        }
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => setIsFocused(true)}
