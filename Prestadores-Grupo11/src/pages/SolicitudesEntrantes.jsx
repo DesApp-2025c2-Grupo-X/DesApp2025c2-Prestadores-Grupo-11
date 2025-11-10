@@ -12,9 +12,9 @@ import TablaAutorizacionesCompletadas from "../components/TablaAutorizacionesCom
 import TablaReintegrosCompletadas from "../components/TablaReintegrosCompletadas";
 import TablaRecetasCompletadas from "../components/TablaRecetasCompletadas";
 import {
-	getAutorizacionesPropias, getRecetasPropias, getReintegrosPropias, getAutorizacionesCompletados, getRecetasCompletados, getReintegrosCompletados,
-	cantSolicitudesAnalisisApi, getSolicitudesByTipo, cantSolicitudesDiaApi, cantSolicitudesSemanaApi, cambiarEstadoAutorizacion,
-	cambiarEstadoReceta, cambiarEstadoReintegro
+	getAutorizacionesPropias, getRecetasPropias, getReintegrosPropias, getAutorizacionesCompletados,
+	getRecetasCompletados, getReintegrosCompletados, getAutorizacionesPropiasAnalisis, getReintegrosPropiasAnalisis, getRecetasPropiasAnalisis,
+	getSolicitudesByTipo, cambiarEstadoAutorizacion, cambiarEstadoReceta, cambiarEstadoReintegro
 } from "../services/Solicitudes";
 import { SidebarProvider } from "../context/SidebarContext";
 
@@ -35,9 +35,9 @@ export default function SolicitudesEntrantes() {
 	const [recetasCompletados, setRecetasCompletados] = useState([])
 
 	//Para mostrar la info de las solicitudes
-	const [cantSolicitudesAnalisis, setCantSolicitudesAnalisis] = useState(0);
-	const [cantSolicitudesDia, setCantSolicitudesDia] = useState(0);
-	const [cantSolicitudesSemana, setCantSolicitudesSemana] = useState(0);
+	const [cantReintegrosAnalisis, setCantReintegrosAnalisis] = useState(0);
+	const [cantAutorizacionesAnalisis, setCantAutorizacionesAnalisis] = useState(0);
+	const [cantRecetasAnalisis, setCantRecetasAnalisis] = useState(0);
 
 	//solicitudesDisponibles contiene los reintegros/autorizaciones/recetas a mostrar (estado "recibido" o "en analisis")
 	const [solicitudesDisponibles, setSolicitudesDisponibles] = useState([])
@@ -90,17 +90,17 @@ export default function SolicitudesEntrantes() {
 
 	const infoCantSolicitudes = async () => {
 		try {
-			//Solicitudes pendientes
-			const cantidadSolicitudesAnalisis = await cantSolicitudesAnalisisApi(user.id)
-			setCantSolicitudesAnalisis(cantidadSolicitudesAnalisis)
+			//Reintegros en analisis
+			const cantidadReintegrosAnalisis = await getReintegrosPropiasAnalisis(user.id)
+			setCantReintegrosAnalisis(cantidadReintegrosAnalisis.length)
 
-			//Todas las solicitudes resueltas del dia
-			const cantidadSolicitudesDia = await cantSolicitudesDiaApi()
-			setCantSolicitudesDia(cantidadSolicitudesDia)
+			//Autorizaciones en analisis
+			const cantidadAutorizacionesAnalisis = await getAutorizacionesPropiasAnalisis(user.id)
+			setCantAutorizacionesAnalisis(cantidadAutorizacionesAnalisis.length)
 
-			//Todas las solicitudes resueltas de la semana
-			const cantidadSolicitudesSemana = await cantSolicitudesSemanaApi()
-			setCantSolicitudesSemana(cantidadSolicitudesSemana)
+			//Recetas en analisis
+			const cantidadRecetasAnalisis = await getRecetasPropiasAnalisis(user.id)
+			setCantRecetasAnalisis(cantidadRecetasAnalisis.length)
 
 
 		} catch (error) {
@@ -208,59 +208,55 @@ export default function SolicitudesEntrantes() {
 			<PrestadoresLayout header={<HeaderPrestadores />}>
 				<SideBar />
 				<div className="contenido-principal main-with-sidebar">
+
+					{/* Selector de tipo de solicitud */}
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.5 }}
-						style={{
-							display: "flex",
-							justifyContent: "center",
-							gap: "30px",
-							marginBottom: "30px",
-						}}
+						className="cards-container"
 					>
-						<div className="info-card cardSolicitud">
-							<h5>Solicitudes "En análisis" Pendientes</h5>
-							<p>{cantSolicitudesAnalisis}</p>
-						</div>
-						<div className="info-card cardSolicitud">
-							<h5>Solicitudes resueltas del día</h5>
-							<p>{cantSolicitudesDia}</p>
-						</div>
-						<div className="info-card cardSolicitud">
-							<h5>Solicitudes resueltas de la semana</h5>
-							<p>{cantSolicitudesSemana}</p>
-						</div>
+						{/* Reintegros */}
+						<motion.div
+							className={`info-card cardSolicitud ${tipoSolicitud === "reintegros" ? "selected" : ""}`}
+							whileHover={{ scale: 1.03 }}
+							whileTap={{ scale: 0.97 }}
+							onClick={() => setTipoSolicitud("reintegros")}
+						>
+							<h1>Reintegros</h1>
+							<hr />
+							<h5>Reintegros por analizar:</h5>
+							<p>{cantReintegrosAnalisis}</p>
+						</motion.div>
+
+						{/* Autorizaciones */}
+						<motion.div
+							className={`info-card cardSolicitud ${tipoSolicitud === "autorizaciones" ? "selected" : ""}`}
+							whileHover={{ scale: 1.03 }}
+							whileTap={{ scale: 0.97 }}
+							onClick={() => setTipoSolicitud("autorizaciones")}
+						>
+							<h1>Autorizaciones</h1>
+							<hr />
+							<h5>Autorizaciones por analizar:</h5>
+							<p>{cantAutorizacionesAnalisis}</p>
+						</motion.div>
+
+						{/* Recetas */}
+						<motion.div
+							className={`info-card cardSolicitud ${tipoSolicitud === "recetas" ? "selected" : ""}`}
+							whileHover={{ scale: 1.03 }}
+							whileTap={{ scale: 0.97 }}
+							onClick={() => setTipoSolicitud("recetas")}
+						>
+							<h1>Recetas</h1>
+							<hr />
+							<h5>Recetas por analizar:</h5>
+							<p>{cantRecetasAnalisis}</p>
+						</motion.div>
 					</motion.div>
 
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.5 }}
-					>
-						<div className="btn-group" role="group" aria-label="Basic radio toggle button group">
-							<input type="radio" className="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked />
-							<label className="btn btn-outline-primary" for="btnradio1">Radio 1</label>
-
-							<input type="radio" className="btn-check" name="btnradio" id="btnradio2" autocomplete="off" />
-							<label className="btn btn-outline-primary" for="btnradio2">Radio 2</label>
-
-							<input type="radio" className="btn-check" name="btnradio" id="btnradio3" autocomplete="off" />
-							<label className="btn btn-outline-primary" for="btnradio3">Radio 3</label>
-						</div>
-					</motion.div>
-
-					<select
-						className="form-select"
-						aria-label="Tipo de solicitud"
-						value={tipoSolicitud}
-						onChange={(e) => setTipoSolicitud(e.target.value)}
-					>
-						<option value="reintegros">Reintegro</option>
-						<option value="autorizaciones">Autorización</option>
-						<option value="recetas">Receta</option>
-					</select>
-
+					{/* Tabla de solicitudes */}
 					<motion.div
 						className="tabla-container"
 						initial={{ opacity: 0 }}
@@ -311,23 +307,54 @@ export default function SolicitudesEntrantes() {
 							marginBottom: "30px",
 						}}
 					>
-						<p className="d-inline-flex gap-1">
-							<a data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+						<p className="d-flex justify-content-center">
+							<a className="verMas" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
 								Ver tus solicitudes completadas ↓
 							</a>
 						</p>
 						<div className="collapse" id="collapseExample">
-							<select
-								className="form-select"
-								aria-label="Tipo de solicitud"
-								value={tipoSolicitudCompletados}
-								onChange={(e) => setTipoSolicitudCompletados(e.target.value)}
-							>
-								<option value="reintegros">Reintegro</option>
-								<option value="autorizaciones">Autorización</option>
-								<option value="recetas">Receta</option>
-							</select>
 
+							<hr />
+
+							{/* Selector de tipo de solicitud */}
+							<motion.div
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ duration: 0.5 }}
+								className="cards-container"
+							>
+								{/* Reintegros */}
+								<motion.div
+									className={`cardSolicitudCompletada ${tipoSolicitudCompletados === "reintegros" ? "selected" : ""}`}
+									whileHover={{ scale: 1.03 }}
+									whileTap={{ scale: 0.97 }}
+									onClick={() => setTipoSolicitudCompletados("reintegros")}
+								>
+									<h2>Reintegros</h2>
+								</motion.div>
+
+								{/* Autorizaciones */}
+								<motion.div
+									className={`cardSolicitudCompletada ${tipoSolicitudCompletados === "autorizaciones" ? "selected" : ""}`}
+									whileHover={{ scale: 1.03 }}
+									whileTap={{ scale: 0.97 }}
+									onClick={() => setTipoSolicitudCompletados("autorizaciones")}
+								>
+									<h2>Autorizaciones</h2>
+								</motion.div>
+
+								{/* Recetas */}
+								<motion.div
+									className={`cardSolicitudCompletada ${tipoSolicitudCompletados === "recetas" ? "selected" : ""}`}
+									whileHover={{ scale: 1.03 }}
+									whileTap={{ scale: 0.97 }}
+									onClick={() => setTipoSolicitudCompletados("recetas")}
+								>
+									<h2>Recetas</h2>
+								</motion.div>
+							</motion.div>
+
+							{/* Tabla de solicitudes completadas */}
 							<motion.div
 								className="tabla-container"
 								initial={{ opacity: 0 }}
