@@ -300,6 +300,10 @@ h3, h4, h5 {
   animation: spin 1.2s linear infinite;
 }
 
+.cardSolicitud {
+  padding: 0px 16px;
+}
+
 @keyframes spin {
   from {
     transform: rotate(0deg);
