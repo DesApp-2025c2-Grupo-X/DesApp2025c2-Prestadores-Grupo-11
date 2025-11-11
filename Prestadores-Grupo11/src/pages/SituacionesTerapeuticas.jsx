@@ -1,28 +1,40 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import SideBar from "../components/SideBar";
 import { ArrowLeft, Folder } from "lucide-react";
+import { FiPlus } from "react-icons/fi"; // ✅ Agregado
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import { Tooltip } from "react-tooltip";
+import Swal from "sweetalert2"; // ✅ Faltaba importar
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/SituacionesTerapeuticas.css";
-import { getSituacionesByAfiliado } from "../services/SituacionesApi";
+import {
+  getSituacionesByAfiliado,
+  getSituacionesByIntegranteId,
+  actualizarSituacion,
+} from "../services/SituacionesApi";
 
 export default function SituacionesTerapeuticas() {
-  const { id: afiliadoId } = useParams();
+  const { id } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
 
   const [paciente, setPaciente] = useState(null);
   const [situaciones, setSituaciones] = useState([]);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState(false);
+  const [tooltipVisible, setTooltipVisible] = useState(null); // ✅ Para el handleVerMas
+
+  // Detectar si la URL es de afiliado o integrante
+  const esIntegrante = location.pathname.toLowerCase().includes("/integrante/");
+  const tipo = esIntegrante ? "integrante" : "afiliado";
 
   useEffect(() => {
-    if (!afiliadoId) {
-      console.warn("No se recibió afiliadoId en useParams");
+    if (!id) {
+      console.warn("No se recibió ID en useParams");
       return;
     }
 
@@ -33,7 +45,6 @@ export default function SituacionesTerapeuticas() {
         setCargando(true);
         setError(false);
 
-        // Usuario logueado
         const user = JSON.parse(localStorage.getItem("miapp_user"));
         if (!user?.id) {
           toast.error("Usuario no logueado. Por favor, inicie sesión.", {
@@ -44,64 +55,89 @@ export default function SituacionesTerapeuticas() {
         }
 
         const prestadorId = user.id;
-        console.log("Solicitando situaciones:", { prestadorId, afiliadoId });
+        let responseData;
 
-        // Llamada al backend (usa tu Axios central)
-        const data = await getSituacionesByAfiliado(
-          prestadorId,
-          afiliadoId,
-          controller.signal
-        );
+        // === Petición al backend según tipo ===
+        if (esIntegrante) {
+          responseData = await getSituacionesByIntegranteId(id);
+        } else {
+          responseData = await getSituacionesByAfiliado(
+            prestadorId,
+            id,
+            controller.signal
+          );
+        }
 
-        console.log("📦 Respuesta del backend:", data);
+        const data = responseData?.data || responseData;
         if (!data) throw new Error("Respuesta vacía del backend");
 
-        let afiliado = null;
         let listaSituaciones = [];
+        let pacienteInfo = {};
 
-        // ─── Caso 1: array plano ────────────────────────────────
-        if (Array.isArray(data)) {
-          if (data.length === 0) throw new Error("Sin resultados");
-          afiliado = data[0]?.afiliado ?? {};
+        // === Caso integrante ===
+        if (esIntegrante && Array.isArray(data)) {
           listaSituaciones = data.map((s) => ({
             id: s.id,
-            fecha_inicio: s.fecha_inicio,
-            especialidad: s.especialidad,
-            descripcion: s.descripcion,
-            estado: s.estado,
-            prestador_nombre: s.prestador_nombre,
-            pacienteNombre: s.afiliado?.integrantes?.[0]?.nombre || "—",
-            pacienteDNI: s.afiliado?.integrantes?.[0]?.dni || "—",
+            fecha_inicio: s.fecha_inicio || "—",
+            especialidad: s.especialidad || "—",
+            descripcion: s.descripcion || "—",
+            estado: s.estado || "Pendiente",
+            prestador_nombre: s.prestador?.username || "—",
+            pacienteNombre: s.pacienteNombre || "—",
+            pacienteDNI: s.pacienteDNI || "—",
           }));
-        }
-
-        // ─── Caso 2: objeto afiliado con situaciones anidadas ───
-        else if (typeof data === "object") {
-          afiliado = data;
+          pacienteInfo = { nombre: "—", afiliadoId: id };
+        } else if (esIntegrante && typeof data === "object") {
           listaSituaciones =
-            data.integrantes?.flatMap((i) =>
-              i.situaciones?.map((s) => ({
-                id: s.id,
-                fecha_inicio: s.fecha_inicio,
-                especialidad: s.especialidad,
-                descripcion: s.descripcion,
-                estado: s.estado,
-                prestador_nombre: s.prestador?.nombre || "—",
-                pacienteNombre: i.nombre,
-                pacienteDNI: i.dni,
-              })) || []
-            ) || [];
+            (data.situaciones || []).map((s) => ({
+              id: s.id,
+              fecha_inicio: s.fecha_inicio || "—",
+              especialidad: s.especialidad || "—",
+              descripcion: s.descripcion || "—",
+              estado: s.estado || "Pendiente",
+              prestador_nombre: s.prestador?.username || "—",
+              pacienteNombre:
+                `${data.nombre || ""} ${data.apellido || ""}`.trim() || "—",
+              pacienteDNI: data.dni || "—",
+            })) || [];
+
+          pacienteInfo = {
+            nombre: `${data.nombre || ""} ${data.apellido || ""}`.trim() || "—",
+            afiliadoId: data.id || id,
+          };
+        } else if (!esIntegrante) {
+          const integrantes = Array.isArray(data)
+            ? data
+            : Array.isArray(data.integrantes)
+            ? data.integrantes
+            : [];
+
+          listaSituaciones = integrantes.flatMap((i) =>
+            (i.situaciones || []).map((s) => ({
+              id: s.id,
+              fecha_inicio: s.fecha_inicio || "—",
+              especialidad: s.especialidad || "—",
+              descripcion: s.descripcion || "—",
+              estado: s.estado || "Pendiente",
+              prestador_nombre: s.prestador?.username || "—",
+              pacienteNombre:
+                `${i.nombre || ""} ${i.apellido || ""}`.trim() || "—",
+              pacienteDNI: i.dni || "—",
+            }))
+          );
+
+          pacienteInfo = {
+            nombre:
+              `${data.nombre || ""} ${data.apellido || ""}`.trim() ||
+              "Afiliado",
+            afiliadoId: data.id || id,
+          };
         }
 
-        if (!afiliado) throw new Error("Afiliado no encontrado");
-
-        setPaciente({
-          nombre: afiliado.apellido || "—",
-          afiliadoId: afiliado.id || afiliadoId,
-        });
+        setPaciente(pacienteInfo);
         setSituaciones(listaSituaciones);
       } catch (err) {
-        if (err.name === "CanceledError") return;
+        if (err.name === "CanceledError" || err.name === "AbortError") return;
         console.error("Error cargando situaciones:", err);
         toast.error("No se pudieron cargar los datos del paciente.", {
           position: "bottom-right",
@@ -115,27 +151,81 @@ export default function SituacionesTerapeuticas() {
 
     fetchSituaciones();
     return () => controller.abort();
-  }, [afiliadoId]);
+  }, [id, esIntegrante]);
 
   // === Acciones ===
-  const handleEditarEstado = (id, nuevoEstado) => {
-    setSituaciones((prev) =>
-      prev.map((s) =>
-        s.id === id ? { ...s, estado: nuevoEstado } : s
-      )
-    );
-    toast.success(`Estado actualizado a "${nuevoEstado}"`, {
-      position: "bottom-right",
-      autoClose: 2000,
+  const handleVerMas = (index) => {
+    setTooltipVisible(tooltipVisible === index ? null : index);
+  };
+
+  const handleNuevaSituacion = () => {
+    navigate("prestadores/situaciones/alta/:dni");
+  };
+
+  const handleEditarEstado = (situacion) => {
+    Swal.fire({
+      title: "Editar estado",
+      text: `Seleccione el nuevo estado para ${situacion.pacienteNombre}`,
+      input: "select",
+      inputOptions: {
+        "En proceso": "En proceso",
+        Finalizado: "Finalizado",
+      },
+      inputPlaceholder: "Seleccione un estado",
+      showCancelButton: true,
+      confirmButtonText: "Guardar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#6fb6b6",
+      cancelButtonColor: "#fbc3c2",
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        const nuevas = situaciones.map((s) =>
+          s.id === situacion.id ? { ...s, estado: result.value } : s
+        );
+        setSituaciones(nuevas);
+
+        Swal.fire({
+          icon: "success",
+          title: "Estado actualizado",
+          text: `Nuevo estado: ${result.value}`,
+          confirmButtonColor: "#6fb6b6",
+        });
+      }
     });
   };
 
-  const handleArchivar = (id) => {
-    setSituaciones((prev) => prev.filter((s) => s.id !== id));
-    toast.success("Situación archivada con éxito", {
-      position: "bottom-right",
-      autoClose: 2000,
-    });
+  const handleArchivar = async (id) => {
+    try {
+      const confirm = await Swal.fire({
+        title: "¿Archivar situación?",
+        text: "Esto moverá la situación al historial clínico del paciente.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, archivar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#6fb6b6",
+        cancelButtonColor: "#fbc3c2",
+      });
+
+      if (!confirm.isConfirmed) return;
+
+      await actualizarSituacion(id, { estado: "Archivado" });
+
+      setSituaciones((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, estado: "Archivado" } : s))
+      );
+
+      toast.success("Situación archivada correctamente.", {
+        position: "bottom-right",
+        autoClose: 2000,
+      });
+    } catch (error) {
+      console.error("Error al archivar la situación:", error);
+      toast.error("No se pudo archivar la situación.", {
+        position: "bottom-right",
+        autoClose: 2000,
+      });
+    }
   };
 
   // === Render ===
@@ -155,7 +245,7 @@ export default function SituacionesTerapeuticas() {
     );
   }
 
-  if (error || !paciente) {
+  if (error && !paciente) {
     return (
       <PrestadoresLayout header={<HeaderPrestadores />}>
         <div className="d-flex">
@@ -193,7 +283,18 @@ export default function SituacionesTerapeuticas() {
             <ArrowLeft size={18} className="me-2" /> Volver
           </motion.button>
 
-          <h3>Situaciones Terapéuticas del Afiliado</h3>
+          <h3>
+            {esIntegrante
+              ? "Situaciones Terapéuticas del Integrante"
+              : "Situaciones Terapéuticas del Afiliado"}
+          </h3>
+
+          {/* Botón Nueva Situación */}
+          <div style={{ textAlign: "right", width: "80%", margin: "0 auto" }}>
+            <button className="btn-nueva-situacion" onClick={handleNuevaSituacion}>
+              <FiPlus style={{ marginRight: "6px" }} /> Nueva Situación
+            </button>
+          </div>
 
           <div className="table-responsive-xl mt-4">
             <motion.table
@@ -216,35 +317,32 @@ export default function SituacionesTerapeuticas() {
               </thead>
               <tbody>
                 {situaciones.length > 0 ? (
-                  situaciones.map((s) => (
+                  situaciones.map((s, index) => (
                     <tr key={s.id}>
                       <td>{s.pacienteNombre}</td>
                       <td>{s.pacienteDNI}</td>
-                      <td>{s.fecha_inicio || "—"}</td>
-                      <td>{s.especialidad || "—"}</td>
+                      <td>{s.fecha_inicio}</td>
+                      <td>{s.especialidad}</td>
                       <td>
                         <button
                           className="btn-ver-mas"
-                          data-tooltip-id={`desc-${s.id}`}
-                          data-tooltip-content={s.descripcion || "Sin descripción"}
+                          onClick={() => handleVerMas(index)}
                         >
                           Ver más
                         </button>
-                        <Tooltip
-                          id={`desc-${s.id}`}
-                          place="top"
-                          style={{
-                            backgroundColor: "var(--rosa)",
-                            color: "var(--azul-petroleo)",
-                            maxWidth: "300px",
-                          }}
-                        />
+                        {tooltipVisible === index && (
+                          <div className="tooltip-descripcion">
+                            {s.descripcion || "Sin descripción"}
+                          </div>
+                        )}
                       </td>
-                      <td>{s.prestador_nombre || "—"}</td>
+                      <td>{s.prestador_nombre}</td>
                       <td>
                         <select
-                          value={s.estado || "Pendiente"}
-                          onChange={(e) => handleEditarEstado(s.id, e.target.value)}
+                          value={s.estado}
+                          onChange={(e) =>
+                            handleEditarEstado(s, e.target.value)
+                          }
                           className={`form-select form-select-sm ${
                             s.estado === "Finalizado"
                               ? "estado-finalizado"

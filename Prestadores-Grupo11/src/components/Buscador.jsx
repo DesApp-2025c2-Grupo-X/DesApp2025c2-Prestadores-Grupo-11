@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -35,7 +34,9 @@ export default function Buscador({
     const trimmed = query.trim();
 
     if (!trimmed) {
-      toast.error("Por favor, ingresa un nombre, apellido o número de afiliado");
+      toast.error(
+        "Por favor, ingresa un nombre, apellido o número de afiliado"
+      );
       return;
     }
 
@@ -82,28 +83,39 @@ export default function Buscador({
       }}
       transition={{ duration: 0.3 }}
     >
-      <input
-        type="text"
-        placeholder={
-          permitirDNI
-            ? "Buscar por nombre, apellido o DNI"
-            : "Buscar por nombre, apellido o número de afiliado (ej: IOMA-00111222)..."
-        }
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        onKeyDown={handleKeyDown}
-      />
-
-      <motion.button
-        type="button"
-        whileHover={{ scale: 1.15, backgroundColor: "var(--verde-agua)" }}
-        whileTap={{ scale: 0.9 }}
-        onClick={handleSearchClick}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          ejecutarBusqueda();
+        }}
+        style={{ display: "flex", alignItems: "center", width: "100%" }}
       >
-        <Search size={20} />
-      </motion.button>
+        <input
+          id="buscador-input"
+          name="buscador"
+          type="text"
+          placeholder={
+            permitirDNI
+              ? "Buscar por nombre, apellido o DNI"
+              : "Buscar por nombre, apellido o número de afiliado (ej: IOMA-00111222)..."
+          }
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          onKeyDown={handleKeyDown}
+          autoComplete="off"
+          aria-label="Buscar paciente"
+        />
+
+        <motion.button
+          type="submit"
+          whileHover={{ scale: 1.15, backgroundColor: "var(--verde-agua)" }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <Search size={20} />
+        </motion.button>
+      </form>
 
       <AnimatePresence>
         {isFocused && query && (

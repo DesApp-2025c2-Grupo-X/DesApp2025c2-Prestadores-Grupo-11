@@ -1,17 +1,30 @@
-// src/services/situacionesApi.js
+
 import api from './Api';
 
 /**
- * Obtiene todas las situaciones de un afiliado según el prestador
- * GET /situaciones/:id/Afiliado/:afiliadoId
- * (id = prestadorId)
+ * Obtiene todas las situaciones de un afiliado según el prestador y nro/apellido
+ * GET /situaciones/:prestadorId/Afiliado/:nroOApellido
  */
-export const getSituacionesByAfiliado = async (prestadorId, afiliadoId, signal) => {
+export const getSituacionesByNroOApellidoAfiliado = async (prestadorId, nroOApellido, signal) => {
   try {
-    const res = await api.get(`/situaciones/${prestadorId}/Afiliado/${afiliadoId}`, { signal });
+    const res = await api.get(`/situaciones/${prestadorId}/Afiliado/${nroOApellido}`, { signal });
     return res.data;
   } catch (error) {
     if (error.name === 'CanceledError') throw error;
+    console.error(`Error al obtener situaciones del afiliado ${nroOApellido}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Obtiene todas las situaciones de un afiliado por ID
+ * GET /situaciones/Afiliado/:id
+ */
+export const getSituacionesByAfiliadoId = async (afiliadoId) => {
+  try {
+    const res = await api.get(`/situaciones/Afiliado/${afiliadoId}`);
+    return res.data?.situaciones || [];
+  } catch (error) {
     console.error(`Error al obtener situaciones del afiliado ${afiliadoId}:`, error);
     throw error;
   }
@@ -29,29 +42,15 @@ export const getSituacionesByIntegranteId = async (integranteId) => {
     console.error("Error al traerse las situaciones del integrante:", error);
     throw error;
   }
-}
-
-/**
- * Obtiene todas las situaciones de un paciente (Afiliado o Integrante)
- * GET /situaciones/:tipoPaciente/:idIntegrante
- */
-export const getSituacionesByPacienteId = async (pacienteId, tipoPaciente) => {
-  try {
-    const res = await api.get(`/situaciones/${tipoPaciente}/${pacienteId}`);
-    return res.data?.situaciones || [];
-  } catch (error) {
-    console.error("Error al traerse las situaciones del paciente:", error);
-    throw error;
-  }
-}
+};
 
 /**
  * Crear nueva situación
- * POST /situaciones
+ * POST /situaciones/:prestadorId
  */
-export const crearSituacion = async (data) => {
+export const crearSituacion = async (prestadorId, data) => {
   try {
-    const res = await api.post('/situaciones', data);
+    const res = await api.post(`/situaciones/${prestadorId}`, data);
     return res.data;
   } catch (error) {
     console.error('Error al crear situación:', error);
@@ -71,16 +70,4 @@ export const actualizarSituacion = async (id, data) => {
     console.error(`Error al actualizar situación ${id}:`, error);
     throw error;
   }
-};
-
-// Elimina una situación
-export const eleminarSituacion = async (id) => {
-  try {
-    const response = await api.delete(`/situaciones/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error al eliminar situación:", error);
-    throw error;
-  }
-
 };

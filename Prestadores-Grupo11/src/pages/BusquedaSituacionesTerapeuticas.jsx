@@ -58,18 +58,28 @@ export default function BusquedaSituacionesTerapeuticas() {
         let pacientes = [];
 
         if (Array.isArray(data)) {
-          // Si ya es un array, usarlo directamente
           pacientes = data;
         } else if (data.integrantes && Array.isArray(data.integrantes)) {
-          // Si hay afiliado con integrantes, incluir ambos
           pacientes = [data, ...data.integrantes];
         } else {
-          // Caso genérico
           pacientes = [data];
         }
 
-        console.log(" Datos normalizados para la tabla:", pacientes);
-        setResultados(pacientes);
+        // Deduplicar por un identificador estable (id | afiliadoId | dni | nombre+apellido)
+        const seen = new Set();
+        const dedupe = pacientes.filter((p) => {
+          const key =
+            p.id ??
+            p.afiliadoId ??
+            p.dni ??
+            `${p.nombre || ""}-${p.apellido || ""}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+
+        console.log(" Datos normalizados para la tabla (dedupe):", dedupe);
+        setResultados(dedupe);
       } catch (err) {
         console.error(" Error en la búsqueda:", err);
         toast.error("Error al buscar afiliado. Intente nuevamente.", {
@@ -84,30 +94,39 @@ export default function BusquedaSituacionesTerapeuticas() {
   );
 
   // --- REDIRECCIÓN SEGURA ---
-  const handleVerPaciente = (afiliadoId) => {
-    if (!afiliadoId) {
-      toast.warning("No se pudo obtener el ID del afiliado.", {
+  const handleVerPaciente = (integrante) => {
+    console.log("handleVerPaciente recibido:", integrante);
+
+    const id = integrante?.id || integrante?.afiliadoId || integrante?.dni;
+    if (!id) {
+      toast.warning("No se pudo obtener el ID del integrante.", {
         position: "top-right",
         autoClose: 2000,
       });
       return;
     }
 
-    console.log(afiliadoId)
-    console.log("Redirigiendo a /prestadores/situaciones/" + afiliadoId);
-    navigate(`/prestadores/situaciones/${afiliadoId}`);
+    console.log(`Redirigiendo a /prestadores/situaciones/integrante/${id}`);
+    navigate(`/prestadores/situaciones/integrante/${id}`);
   };
-
   // --- Renderizado ---
   return (
     <PrestadoresLayout header={<HeaderPrestadores />}>
       <div className="contenido-principal main-with-sidebar">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <h3>Búsqueda de Situaciones Terapéuticas</h3>
           <Buscador onSearch={handleSearch} />
         </motion.div>
 
-        {cargando && <p style={{ marginTop: "1.5rem", color: "#555" }}>Cargando datos de pacientes...</p>}
+        {cargando && (
+          <p style={{ marginTop: "1.5rem", color: "#555" }}>
+            Cargando datos de pacientes...
+          </p>
+        )}
 
         {resultados.length > 0 && (
           <div className="table-responsive-xl mt-4">
@@ -127,13 +146,19 @@ export default function BusquedaSituacionesTerapeuticas() {
                 </tr>
               </thead>
               <tbody>
-                {resultados.map((paciente) => {
-                  const id = paciente.id || paciente.afiliadoId;
+                {resultados.map((paciente, idx) => {
+                  const id =
+                    paciente.id ||
+                    paciente.afiliadoId ||
+                    paciente.dni ||
+                    `r${idx}`;
                   return (
-                    <tr key={paciente.dni}>
+                    <tr key={`${id}-${idx}`}>
                       <td>
                         {paciente.nombre || paciente.apellido
-                          ? `${paciente.nombre || ""} ${paciente.apellido || ""}`.trim()
+                          ? `${paciente.nombre || ""} ${
+                              paciente.apellido || ""
+                            }`.trim()
                           : "Sin nombre"}
                       </td>
                       <td>{paciente.dni || "-"}</td>
@@ -141,10 +166,11 @@ export default function BusquedaSituacionesTerapeuticas() {
                       <td>{paciente.situaciones?.length || 0}</td>
                       <td>
                         <button
-                          className="btn btn-outline-primary btn-sm"
-                          onClick={() => handleVerPaciente(id)}
+                          type="button" // <- evita submit inesperado
+                          className="btn btn-sm btn-outline-primary"
+                          onClick={() => handleVerPaciente(paciente)}
                         >
-                          Ver detalle
+                          Ver situaciones
                         </button>
                       </td>
                     </tr>
@@ -153,10 +179,6 @@ export default function BusquedaSituacionesTerapeuticas() {
               </tbody>
             </motion.table>
           </div>
-        )}
-
-        {!cargando && resultados.length === 0 && (
-          <p className="text-muted mt-4">No hay resultados para mostrar.</p>
         )}
 
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar />

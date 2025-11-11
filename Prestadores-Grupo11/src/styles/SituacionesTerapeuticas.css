@@ -212,6 +212,70 @@ h3, h4, h5 {
   color: var(--azul-petroleo);
   border-color: var(--azul-petroleo);
 }
+:root {
+  --rosa: #fbc3c2;
+  --azul-petroleo: #1f3b4d;
+}
+
+.btn-nueva-situacion {
+  background-color: var(--azul-petroleo);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.btn-nueva-situacion:hover {
+  background-color: var(--rosa);
+  color: var(--azul-petroleo);
+}
+
+.btn-ver-mas {
+  color: var(--azul-petroleo);
+  font-size: 0.9rem;
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.descripcion-container {
+  transition: all 0.4s ease;
+  cursor: pointer;
+  color: var(--azul-petroleo);
+  line-height: 1.5;
+  max-height: 50px;
+  overflow: hidden;
+  position: relative;
+}
+
+.descripcion-container:hover {
+  max-height: 300px;
+  background-color: rgba(251, 195, 194, 0.1);
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.descripcion-container::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(to bottom, transparent, white);
+  transition: opacity 0.3s ease;
+}
+
+.descripcion-container:hover::after {
+  opacity: 0;
+}
 
 /* ====== FORMULARIO ALTA ====== */
 .formulario-alta {

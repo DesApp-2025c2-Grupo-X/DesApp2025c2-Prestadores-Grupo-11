@@ -10,7 +10,11 @@ import "react-day-picker/dist/style.css";
 import "../styles/CalendarioTurnos.css";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
-import { getTurnosByPrestador, updateNotasTurno } from "../services/TurnosApi";
+import {
+  getTurnosByPrestador,
+  updateNotasTurno,
+} from "../services/TurnosApi";
+import { getHistoriaClinicaByAfiliado, addNotaAHistoriaClinica } from "../services/HistorialClinicaApi";
 
 export default function CalendarioTurnosMedico() {
   const user = JSON.parse(localStorage.getItem("miapp_user"));
@@ -21,8 +25,9 @@ export default function CalendarioTurnosMedico() {
   const [turnos, setTurnos] = useState([]);
   const [selectedTurno, setSelectedTurno] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [historias, setHistorias] = useState({});
 
-  // === Cargar turnos desde el backend o localStorage ===
+  // === Cargar turnos ===
   useEffect(() => {
     const controller = new AbortController();
 
@@ -33,7 +38,6 @@ export default function CalendarioTurnosMedico() {
         return;
       }
 
-      // Seguridad: sólo los médicos deben usar este endpoint
       if (role !== "medico") {
         toast.error(" Acceso no autorizado. Solo médicos pueden acceder a este calendario.");
         setLoading(false);
@@ -41,15 +45,11 @@ export default function CalendarioTurnosMedico() {
       }
 
       try {
-
         const response = await getTurnosByPrestador(prestadorId);
-        //const data = response?.data ?? [];
-        const turnosValidos = response
-
+        const turnosValidos = Array.isArray(response) ? response : [];
         setTurnos(turnosValidos);
-
-        console.log("Turnos recibidos del backend:", turnosValidos);
         localStorage.setItem("turnos_medico", JSON.stringify(turnosValidos));
+        console.log("Turnos recibidos del backend:", turnosValidos);
       } catch (error) {
         console.error("Error al obtener turnos:", error);
         toast.warn(" No se pudo conectar con el servidor. Cargando datos locales...");
@@ -64,26 +64,49 @@ export default function CalendarioTurnosMedico() {
     return () => controller.abort();
   }, [prestadorId, role]);
 
-  // === Actualizar texto de notas localmente ===
-  const handleNoteChange = (id, value) => {
-    setTurnos((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, notas: value } : t))
-    );
+  // === Obtener historia clínica de un paciente ===
+  const handleVerHistoriaClinica = async (turno) => {
+    const afiliadoId = turno.afiliado?.id || turno.afiliadoId;
+    if (!afiliadoId) {
+      toast.warn(" Este paciente no tiene afiliado asociado.");
+      return;
+    }
+
+    try {
+      const historia = await getHistoriaClinicaByAfiliado(afiliadoId);
+      setHistorias((prev) => ({
+        ...prev,
+        [afiliadoId]: historia?.notas || "Sin historia clínica registrada",
+      }));
+      toast.success("Historia clínica cargada.");
+    } catch (error) {
+      console.error("Error al obtener historia clínica:", error);
+      toast.error(" No se pudo cargar la historia clínica del paciente.");
+    }
   };
 
-  // === Guardar nota (en backend + localStorage) ===
+  // === Actualizar texto de notas ===
+  const handleNoteChange = (id, value) => {
+    setTurnos((prev) => prev.map((t) => (t.id === id ? { ...t, notas: value } : t)));
+  };
+
+  // === Guardar nota y agregar al historial clínico ===
   const handleGuardarNota = async (id) => {
     const turno = turnos.find((t) => t.id === id);
     if (!turno) return;
 
     try {
       await updateNotasTurno(prestadorId, id, turno.notas);
-
       const turnosActualizados = turnos.map((t) =>
         t.id === id ? { ...t, notas: turno.notas } : t
       );
       setTurnos(turnosActualizados);
       localStorage.setItem("turnos_medico", JSON.stringify(turnosActualizados));
+
+      // Guardar nota en la historia clínica
+      if (turno.afiliado?.id) {
+        await addNotaAHistoriaClinica(turno.afiliado.id, turno.notas);
+      }
 
       toast.success(`Nota guardada para ${turno.afiliado?.nombre ?? "Paciente"}`);
       setSelectedTurno(null);
@@ -104,8 +127,7 @@ export default function CalendarioTurnosMedico() {
     );
   });
 
-
-  // === Estado inicial o error de login ===
+  // === Error de login ===
   if (!prestadorId) {
     return <p style={{ padding: "2rem" }}>No se encontró el médico logueado.</p>;
   }
@@ -133,7 +155,7 @@ export default function CalendarioTurnosMedico() {
             />
           </div>
 
-          {/* === Agenda del día === */}
+          {/* === Agenda === */}
           <div className="agenda-box card shadow-sm">
             <div className="card-header">
               <h5 className="mb-0">
@@ -153,7 +175,7 @@ export default function CalendarioTurnosMedico() {
                         setSelectedTurno(selectedTurno === turno.id ? null : turno.id)
                       }
                     >
-                      <span className="hora">{turno.date}</span>
+                      <span className="hora">{format(new Date(turno.start), "HH:mm")}</span>
                       <span className="paciente">
                         {turno.afiliado
                           ? `${turno.afiliado.nombre} ${turno.afiliado.apellido}`
@@ -163,6 +185,7 @@ export default function CalendarioTurnosMedico() {
                       </span>
                       <button className="btn-ver">📝 Ver</button>
                     </div>
+
                     {selectedTurno === turno.id && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
@@ -178,7 +201,6 @@ export default function CalendarioTurnosMedico() {
                           placeholder="Agregar notas (máx. 500 caracteres)"
                         />
 
-                        {/* 🔹 Botones alineados en extremos */}
                         <div
                           className="botones-turno"
                           style={{
@@ -188,19 +210,18 @@ export default function CalendarioTurnosMedico() {
                             alignItems: "center",
                           }}
                         >
-                          {/* Izquierda */}
                           <button
                             className="btn-historia"
                             data-tooltip-id={`historia-${turno.id}`}
                             data-tooltip-content={
-                              turno.afiliado?.historiaClinica ??
-                              "Sin historia clínica registrada"
+                              historias[turno.afiliado?.id] ||
+                              "Cargar historia clínica"
                             }
+                            onClick={() => handleVerHistoriaClinica(turno)}
                           >
                             Historia clínica
                           </button>
 
-                          {/* Derecha */}
                           <button
                             className="btn-guardar"
                             onClick={() => handleGuardarNota(turno.id)}
@@ -236,3 +257,4 @@ export default function CalendarioTurnosMedico() {
     </PrestadoresLayout>
   );
 }
+

@@ -14,7 +14,7 @@ export const getTurnosByPrestador = async (prestadorId) => {
     return Array.isArray(res.data) ? res.data : [];
   } catch (error) {
     console.error("Error en getTurnosByPrestador:", error);
-    // Propaga para que el componente lo maneje
+    
     throw error;
   }
 };
