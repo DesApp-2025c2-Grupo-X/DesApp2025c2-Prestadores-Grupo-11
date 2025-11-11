@@ -8,9 +8,12 @@ import { motion } from "framer-motion";
 import { getAllIntegrantes } from "../services/IntegrantesApi";
 import { getAllAfiliados } from "../services/AfiliadosApi";
 import { getSituacionesByPacienteId } from "../services/SituacionesApi";
-import { getNombrePrestadorById } from "../services/PrestadoresApi";
+import { getNombrePrestadorById } from "../services/PrestadoresApi"; // Inutilizado
 import { getTurnosByPacienteId } from "../services/TurnosApi";
 import "../styles/SituacionesTerapeuticas.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import TablaHistorial from "../components/TablaHistorial";
+
 
 export default function HistorialClinico() {
   const { dni } = useParams();
@@ -42,7 +45,6 @@ export default function HistorialClinico() {
 
   // Cargar datos del paciente
   useEffect(() => {
-    //Agregarle despues la busqueda de los afiliados
     const cargarPaciente = async () => {
       try {
         const integrantes = await getAllIntegrantes();
@@ -80,25 +82,47 @@ export default function HistorialClinico() {
 
         if (filtroNotas) {
           turnosEncontrados = turnosEncontrados.filter(turno => turno.notes && turno.prestadorId == user?.id)
+
+          const turnosFiltrados = turnosEncontrados.map((t) => ({
+            tipo: "Turno",
+            fecha: t.date,
+            descripcion: t.descripción,
+            especialidad: t.prestador?.especialidad || "",
+            medico: t.prestador?.username || "",
+            notas: t.notes || "",
+          }));
+
+          const ordenadosPorFecha = turnosFiltrados.sort(
+            (a, b) => new Date(b.fecha) - new Date(a.fecha)
+          );
+
+          setConsultas(ordenadosPorFecha);
+          return;
+
         }
 
         const ahora = new Date();
-        const turnosFinalizados = turnosEncontrados.filter(turno => {
+        const turnosResult = turnosEncontrados.filter(turno => {
           const fechaTurno = new Date(turno.date);
-          return fechaTurno.getTime() < ahora.getTime();
+          const turnoFinalizado = fechaTurno.getTime() < ahora.getTime();
+          const turnoNotas = turno.notes && turno.notes.trim() !== "";
+
+          return turnoFinalizado || turnoNotas
         });
 
         //Transformo el nombre de los atributos de situaciones y turnos, para que
         //sea mas facil mostrarlos en la tabla.
         const unificados = [
           ...situacionesDeBaja.map(s => ({
+            tipo: "Situacion terapeutica",
             fecha: s.fecha_final,
             descripcion: s.observaciones,
             especialidad: s.especialidad,
             medico: s.prestador.username,
             notas: ""
           })),
-          ...turnosFinalizados.map(t => ({
+          ...turnosResult.map(t => ({
+            tipo: "Turno",
             fecha: t.date,
             descripcion: t.descripción,
             especialidad: t.prestador?.especialidad || "",
@@ -111,29 +135,6 @@ export default function HistorialClinico() {
 
         setConsultas(ordenadosPorFecha);
 
-        //Todo lo que esta aca para abajo, hasta el catch, se puede solucionar si en el backend
-        //Al traerse la situacion, tambien muestra el username del medico.
-        // const idsUnicos = [...new Set(situacionesEncontradas.map(s => s.prestadorId))];
-
-        // const respuestas = await Promise.all(
-        //   idsUnicos.map(async id => {
-        //     try {
-        //       const nombre = await getNombrePrestadorById(id);
-        //       return { id, nombre };
-        //     } catch (error) {
-        //       console.error(`Error al traer el prestador ${id}`, error);
-        //       return { id, nombre: "Desconocido" };
-        //     }
-        //   })
-        // );
-
-        // const diccionario = respuestas.reduce((acc, { id, nombre }) => {
-        //   acc[id] = nombre;
-        //   return acc;
-        // }, {});
-
-        // setNombresPrestadores(diccionario);
-
       } catch (error) {
         console.error("Hubo un error al buscar las consultas", error)
       }
@@ -141,6 +142,11 @@ export default function HistorialClinico() {
 
     getConsultas()
   }, [paciente, filtroNotas, tipo])
+
+  const truncarTexto = (texto, limite = 80) => {
+    if (!texto) return "";
+    return texto.length > limite ? texto.slice(0, limite) + "..." : texto;
+  };
 
   // Estado: cargando
   if (loading) {
@@ -235,8 +241,6 @@ export default function HistorialClinico() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <h3>Ultimas consultas</h3>
-
             {/*Checkbox para filtrar entre notas propias*/}
             <div className="form-check">
               <input
@@ -250,50 +254,14 @@ export default function HistorialClinico() {
                 Filtrar por notas propias
               </label>
             </div>
+            
+            <TablaHistorial
+              consultas={consultas}
+              filtroNotas={filtroNotas}
+              mayusculas={mayusculas}
+              truncarTexto={truncarTexto}
+            />
 
-            <table className="table table-striped" style={{ marginTop: "0px" }}>
-              <thead>
-                <tr>
-                  <th>Fecha</th>
-                  <th>Descripcion</th>
-                  <th>Especialidad</th>
-                  <th>Medico</th>
-                  <th>Notas</th>
-                </tr>
-              </thead>
-              <tbody>
-                {consultas.length > 0 ? (
-                  consultas.map((consulta, idx) => (
-                    <motion.tr
-                      key={idx}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.05 }}
-                      whileHover={{ scale: 1.02 }}
-                    >
-                      <td>
-                        {new Date(consulta.fecha).toLocaleString("es-AR", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </td>
-                      <td>{consulta.descripcion}</td>
-                      <td>{mayusculas(consulta.especialidad)}</td>
-                      {/* <td>{nombresPrestadores[consulta.prestadorId] || "Cargando..."}</td> */}
-                      <td>{mayusculas(consulta.medico)}</td>
-                      <td>{consulta.notas}</td>
-                    </motion.tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5}>Este paciente todavia no tuvo ninguna consulta.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
           </motion.div>
         </div>
       </div>
