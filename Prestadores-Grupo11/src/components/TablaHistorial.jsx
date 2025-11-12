@@ -5,16 +5,22 @@ import DetalleHistorialModal from "./DetalleHistorialModal";
 
 export default function TablaHistorial({
   consultas,
-  mayusculas,
   filtroNotas,
-  truncarTexto,
 }) {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [detalleSeleccionado, setDetalleSeleccionado] = useState(null);
-  
+
   const abrirModal = (consulta) => {
     setDetalleSeleccionado(consulta);
     setMostrarModal(true);
+  };
+
+  //Funcion para capitalizar la primera letra de cada palabra
+  const mayusculas = (str) => str.toLowerCase().replace(/(^|\s)\p{L}/gu, (c) => c.toUpperCase());
+
+  const truncarTexto = (texto, limite = 80) => {
+    if (!texto) return "";
+    return texto.length > limite ? texto.slice(0, limite) + "..." : texto;
   };
 
   return (
