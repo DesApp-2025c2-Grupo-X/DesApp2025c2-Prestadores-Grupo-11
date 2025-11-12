@@ -41,9 +41,6 @@ export default function HistorialClinico() {
   const storedUser = JSON.parse(localStorage.getItem("miapp_user") || "null");
   const user = storedUser;
 
-  //Funcion para capitalizar la primera letra de cada palabra
-  const mayusculas = (str) => str.toLowerCase().replace(/(^|\s)\p{L}/gu, (c) => c.toUpperCase());
-
   // Cargar datos del paciente
   useEffect(() => {
     const cargarPaciente = async () => {
@@ -143,11 +140,6 @@ export default function HistorialClinico() {
 
     getConsultas()
   }, [paciente, filtroNotas, tipo])
-
-  const truncarTexto = (texto, limite = 80) => {
-    if (!texto) return "";
-    return texto.length > limite ? texto.slice(0, limite) + "..." : texto;
-  };
 
   // Estado: cargando
   if (loading) {
@@ -259,8 +251,6 @@ export default function HistorialClinico() {
             <TablaHistorial
               consultas={consultas}
               filtroNotas={filtroNotas}
-              mayusculas={mayusculas}
-              truncarTexto={truncarTexto}
             />
 
           </motion.div>
