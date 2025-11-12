@@ -4,15 +4,15 @@ import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import SideBar from "../components/SideBar";
 import { ArrowLeft, Folder } from "lucide-react";
-import { FiPlus } from "react-icons/fi"; // ✅ Agregado
+import { FiPlus } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import { Tooltip } from "react-tooltip";
-import Swal from "sweetalert2"; // ✅ Faltaba importar
+import Swal from "sweetalert2";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/SituacionesTerapeuticas.css";
 import {
-  getSituacionesByAfiliado,
+  getSituacionesByAfiliadoId,
   getSituacionesByIntegranteId,
   actualizarSituacion,
 } from "../services/SituacionesApi";
@@ -26,18 +26,11 @@ export default function SituacionesTerapeuticas() {
   const [situaciones, setSituaciones] = useState([]);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState(false);
-  const [tooltipVisible, setTooltipVisible] = useState(null); // ✅ Para el handleVerMas
 
-  // Detectar si la URL es de afiliado o integrante
   const esIntegrante = location.pathname.toLowerCase().includes("/integrante/");
-  const tipo = esIntegrante ? "integrante" : "afiliado";
 
   useEffect(() => {
-    if (!id) {
-      console.warn("No se recibió ID en useParams");
-      return;
-    }
-
+    if (!id) return;
     const controller = new AbortController();
 
     const fetchSituaciones = async () => {
@@ -57,11 +50,10 @@ export default function SituacionesTerapeuticas() {
         const prestadorId = user.id;
         let responseData;
 
-        // === Petición al backend según tipo ===
         if (esIntegrante) {
           responseData = await getSituacionesByIntegranteId(id);
         } else {
-          responseData = await getSituacionesByAfiliado(
+          responseData = await getSituacionesByAfiliadoId(
             prestadorId,
             id,
             controller.signal
@@ -69,71 +61,59 @@ export default function SituacionesTerapeuticas() {
         }
 
         const data = responseData?.data || responseData;
-        if (!data) throw new Error("Respuesta vacía del backend");
+        console.log("📦 Datos recibidos del backend:", data);
 
         let listaSituaciones = [];
         let pacienteInfo = {};
 
-        // === Caso integrante ===
-        if (esIntegrante && Array.isArray(data)) {
+        if (Array.isArray(data)) {
           listaSituaciones = data.map((s) => ({
             id: s.id,
-            fecha_inicio: s.fecha_inicio || "—",
+            fecha_inicio: s.fecha_inicio
+              ? new Date(s.fecha_inicio).toLocaleDateString()
+              : "—",
             especialidad: s.especialidad || "—",
-            descripcion: s.descripcion || "—",
+            descripcion: s.observaciones || "—",
             estado: s.estado || "Pendiente",
             prestador_nombre: s.prestador?.username || "—",
-            pacienteNombre: s.pacienteNombre || "—",
-            pacienteDNI: s.pacienteDNI || "—",
+            pacienteNombre: `${s.afiliado?.nombre || s.integrante?.nombre || ""} ${
+              s.afiliado?.apellido || s.integrante?.apellido || ""
+            }`.trim(),
+            pacienteDNI: s.afiliado?.dni || s.integrante?.dni || "—",
           }));
-          pacienteInfo = { nombre: "—", afiliadoId: id };
-        } else if (esIntegrante && typeof data === "object") {
-          listaSituaciones =
-            (data.situaciones || []).map((s) => ({
-              id: s.id,
-              fecha_inicio: s.fecha_inicio || "—",
-              especialidad: s.especialidad || "—",
-              descripcion: s.descripcion || "—",
-              estado: s.estado || "Pendiente",
-              prestador_nombre: s.prestador?.username || "—",
-              pacienteNombre:
-                `${data.nombre || ""} ${data.apellido || ""}`.trim() || "—",
-              pacienteDNI: data.dni || "—",
-            })) || [];
+
+          const ref = data[0];
+          pacienteInfo = {
+            nombre: `${ref?.afiliado?.nombre || ref?.integrante?.nombre || ""} ${
+              ref?.afiliado?.apellido || ref?.integrante?.apellido || ""
+            }`.trim(),
+            afiliadoId: ref?.afiliadoId || ref?.integranteId || id,
+            dni: ref?.afiliado?.dni || ref?.integrante?.dni || "—",
+          };
+        } else if (data && data.situaciones && Array.isArray(data.situaciones)) {
+          listaSituaciones = data.situaciones.map((s) => ({
+            id: s.id,
+            fecha_inicio: s.fecha_inicio
+              ? new Date(s.fecha_inicio).toLocaleDateString()
+              : "—",
+            especialidad: s.especialidad || "—",
+            descripcion: s.observaciones || "—",
+            estado: s.estado || "Pendiente",
+            prestador_nombre: s.prestador?.username || "—",
+            pacienteNombre: `${data.nombre || ""} ${data.apellido || ""}`.trim(),
+            pacienteDNI: data.dni || "—",
+          }));
 
           pacienteInfo = {
-            nombre: `${data.nombre || ""} ${data.apellido || ""}`.trim() || "—",
+            nombre: `${data.nombre || ""} ${data.apellido || ""}`.trim(),
             afiliadoId: data.id || id,
+            dni: data.dni || "—",
           };
-        } else if (!esIntegrante) {
-          const integrantes = Array.isArray(data)
-            ? data
-            : Array.isArray(data.integrantes)
-            ? data.integrantes
-            : [];
-
-          listaSituaciones = integrantes.flatMap((i) =>
-            (i.situaciones || []).map((s) => ({
-              id: s.id,
-              fecha_inicio: s.fecha_inicio || "—",
-              especialidad: s.especialidad || "—",
-              descripcion: s.descripcion || "—",
-              estado: s.estado || "Pendiente",
-              prestador_nombre: s.prestador?.username || "—",
-              pacienteNombre:
-                `${i.nombre || ""} ${i.apellido || ""}`.trim() || "—",
-              pacienteDNI: i.dni || "—",
-            }))
-          );
-
-          pacienteInfo = {
-            nombre:
-              `${data.nombre || ""} ${data.apellido || ""}`.trim() ||
-              "Afiliado",
-            afiliadoId: data.id || id,
-          };
+        } else {
+          throw new Error("Respuesta inválida del backend");
         }
 
+        console.log("📋 Datos del paciente:", pacienteInfo);
         setPaciente(pacienteInfo);
         setSituaciones(listaSituaciones);
       } catch (err) {
@@ -153,45 +133,33 @@ export default function SituacionesTerapeuticas() {
     return () => controller.abort();
   }, [id, esIntegrante]);
 
-  // === Acciones ===
-  const handleVerMas = (index) => {
-    setTooltipVisible(tooltipVisible === index ? null : index);
-  };
-
+  // === Acción: Nueva Situación ===
   const handleNuevaSituacion = () => {
-    navigate("prestadores/situaciones/alta/:dni");
+    if (!paciente?.afiliadoId && !paciente?.dni) {
+      toast.error("No se pudo obtener el identificador del paciente");
+      return;
+    }
+
+    const identificador = paciente.afiliadoId; // usamos el ID interno, no el DNI
+    navigate(`/prestadores/situaciones/alta/${identificador}`);
   };
 
-  const handleEditarEstado = (situacion) => {
-    Swal.fire({
-      title: "Editar estado",
-      text: `Seleccione el nuevo estado para ${situacion.pacienteNombre}`,
-      input: "select",
-      inputOptions: {
-        "En proceso": "En proceso",
-        Finalizado: "Finalizado",
-      },
-      inputPlaceholder: "Seleccione un estado",
-      showCancelButton: true,
-      confirmButtonText: "Guardar",
-      cancelButtonText: "Cancelar",
-      confirmButtonColor: "#6fb6b6",
-      cancelButtonColor: "#fbc3c2",
-    }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        const nuevas = situaciones.map((s) =>
-          s.id === situacion.id ? { ...s, estado: result.value } : s
-        );
-        setSituaciones(nuevas);
-
-        Swal.fire({
-          icon: "success",
-          title: "Estado actualizado",
-          text: `Nuevo estado: ${result.value}`,
-          confirmButtonColor: "#6fb6b6",
-        });
-      }
-    });
+  const handleEditarEstado = async (situacionId, nuevoEstado) => {
+    try {
+      await actualizarSituacion(situacionId, { estado: nuevoEstado });
+      setSituaciones((prev) =>
+        prev.map((s) => (s.id === situacionId ? { ...s, estado: nuevoEstado } : s))
+      );
+      toast.success(`Estado actualizado a "${nuevoEstado}"`, {
+        position: "bottom-right",
+        autoClose: 2000,
+      });
+    } catch (error) {
+      console.error("Error actualizando estado:", error);
+      toast.error("No se pudo actualizar el estado.", {
+        position: "bottom-right",
+      });
+    }
   };
 
   const handleArchivar = async (id) => {
@@ -210,11 +178,9 @@ export default function SituacionesTerapeuticas() {
       if (!confirm.isConfirmed) return;
 
       await actualizarSituacion(id, { estado: "Archivado" });
-
       setSituaciones((prev) =>
         prev.map((s) => (s.id === id ? { ...s, estado: "Archivado" } : s))
       );
-
       toast.success("Situación archivada correctamente.", {
         position: "bottom-right",
         autoClose: 2000,
@@ -223,12 +189,10 @@ export default function SituacionesTerapeuticas() {
       console.error("Error al archivar la situación:", error);
       toast.error("No se pudo archivar la situación.", {
         position: "bottom-right",
-        autoClose: 2000,
       });
     }
   };
 
-  // === Render ===
   if (cargando) {
     return (
       <PrestadoresLayout header={<HeaderPrestadores />}>
@@ -266,7 +230,6 @@ export default function SituacionesTerapeuticas() {
     );
   }
 
-  // === Vista principal ===
   return (
     <PrestadoresLayout header={<HeaderPrestadores />}>
       <div className="d-flex">
@@ -289,7 +252,6 @@ export default function SituacionesTerapeuticas() {
               : "Situaciones Terapéuticas del Afiliado"}
           </h3>
 
-          {/* Botón Nueva Situación */}
           <div style={{ textAlign: "right", width: "80%", margin: "0 auto" }}>
             <button className="btn-nueva-situacion" onClick={handleNuevaSituacion}>
               <FiPlus style={{ marginRight: "6px" }} /> Nueva Situación
@@ -317,7 +279,7 @@ export default function SituacionesTerapeuticas() {
               </thead>
               <tbody>
                 {situaciones.length > 0 ? (
-                  situaciones.map((s, index) => (
+                  situaciones.map((s) => (
                     <tr key={s.id}>
                       <td>{s.pacienteNombre}</td>
                       <td>{s.pacienteDNI}</td>
@@ -326,22 +288,27 @@ export default function SituacionesTerapeuticas() {
                       <td>
                         <button
                           className="btn-ver-mas"
-                          onClick={() => handleVerMas(index)}
+                          data-tooltip-id={`desc-${s.id}`}
+                          data-tooltip-content={s.descripcion || "Sin descripción"}
                         >
                           Ver más
                         </button>
-                        {tooltipVisible === index && (
-                          <div className="tooltip-descripcion">
-                            {s.descripcion || "Sin descripción"}
-                          </div>
-                        )}
+                        <Tooltip
+                          id={`desc-${s.id}`}
+                          place="top"
+                          style={{
+                            backgroundColor: "var(--rosa)",
+                            color: "var(--azul-petroleo)",
+                            maxWidth: "300px",
+                          }}
+                        />
                       </td>
                       <td>{s.prestador_nombre}</td>
                       <td>
                         <select
-                          value={s.estado}
+                          value={s.estado || "Pendiente"}
                           onChange={(e) =>
-                            handleEditarEstado(s, e.target.value)
+                            handleEditarEstado(s.id, e.target.value)
                           }
                           className={`form-select form-select-sm ${
                             s.estado === "Finalizado"
@@ -350,7 +317,7 @@ export default function SituacionesTerapeuticas() {
                           }`}
                         >
                           <option value="Pendiente">Pendiente</option>
-                          <option value="EnProceso">En proceso</option>
+                          <option value="En proceso">En proceso</option>
                           <option value="Finalizado">Finalizado</option>
                         </select>
                       </td>

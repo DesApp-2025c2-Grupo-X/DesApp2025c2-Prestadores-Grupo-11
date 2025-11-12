@@ -212,10 +212,6 @@ h3, h4, h5 {
   color: var(--azul-petroleo);
   border-color: var(--azul-petroleo);
 }
-:root {
-  --rosa: #fbc3c2;
-  --azul-petroleo: #1f3b4d;
-}
 
 .btn-nueva-situacion {
   background-color: var(--azul-petroleo);
@@ -236,13 +232,67 @@ h3, h4, h5 {
   color: var(--azul-petroleo);
 }
 
+/* === BOTÓN VER MÁS === */
 .btn-ver-mas {
+ 
+  border: none;
+  border-radius: 6px;
   color: var(--azul-petroleo);
   font-size: 0.9rem;
-  background: none;
-  border: none;
-  text-decoration: underline;
-  cursor: pointer;
+  padding: 4px 8px;
+  transition: all 0.2s ease-in-out;
+}
+
+
+
+/* Tooltip react-tooltip */
+.__react_component_tooltip {
+  font-size: 0.85rem !important;
+  line-height: 1.2;
+  text-align: left;
+  padding: 8px !important;
+  border-radius: 8px !important;
+}
+
+/* === SELECT DE ESTADO === */
+.form-select {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.9rem;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Colores según estado */
+.estado-pendiente {
+
+  color: var(--verde-agua);
+  font-weight: 600;
+}
+
+.estado-proceso {
+
+  color: var(--azul-petroleo);
+  font-weight: 600;
+}
+
+.estado-finalizado {
+ 
+  color: var(--celeste);
+  font-weight: 600;
+}
+
+/* === BOTÓN ARCHIVAR === */
+.btn-outline-secondary {
+  border-color: var(--azul-petroleo);
+  color: var(--azul-petroleo);
+  border-radius: 6px;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--azul-petroleo);
+  color: white;
+  transform: scale(1.05);
 }
 
 .descripcion-container {

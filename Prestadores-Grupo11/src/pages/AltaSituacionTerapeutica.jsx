@@ -4,107 +4,134 @@ import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import SideBar from "../components/SideBar";
 import { motion } from "framer-motion";
-import { Save, ArrowLeft } from "lucide-react";
+import { Save, ArrowLeft, Loader2 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/SituacionesTerapeuticas.css";
+import { crearSituacion } from "../services/SituacionesApi";
 
-export default function AltaSituacionTerapeutica() {
-  const { dni } = useParams();
+export default function AltaSituacionTerapeutica({ onNuevaSituacion }) {
+  const { dni } = useParams(); // ID del afiliado o integrante
   const navigate = useNavigate();
+
+  // Obtener prestadorId del usuario logueado
+  const storedUser = JSON.parse(localStorage.getItem("miapp_user"));
+  const prestadorId = storedUser?.id;
 
   const [formData, setFormData] = useState({
     especialidad: "",
     situacion: "",
     observaciones: "",
-    fecha: "",
-    prestador: "",
-    estado: "Activo",
+    fecha_inicio: "",
   });
 
-  // Refs para manejo de Enter → siguiente campo
+  const [loading, setLoading] = useState(false);
+
   const refs = {
     especialidad: useRef(null),
     situacion: useRef(null),
     observaciones: useRef(null),
-    fecha: useRef(null),
-    prestador: useRef(null),
-    estado: useRef(null),
+    fecha_inicio: useRef(null),
   };
+
+  // Validar sesión al cargar
+  if (!prestadorId || !dni) {
+    return (
+      <div style={{ padding: "2rem" }}>
+        <p>
+          Error: No se encontró prestador o afiliado. Por favor, inicie sesión
+          nuevamente.
+        </p>
+      </div>
+    );
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Limitar longitud del campo observaciones
-    if (name === "observaciones" && value.length > 500) return;
-
+    if (name === "observaciones" && value.length > 1000) return;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Manejo del Enter → siguiente campo
   const handleKeyDown = (e, nextField) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && nextField) {
       e.preventDefault();
-      if (refs[nextField]?.current) {
-        refs[nextField].current.focus();
-      }
+      refs[nextField]?.current?.focus();
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validar campos requeridos
-    for (const key in formData) {
-      if (!formData[key]) {
-        toast.error(`El campo "${key}" es obligatorio.`, {
-          toastId: `campo-${key}`,
-          autoClose: 2000,
-        });
-        return;
-      }
+    if (!formData.especialidad.trim()) {
+      toast.error("Debes ingresar la especialidad", { autoClose: 2000 });
+      return;
+    }
+    if (!formData.situacion.trim()) {
+      toast.error("Debes describir la situación terapéutica", {
+        autoClose: 2000,
+      });
+      return;
+    }
+    if (!formData.fecha_inicio) {
+      toast.error("Debes seleccionar la fecha de inicio", { autoClose: 2000 });
+      return;
     }
 
-    try {
-      // --- Simulación de guardado en JSON local ---
-      // En un backend real, harías algo como:
-      // await fetch(`/api/pacientes/${dni}/situaciones`, {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(formData),
-      // });
+    setLoading(true);
 
-      // Mostrar toast de éxito
-      toast.success("Situación terapéutica guardada con éxito", {
-        toastId: "guardar-situacion",
+    try {
+      const integranteId = dni; // asumimos que dni = id del integrante
+      const payload = {
+        afiliadoId: storedUser?.afiliadoId, // si lo tenés, o ajusta según tu lógica
+        integranteId, // OBLIGATORIO
+        prestadorId, // del usuario logueado
+        especialidad: formData.especialidad.trim(),
+        situacion: formData.situacion.trim(),
+        observaciones: formData.observaciones.trim(),
+        fecha_inicio: formData.fecha_inicio,
+        fecha_final: formData.fecha_inicio,
+        estado: "alta",
+      };
+
+      const response = await crearSituacion(prestadorId, payload);
+
+      toast.success("Situación terapéutica creada exitosamente", {
         autoClose: 1500,
       });
 
-      // Redirigir tras un pequeño delay
-      setTimeout(() => {
-        navigate(`/prestadores/situaciones/${dni}`);
-      }, 1600);
+      setFormData({
+        especialidad: "",
+        situacion: "",
+        observaciones: "",
+        fecha_inicio: "",
+      });
+
+      if (onNuevaSituacion) {
+        onNuevaSituacion(response.situacion || response);
+      }
     } catch (error) {
-      console.error(error);
-      toast.error("Error al guardar la situación. Intenta nuevamente.", {
-        toastId: "error-guardar-situacion",
+      console.error("Error al crear situación:", error);
+      const mensaje =
+        error.data?.error || error.message || "Intenta nuevamente.";
+      toast.error(`Error al guardar la situación: ${mensaje}`, {
         autoClose: 3000,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <>
-      <PrestadoresLayout header={HeaderPrestadores}>
+      <PrestadoresLayout header={<HeaderPrestadores />}>
         <div className="d-flex">
           <SideBar />
           <div className="flex-grow-1 p-4">
-            {/* Botón volver */}
             <motion.button
               className="btn-volver mb-3"
               whileHover={{ scale: 1.05, backgroundColor: "var(--verde-agua)" }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate(-1)}
+              onClick={() => window.history.back()}
             >
               <ArrowLeft size={18} className="me-2" /> Volver
             </motion.button>
@@ -131,15 +158,13 @@ export default function AltaSituacionTerapeutica() {
 
               <div className="mb-3">
                 <label className="form-label fw-semibold">Situación</label>
-                <input
+                <textarea
                   ref={refs.situacion}
-                  type="text"
                   className="form-control"
                   name="situacion"
                   value={formData.situacion}
                   onChange={handleChange}
                   onKeyDown={(e) => handleKeyDown(e, "observaciones")}
-                  required
                 />
               </div>
 
@@ -151,72 +176,55 @@ export default function AltaSituacionTerapeutica() {
                   name="observaciones"
                   value={formData.observaciones}
                   onChange={handleChange}
-                  onKeyDown={(e) => handleKeyDown(e, "fecha")}
                   rows={3}
-                  maxLength={500}
-                  required
+                  maxLength={1000}
                 />
                 <div className="text-end text-muted small">
-                  {formData.observaciones.length}/500 caracteres
+                  {formData.observaciones.length}/1000 caracteres
                 </div>
               </div>
 
-              <div className="row">
-                <div className="col-md-4 mb-3">
-                  <label className="form-label fw-semibold">Fecha Inicio</label>
-                  <input
-                    ref={refs.fecha}
-                    type="date"
-                    className="form-control"
-                    name="fecha"
-                    value={formData.fecha}
-                    onChange={handleChange}
-                    onKeyDown={(e) => handleKeyDown(e, "prestador")}
-                    required
-                  />
-                </div>
-
-                <div className="col-md-4 mb-3">
-                  <label className="form-label fw-semibold">Prestador</label>
-                  <input
-                    ref={refs.prestador}
-                    type="text"
-                    className="form-control"
-                    name="prestador"
-                    value={formData.prestador}
-                    onChange={handleChange}
-                    onKeyDown={(e) => handleKeyDown(e, "estado")}
-                    required
-                  />
-                </div>
-
-                <div className="col-md-4 mb-3">
-                  <label className="form-label fw-semibold">Estado</label>
-                  <select
-                    ref={refs.estado}
-                    className="form-select"
-                    name="estado"
-                    value={formData.estado}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option>Activo</option>
-                    <option>Finalizadoo</option>
-                  </select>
-                </div>
+              <div className="mb-3">
+                <label className="form-label fw-semibold">Fecha Inicio</label>
+                <input
+                  ref={refs.fecha_inicio}
+                  type="date"
+                  className="form-control"
+                  name="fecha_inicio"
+                  value={formData.fecha_inicio}
+                  onChange={handleChange}
+                  required
+                />
               </div>
 
-              <div className="text-end mt-4">
-                <button type="submit" className="btn-accion">
-                  <Save size={18} /> Guardar situación
-                </button>
+              <div className="d-flex justify-content-end pt-3">
+                <motion.button
+                  type="submit"
+                  className="btn btn-success d-flex align-items-center gap-2 px-4"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2
+                        size={18}
+                        className="me-2 spinner-border spinner-border-sm"
+                      />
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <Save size={18} /> Guardar
+                    </>
+                  )}
+                </motion.button>
               </div>
             </form>
           </div>
         </div>
       </PrestadoresLayout>
-
-      <ToastContainer position="top-right" theme="colored" />
+      <ToastContainer />
     </>
   );
 }
