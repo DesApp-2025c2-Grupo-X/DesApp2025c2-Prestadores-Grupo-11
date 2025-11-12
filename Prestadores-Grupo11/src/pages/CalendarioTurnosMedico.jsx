@@ -15,7 +15,7 @@ import {
   getTurnosByPrestador,
   updateNotasTurno,
 } from "../services/TurnosApi";
-import { getHistoriaClinicaByAfiliado, addNotaAHistoriaClinica } from "../services/HistorialClinicaApi";
+import { getHistoriaClinicaByAfiliado, addNotaAHistoriaClinica, getHistorialClinicoById } from "../services/HistorialClinicaApi";
 
 export default function CalendarioTurnosMedico() {
   const user = JSON.parse(localStorage.getItem("miapp_user"));
@@ -32,6 +32,9 @@ export default function CalendarioTurnosMedico() {
   //Estos dos estados son utilizados para abrir la ventana emergente para el historial.
   const [showHistoriaModal, setShowHistoriaModal] = useState(false);
   const [historiaSeleccionada, setHistoriaSeleccionada] = useState(null);
+
+  //Para mostrar el historial clinico
+  const [consultas, setConsultas] = useState([])
 
 
   // === Cargar turnos ===
@@ -92,7 +95,7 @@ export default function CalendarioTurnosMedico() {
     // }
 
     const tipoPaciente = (turno.afiliadoId === null) ? "Integrante" : "Afiliado"
-    const pacienteId = (tipoPaciente === "integrante") ? turno.integranteId : turno.afiliadoId
+    const pacienteId = (tipoPaciente === "Integrante") ? turno.integranteId : turno.afiliadoId
 
     console.log(`${tipoPaciente}Id`, pacienteId)
 
@@ -102,15 +105,16 @@ export default function CalendarioTurnosMedico() {
     }
 
     try {
-      const consultas = await getHistoriaClinicaByAfiliado(pacienteId);
-      setHistorias((prev) => ({
-        ...prev,
-        [pacienteId]: historia?.notas || [],
-      }));
-      setHistoriaSeleccionada({
-        afiliado: turno.afiliado,
-        notas: historia?.notas || [],
-      });
+      const consultas = await getHistorialClinicoById(pacienteId, tipoPaciente);
+      setConsultas(consultas)
+      // setHistorias((prev) => ({
+      //   ...prev,
+      //   [pacienteId]: historia?.notas || [],
+      // }));
+      // setHistoriaSeleccionada({
+      //   afiliado: turno.afiliado,
+      //   notas: historia?.notas || [],
+      // });
       setShowHistoriaModal(true); // 👈 abrimos el modal
     } catch (error) {
       console.error("Error al obtener historia clínica:", error);
@@ -298,10 +302,7 @@ export default function CalendarioTurnosMedico() {
                 <div className="modal-content">
                   <div className="modal-header">
                     <h5 className="modal-title">
-                      Historia clínica de{" "}
-                      {historiaSeleccionada?.afiliado
-                        ? `${historiaSeleccionada.afiliado.nombre} ${historiaSeleccionada.afiliado.apellido}`
-                        : "Paciente"}
+                      Historia clínica
                     </h5>
                     <button
                       type="button"
@@ -313,7 +314,7 @@ export default function CalendarioTurnosMedico() {
                   <div className="modal-body">
                     {/* Tu componente TablaHistorial */}
                     <TablaHistorial
-                      consultas={[]}
+                      consultas={consultas}
                       filtroNotas={false}
                     />
                   </div>

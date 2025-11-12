@@ -14,6 +14,7 @@ import { getTurnosByPacienteId } from "../services/TurnosApi";
 import "../styles/SituacionesTerapeuticas.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import TablaHistorial from "../components/TablaHistorial";
+import { getHistorialClinicoById } from "../services/HistorialClinicaApi";
 
 
 export default function HistorialClinico() {
@@ -67,75 +68,13 @@ export default function HistorialClinico() {
 
   }, [dni]);
 
+  // Con la informacion del paciente, busca su historial clinico
   useEffect(() => {
+    if (!paciente) return; // Si no hay paciente cargado no hace nada
 
     const getConsultas = async () => {
-      if (!paciente || !paciente.id) return; // Si no hay paciente, no hace nada
-
-      try {
-        const situacionesEncontradas = await getSituacionesByPacienteId(paciente.id, tipo);
-        const situacionesDeBaja = situacionesEncontradas.filter((situacion) => situacion.estado === "baja")
-
-        let turnosEncontrados = await getTurnosByPacienteId(paciente.id, tipo);
-
-        if (filtroNotas) {
-          turnosEncontrados = turnosEncontrados.filter(turno => turno.notes && turno.prestadorId == user?.id)
-
-          const turnosFiltrados = turnosEncontrados.map((t) => ({
-            tipo: "Turno",
-            fecha: t.date,
-            descripcion: t.descripción,
-            especialidad: t.prestador?.especialidad || "",
-            medico: t.prestador?.username || "",
-            notas: t.notes || "",
-          }));
-
-          const ordenadosPorFecha = turnosFiltrados.sort(
-            (a, b) => new Date(b.fecha) - new Date(a.fecha)
-          );
-
-          setConsultas(ordenadosPorFecha);
-          return;
-
-        }
-
-        const ahora = new Date();
-        const turnosResult = turnosEncontrados.filter(turno => {
-          const fechaTurno = new Date(turno.date);
-          const turnoFinalizado = fechaTurno.getTime() < ahora.getTime();
-          const turnoNotas = turno.notes && turno.notes.trim() !== "";
-
-          return turnoFinalizado || turnoNotas
-        });
-
-        //Transformo el nombre de los atributos de situaciones y turnos, para que
-        //sea mas facil mostrarlos en la tabla.
-        const unificados = [
-          ...situacionesDeBaja.map(s => ({
-            tipo: "Situacion terapeutica",
-            fecha: s.fecha_final,
-            descripcion: s.observaciones,
-            especialidad: s.especialidad,
-            medico: s.prestador.username,
-            notas: ""
-          })),
-          ...turnosResult.map(t => ({
-            tipo: "Turno",
-            fecha: t.date,
-            descripcion: t.descripción,
-            especialidad: t.prestador?.especialidad || "",
-            medico: t.prestador?.username || "",
-            notas: t.notes || ""
-          }))
-        ];
-
-        const ordenadosPorFecha = unificados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-
-        setConsultas(ordenadosPorFecha);
-
-      } catch (error) {
-        console.error("Hubo un error al buscar las consultas", error)
-      }
+      const consultas = await getHistorialClinicoById(paciente.id, tipo, filtroNotas)
+      setConsultas(consultas)
     };
 
     getConsultas()

@@ -1,6 +1,8 @@
 import api from "./Api";
+import { getSituacionesByPacienteId } from "./SituacionesApi";
+import { getTurnosByPacienteId } from "./TurnosApi";
 
-export const getHistoriaClinicaByAfiliado = async (afiliadoId) => {
+export const getHistoriaClinicaByAfiliado = async (afiliadoId) => { 
   const { data } = await api.get(`/historiaClinica/${afiliadoId}`);
   return data;
 };
@@ -16,6 +18,9 @@ export const addNotaAHistoriaClinica = async (afiliadoId, nota) => {
 // Recibe el id (afiliadoId, integranteId), y el tipo de paciente (Afiliado/Integrante)
 
 export const getHistorialClinicoById = async (pacienteId, tipoPaciente, filtroNotas = false) => {
+
+  const storedUser = JSON.parse(localStorage.getItem("miapp_user") || "null");
+  const user = storedUser;
 
   if (!pacienteId) return; // Si no hay paciente, no hace nada
 
