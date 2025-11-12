@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import DetalleHistorialModal from "./detalleHistorialModal";
+import DetalleHistorialModal from "./DetalleHistorialModal";
 
 
 export default function TablaHistorial({
