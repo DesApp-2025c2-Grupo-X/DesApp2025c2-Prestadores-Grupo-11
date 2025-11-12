@@ -5,7 +5,7 @@ import "../styles/SituacionesTerapeuticas.css";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import SideBar from "../components/SideBar";
-import TablaReintegros from "../components/tablaReintegros";
+import TablaReintegros from "../components/TablaReintegros";
 import TablaAutorizaciones from "../components/TablaAutorizaciones";
 import TablaRecetas from "../components/TablaRecetas";
 import TablaAutorizacionesCompletadas from "../components/TablaAutorizacionesCompletadas";
