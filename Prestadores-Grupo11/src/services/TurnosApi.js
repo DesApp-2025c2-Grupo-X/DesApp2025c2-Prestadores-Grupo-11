@@ -19,7 +19,7 @@ export const getTurnosByPrestadorId= async (prestadorId) => {
 };
 
 export const updateNotasTurno = async (prestadorId, turnoId, notas) => {
-  return await api.patch(`/turnos/${prestadorId}/turno/${turnoId}`, { notas });
+  return await api.patch(`/turnos/${prestadorId}/turno/${turnoId}`, { notes: notas });
 };
 
 // Trae todos los turnos de un médico por su username

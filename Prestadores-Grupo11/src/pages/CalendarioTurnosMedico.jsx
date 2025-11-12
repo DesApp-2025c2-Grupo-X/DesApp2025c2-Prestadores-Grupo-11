@@ -8,118 +8,156 @@ import { format } from "date-fns";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import "../styles/CalendarioTurnos.css";
-import DetalleHistorialModal from "../components/DetalleHistorialModal";
 import {
   getTurnosByPrestadorId,
   updateNotasTurno,
 } from "../services/TurnosApi";
+import { Tooltip as ReactTooltip } from "react-tooltip";
+import TablaHistorial from "../components/TablaHistorial";
+import "react-tooltip/dist/react-tooltip.css";
 import {
-  addNotaAHistoriaClinica,
-  getHistoriaClinicaByAfiliado,
-} from "../services/HistorialClinicaApi";
+  getTurnosByPrestador,
+  updateNotasTurno,
+} from "../services/TurnosApi";
+import { getHistoriaClinicaByAfiliado, addNotaAHistoriaClinica, getHistorialClinicoById } from "../services/HistorialClinicaApi";
 
 export default function CalendarioTurnosMedico() {
   const user = JSON.parse(localStorage.getItem("miapp_user"));
   const prestadorId = user?.id;
+  const role = user?.role;
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [turnos, setTurnos] = useState([]);
   const [selectedTurno, setSelectedTurno] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [historias, setHistorias] = useState({});
+  const [nota, setNota] = useState("");
 
-  // Estado separado para historia clínica
-  const [modalDetalle, setModalDetalle] = useState(null);
+  //Estos dos estados son utilizados para abrir la ventana emergente para el historial.
+  const [showHistoriaModal, setShowHistoriaModal] = useState(false);
+  const [historiaSeleccionada, setHistoriaSeleccionada] = useState(null);
 
+  //Para mostrar el historial clinico
+  const [consultas, setConsultas] = useState([])
+
+
+  // === Cargar turnos ===
   useEffect(() => {
-    if (!prestadorId) return;
+    const controller = new AbortController();
 
     const fetchTurnos = async () => {
+      if (!prestadorId) {
+        toast.error(" No se encontró el ID del prestador en localStorage");
+        setLoading(false);
+        return;
+      }
+
+      if (role !== "medico") {
+        toast.error(" Acceso no autorizado. Solo médicos pueden acceder a este calendario.");
+        setLoading(false);
+        return;
+      }
+
       try {
-        const data = await getTurnosByPrestadorId(prestadorId);
-        setTurnos(data);
-        console.log("Turnos recibidos del backend:", data);
+        const response = await getTurnosByPrestador(prestadorId);
+        const turnosValidos = Array.isArray(response) ? response : [];
+        setTurnos(turnosValidos);
+        localStorage.setItem("turnos_medico", JSON.stringify(turnosValidos));
+        console.log("Turnos recibidos del backend:", turnosValidos);
       } catch (error) {
         console.error("Error al obtener turnos:", error);
-        toast.error("No se pudieron cargar los turnos.");
+        toast.warn(" No se pudo conectar con el servidor. Cargando datos locales...");
+        const localTurnos = JSON.parse(localStorage.getItem("turnos_medico")) || [];
+        setTurnos(localTurnos);
       } finally {
         setLoading(false);
       }
     };
 
     fetchTurnos();
-  }, [prestadorId]);
+    return () => controller.abort();
+  }, [prestadorId, role]);
 
-  const handleNoteChange = (id, value) => {
-    setTurnos((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, notes: value } : t))
-    );
+  // === Obtener historia clínica de un paciente ===
+  const handleVerHistoriaClinica = async (turno) => {
+    // const afiliadoId = turno.afiliado?.id || turno.afiliadoId;
+    // if (!afiliadoId) {
+    //   toast.warn(" Este paciente no tiene afiliado asociado.");
+    //   return;
+    // }
+
+    // try {
+    //   const historia = await getHistoriaClinicaByAfiliado(afiliadoId);
+    //   setHistorias((prev) => ({
+    //     ...prev,
+    //     [afiliadoId]: historia?.notas || "Sin historia clínica registrada",
+    //   }));
+    //   toast.success("Historia clínica cargada.");
+    // } catch (error) {
+    //   console.error("Error al obtener historia clínica:", error);
+    //   toast.error(" No se pudo cargar la historia clínica del paciente.");
+    // }
+
+    const tipoPaciente = (turno.afiliadoId === null) ? "Integrante" : "Afiliado"
+    const pacienteId = (tipoPaciente === "Integrante") ? turno.integranteId : turno.afiliadoId
+
+    console.log(`${tipoPaciente}Id`, pacienteId)
+
+    if (!pacienteId) {
+      toast.warn(" Este turno no tiene paciente asociado.");
+      return;
+    }
+
+    try {
+      const consultas = await getHistorialClinicoById(pacienteId, tipoPaciente);
+      setConsultas(consultas)
+      // setHistorias((prev) => ({
+      //   ...prev,
+      //   [pacienteId]: historia?.notas || [],
+      // }));
+      // setHistoriaSeleccionada({
+      //   afiliado: turno.afiliado,
+      //   notas: historia?.notas || [],
+      // });
+      setShowHistoriaModal(true); //  abrimos el modal
+    } catch (error) {
+      console.error("Error al obtener historia clínica:", error);
+      toast.error(" No se pudo cargar la historia clínica del paciente.");
+    }
   };
 
+  // === Actualizar texto de notas ===
+  const handleNoteChange = (id, value) => {
+    setTurnos((prev) => prev.map((t) => (t.id === id ? { ...t, notas: value } : t)));
+  };
+
+  // === Guardar nota y agregar al historial clínico ===
   const handleGuardarNota = async (id) => {
     const turno = turnos.find((t) => t.id === id);
     if (!turno) return;
 
     try {
-      //  Actualizar nota en el turno
-      await updateNotasTurno(prestadorId, id, turno.notes);
-
-      //  Actualizar estado local
-      setTurnos((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, notes: turno.notes } : t))
+      await updateNotasTurno(prestadorId, id, nota);
+      const turnosActualizados = turnos.map((t) =>
+        t.id === id ? { ...t, notas: turno.notas } : t
       );
+      setTurnos(turnosActualizados);
+      localStorage.setItem("turnos_medico", JSON.stringify(turnosActualizados));
 
-      //  Agregar nota a la historia clínica si hay afiliado
-      if (turno.afiliadoId || turno.integranteId) {
-        const prestadorNombre = user.username; // desde localStorage
-        const fechaConsulta = turno.start;
-
-        const notaHistorial = {
-          texto: turno.notes || "",
-          prestador: prestadorNombre,
-          fecha: fechaConsulta,
-        };
-
-        // elegir si es afiliado o integrante
-        const pacienteId = turno.afiliadoId || turno.integranteId;
-        await addNotaAHistoriaClinica(pacienteId, notaHistorial);
+      // Guardar nota en la historia clínica
+      if (turno.afiliado?.id) {
+        await addNotaAHistoriaClinica(turno.afiliado.id, turno.notas);
       }
 
-      // Mensaje de éxito
-      toast.success(
-        `Nota guardada para ${
-          turno.afiliado?.nombre
-            ? `${turno.afiliado.nombre} ${turno.afiliado.apellido}`
-            : turno.integrante?.nombre || "Paciente"
-        }`
-      );
+      toast.success(`Nota guardada para ${turno.afiliado?.nombre ?? "Paciente"}`);
+      setSelectedTurno(null);
     } catch (error) {
       console.error("Error al guardar nota:", error);
-      toast.error("No se pudo guardar la nota");
+      toast.error(" No se pudo guardar la nota en la base de datos");
     }
   };
 
-  const handleVerHistoriaClinica = async (turno) => {
-    try {
-      if (!turno.afiliadoId && !turno.integranteId) {
-        toast.warn("Este paciente no tiene afiliado o integrante asociado");
-        return;
-      }
-
-      let detalle = null;
-      if (turno.afiliadoId) {
-        detalle = await getHistoriaClinicaByAfiliado(turno.afiliadoId);
-      } else {
-        toast.warn("Integrante aún no tiene historia clínica");
-        return;
-      }
-
-      setModalDetalle(detalle || { notas: "Sin historial clínico" });
-    } catch (error) {
-      console.error("Error al obtener historia clínica:", error);
-      toast.error("No se pudo cargar la historia clínica del paciente");
-    }
-  };
-
+  // === Filtrar los turnos del día seleccionado ===
   const turnosDelDia = turnos.filter((t) => {
     if (!selectedDate) return false; // Evita error cuando DayPicker borra la fecha
     const fechaTurno = new Date(t.start || t.date); // soporta ambas claves
@@ -131,10 +169,10 @@ export default function CalendarioTurnosMedico() {
     );
   });
 
-  if (!prestadorId)
-    return (
-      <p style={{ padding: "2rem" }}>No se encontró el médico logueado.</p>
-    );
+  // === Error de login ===
+  if (!prestadorId) {
+    return <p style={{ padding: "2rem" }}>No se encontró el médico logueado.</p>;
+  }
 
   return (
     <PrestadoresLayout header={<HeaderPrestadores />}>
@@ -143,6 +181,7 @@ export default function CalendarioTurnosMedico() {
         <h2 className="titulo">Calendario de turnos</h2>
 
         <div className="contenido-calendario">
+          {/* === Calendario === */}
           <div className="calendario-box">
             <DayPicker
               mode="single"
@@ -158,6 +197,7 @@ export default function CalendarioTurnosMedico() {
             />
           </div>
 
+          {/* === Agenda === */}
           <div className="agenda-box card shadow-sm">
             <div className="card-header">
               <h5 className="mb-0">
@@ -174,21 +214,18 @@ export default function CalendarioTurnosMedico() {
                     <div
                       className="turno-header"
                       onClick={() =>
-                        setSelectedTurno(
-                          selectedTurno === turno.id ? null : turno.id
-                        )
+                        setSelectedTurno(selectedTurno === turno.id ? null : turno.id)
                       }
                     >
-                      <span className="hora">
-                        {format(new Date(turno.start), "HH:mm")}
-                      </span>
+                      <span className="hora">{format(new Date(turno.start), "HH:mm")}</span>
                       <span className="paciente">
-                        {turno.afiliado?.nombre
+                        {turno.afiliado
                           ? `${turno.afiliado.nombre} ${turno.afiliado.apellido}`
-                          : turno.integrante?.nombre ||
-                            "Paciente no especificado"}
+                          : turno.integrante
+                            ? turno.integrante.nombre
+                            : "Paciente no especificado"}
                       </span>
-                      <button className="btn-ver">Ver</button>
+                      <button className="btn-ver">📝 Ver</button>
                     </div>
 
                     {selectedTurno === turno.id && (
@@ -200,24 +237,28 @@ export default function CalendarioTurnosMedico() {
                       >
                         <textarea
                           rows={3}
-                          maxLength={1000}
-                          style={{ overflowY: "auto" }}
-                          value={turno.notes || ""}
-                          onChange={(e) =>
-                            handleNoteChange(turno.id, e.target.value)
-                          }
-                          placeholder="Agregar notas (máx. 1000 caracteres)"
+                          maxLength={500}
+                          value={nota}
+                          onChange={(e) => setNota(e.target.value)}
+                          placeholder="Agregar notas (máx. 500 caracteres)"
                         />
+
                         <div
                           className="botones-turno"
                           style={{
                             display: "flex",
-                            gap: "10px",
+                            justifyContent: "space-between",
                             marginTop: "10px",
+                            alignItems: "center",
                           }}
                         >
                           <button
                             className="btn-historia"
+                            data-tooltip-id={`historia-${turno.id}`}
+                            data-tooltip-content={
+                              historias[turno.afiliado?.id] ||
+                              "Cargar historia clínica"
+                            }
                             onClick={() => handleVerHistoriaClinica(turno)}
                           >
                             Historia clínica
@@ -229,6 +270,16 @@ export default function CalendarioTurnosMedico() {
                           >
                             Guardar nota
                           </button>
+
+                          <ReactTooltip
+                            id={`historia-${turno.id}`}
+                            place="top"
+                            style={{
+                              backgroundColor: "var(--rosa)",
+                              color: "var(--azul-petroleo)",
+                              maxWidth: "300px",
+                            }}
+                          />
                         </div>
                       </motion.div>
                     )}
@@ -239,18 +290,61 @@ export default function CalendarioTurnosMedico() {
               )}
             </div>
           </div>
+
+          {/* === Modal Historia Clínica === */}
+          {showHistoriaModal && (
+            <div
+              className="modal fade show"
+              style={{
+                display: "block",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                zIndex: 1055,
+              }}
+              tabIndex="-1"
+              role="dialog"
+            >
+              <div className="modal-dialog modal-xl modal-dialog-scrollable">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">
+                      Historia clínica
+                    </h5>
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={() => setShowHistoriaModal(false)}
+                    ></button>
+                  </div>
+
+                  <div className="modal-body">
+                    {/* Tu componente TablaHistorial */}
+                    <TablaHistorial
+                      consultas={consultas}
+                      filtroNotas={false}
+                    />
+                  </div>
+
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => setShowHistoriaModal(false)}
+                    >
+                      Cerrar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
 
         <footer className="footer-vista">
           <small>Vista actual: Médico</small>
         </footer>
-
-        <DetalleHistorialModal
-          mostrar={!!modalDetalle}
-          detalle={modalDetalle}
-          onClose={() => setModalDetalle(null)}
-        />
       </div>
     </PrestadoresLayout>
   );
 }
+
