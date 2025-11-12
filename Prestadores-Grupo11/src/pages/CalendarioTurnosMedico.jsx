@@ -9,7 +9,7 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import "../styles/CalendarioTurnos.css";
 import DetalleHistorialModal from "../components/DetalleHistorialModal";
-import { getTurnosByPrestador, updateNotasTurno } from "../services/TurnosApi";
+import { getTurnosByPrestadorId, updateNotasTurno } from "../services/TurnosApi";
 import {
   addNotaAHistoriaClinica,
   getHistoriaClinicaByAfiliado,
@@ -30,9 +30,10 @@ export default function CalendarioTurnosMedico() {
   useEffect(() => {
     if (!prestadorId) return;
 
+
     const fetchTurnos = async () => {
       try {
-        const data = await getTurnosByPrestador(prestadorId);
+        const data = await getTurnosByPrestadorId(prestadorId);
         setTurnos(data);
         console.log("Turnos recibidos del backend:", data);
       } catch (error) {
