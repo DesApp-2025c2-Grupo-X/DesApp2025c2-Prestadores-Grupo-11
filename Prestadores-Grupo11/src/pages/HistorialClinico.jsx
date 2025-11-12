@@ -7,8 +7,8 @@ import { ArrowLeft, ClipboardList, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import { getAllIntegrantes } from "../services/IntegrantesApi";
 import { getAllAfiliados } from "../services/AfiliadosApi";
-import { getSituacionesByPacienteId } from "../services/SituacionesApi";
-import { getNombrePrestadorById } from "../services/PrestadoresApi"; // Inutilizado
+//import { getSituacionesByPacienteId } from "../services/SituacionesApi";
+import { getNombrePrestadorById } from "../services/PrestadoresApi";
 import { getTurnosByPacienteId } from "../services/TurnosApi";
 import "../styles/SituacionesTerapeuticas.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
