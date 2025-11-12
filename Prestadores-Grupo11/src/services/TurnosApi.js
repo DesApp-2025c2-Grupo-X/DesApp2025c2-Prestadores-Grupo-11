@@ -2,7 +2,7 @@ import api from "./Api";
 
 
 // --- MÉDICO --- //
-export const getTurnosByPrestador= async (prestadorId) => {
+export const getTurnosByPrestadorId= async (prestadorId) => {
   if (!prestadorId) {
     console.warn("getTurnosByPrestador called without prestadorId");
     return [];

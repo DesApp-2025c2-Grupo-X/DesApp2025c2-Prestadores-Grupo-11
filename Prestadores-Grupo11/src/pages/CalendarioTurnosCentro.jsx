@@ -9,7 +9,7 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import "../styles/CalendarioTurnos.css";
 import DetalleHistorialModal from "../components/DetalleHistorialModal";
-import { getTurnosByPrestador, updateNotasTurno } from "../services/TurnosApi";
+import { getTurnosByPrestadorId, updateNotasTurno } from "../services/TurnosApi";
 import {
   addNotaAHistoriaClinica,
   getHistoriaClinicaByAfiliado,
@@ -32,11 +32,11 @@ export default function CalendarioTurnosMedico() {
     const fetchTurnos = async () => {
       setLoading(true);
       try {
-        const data = await getTurnosByPrestador(prestadorId);
+        const data = await getTurnosByPrestadorId(prestadorId);
         setTurnos(Array.isArray(data) ? data : []);
-        console.log("✅ Turnos recibidos del backend:", data);
+        console.log(" Turnos recibidos del backend:", data);
       } catch (error) {
-        console.error("❌ Error al obtener turnos:", error);
+        console.error(" Error al obtener turnos:", error);
         toast.error("No se pudieron cargar los turnos.");
       } finally {
         setLoading(false);
@@ -85,7 +85,7 @@ export default function CalendarioTurnosMedico() {
         }`
       );
     } catch (error) {
-      console.error("❌ Error al guardar nota:", error);
+      console.error(" Error al guardar nota:", error);
       toast.error("No se pudo guardar la nota.");
     }
   };
@@ -108,7 +108,7 @@ export default function CalendarioTurnosMedico() {
 
       setModalDetalle(detalle || { notas: "Sin historial clínico." });
     } catch (error) {
-      console.error("❌ Error al obtener historia clínica:", error);
+      console.error(" Error al obtener historia clínica:", error);
       toast.error("No se pudo cargar la historia clínica del paciente.");
     }
   };
@@ -136,7 +136,7 @@ export default function CalendarioTurnosMedico() {
         <h2 className="titulo">Calendario de turnos</h2>
 
         <div className="contenido-calendario">
-          {/* 📅 Selector de fecha */}
+          {/*Selector de fecha */}
           <div className="calendario-box">
             <DayPicker
               mode="single"
@@ -152,7 +152,7 @@ export default function CalendarioTurnosMedico() {
             />
           </div>
 
-          {/* 📋 Lista de turnos */}
+          {/*  Lista de turnos */}
           <div className="agenda-box card shadow-sm">
             <div className="card-header">
               <h5 className="mb-0">
