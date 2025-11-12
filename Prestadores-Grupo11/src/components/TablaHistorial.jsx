@@ -57,7 +57,7 @@ export default function TablaHistorial({
                       minute: "2-digit",
                     })}
                   </td>
-                  <td>{consulta.descripcion}</td>
+                  <td>{truncarTexto(consulta.descripcion)}</td>
                   <td>{mayusculas(consulta.especialidad)}</td>
                   <td>{mayusculas(consulta.medico)}</td>
                   <td>{truncarTexto(consulta.notas)}</td>

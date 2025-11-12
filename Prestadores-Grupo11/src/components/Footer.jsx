@@ -1,5 +1,6 @@
 
 import { FaInstagram, FaFacebook, FaLinkedin } from "react-icons/fa";
+import logo from "../assets/medicinaLogoSinFondo.png"
 import "./Footer.css";
 
 export default function Footer() {
@@ -10,7 +11,7 @@ export default function Footer() {
           {/* Logo */}
           <div className="col-md-2 mb-4 mb-md-0 text-center text-md-start">
             <img
-              src="/Medicina_integralLogo.jpg"
+              src={ logo }
               alt="Medicina Integral"
               className="footer-logo img-fluid"
             />
