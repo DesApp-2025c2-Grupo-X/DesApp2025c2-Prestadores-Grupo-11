@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./Header.css";
 import logo from "../assets/Medicina_integralLogo.jpg";
+import logoSinFondo from "../assets/medicinaLogoSinFondo.png"
 
 const HeaderBase = ({
   links = [],
@@ -28,7 +29,7 @@ const HeaderBase = ({
           {/*  Logo principal */}
           <Link className="navbar-brand d-flex align-items-center" to="/">
             <img
-              src={logo}
+              src={logoSinFondo}
               alt="Medicina Integral - Logo"
               className="logo"
               draggable="false"

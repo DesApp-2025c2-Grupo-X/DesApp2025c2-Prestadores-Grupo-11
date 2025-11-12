@@ -9,6 +9,7 @@ import { getAllIntegrantes } from "../services/IntegrantesApi";
 import { getAllAfiliados } from "../services/AfiliadosApi";
 //import { getSituacionesByPacienteId } from "../services/SituacionesApi";
 import { getNombrePrestadorById } from "../services/PrestadoresApi";
+import { getSituacionesByPacienteId } from "../services/SituacionesApi"
 import { getTurnosByPacienteId } from "../services/TurnosApi";
 import "../styles/SituacionesTerapeuticas.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
