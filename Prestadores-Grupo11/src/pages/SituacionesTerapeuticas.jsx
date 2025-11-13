@@ -14,6 +14,7 @@ import "../styles/SituacionesTerapeuticas.css";
 import {
   getSituacionesByAfiliadoId,
   getSituacionesByIntegranteId,
+  archivarSituacion,
   actualizarSituacion,
 } from "../services/SituacionesApi";
 
@@ -76,21 +77,27 @@ export default function SituacionesTerapeuticas() {
             descripcion: s.observaciones || "—",
             estado: s.estado || "Pendiente",
             prestador_nombre: s.prestador?.username || "—",
-            pacienteNombre: `${s.afiliado?.nombre || s.integrante?.nombre || ""} ${
-              s.afiliado?.apellido || s.integrante?.apellido || ""
-            }`.trim(),
+            pacienteNombre: `${
+              s.afiliado?.nombre || s.integrante?.nombre || ""
+            } ${s.afiliado?.apellido || s.integrante?.apellido || ""}`.trim(),
             pacienteDNI: s.afiliado?.dni || s.integrante?.dni || "—",
           }));
 
           const ref = data[0];
           pacienteInfo = {
-            nombre: `${ref?.afiliado?.nombre || ref?.integrante?.nombre || ""} ${
+            nombre: `${
+              ref?.afiliado?.nombre || ref?.integrante?.nombre || ""
+            } ${
               ref?.afiliado?.apellido || ref?.integrante?.apellido || ""
             }`.trim(),
             afiliadoId: ref?.afiliadoId || ref?.integranteId || id,
             dni: ref?.afiliado?.dni || ref?.integrante?.dni || "—",
           };
-        } else if (data && data.situaciones && Array.isArray(data.situaciones)) {
+        } else if (
+          data &&
+          data.situaciones &&
+          Array.isArray(data.situaciones)
+        ) {
           listaSituaciones = data.situaciones.map((s) => ({
             id: s.id,
             fecha_inicio: s.fecha_inicio
@@ -100,7 +107,9 @@ export default function SituacionesTerapeuticas() {
             descripcion: s.observaciones || "—",
             estado: s.estado || "Pendiente",
             prestador_nombre: s.prestador?.username || "—",
-            pacienteNombre: `${data.nombre || ""} ${data.apellido || ""}`.trim(),
+            pacienteNombre: `${data.nombre || ""} ${
+              data.apellido || ""
+            }`.trim(),
             pacienteDNI: data.dni || "—",
           }));
 
@@ -144,26 +153,19 @@ export default function SituacionesTerapeuticas() {
     navigate(`/prestadores/situaciones/alta/${identificador}`);
   };
 
-  const handleEditarEstado = async (situacionId, nuevoEstado) => {
-    try {
-      await actualizarSituacion(situacionId, { estado: nuevoEstado });
-      setSituaciones((prev) =>
-        prev.map((s) => (s.id === situacionId ? { ...s, estado: nuevoEstado } : s))
-      );
-      toast.success(`Estado actualizado a "${nuevoEstado}"`, {
-        position: "bottom-right",
-        autoClose: 2000,
-      });
-    } catch (error) {
-      console.error("Error actualizando estado:", error);
-      toast.error("No se pudo actualizar el estado.", {
-        position: "bottom-right",
-      });
-    }
-  };
 
   const handleArchivar = async (id) => {
     try {
+      const situacion = situaciones.find((s) => s.id === id);
+
+      //  Validación previa: solo se archivan las finalizadas
+      if (situacion && situacion.estado !== "finalizado") {
+        toast.warn("Solo se pueden archivar situaciones finalizadas.", {
+          position: "bottom-right",
+        });
+        return;
+      }
+
       const confirm = await Swal.fire({
         title: "¿Archivar situación?",
         text: "Esto moverá la situación al historial clínico del paciente.",
@@ -177,10 +179,14 @@ export default function SituacionesTerapeuticas() {
 
       if (!confirm.isConfirmed) return;
 
-      await actualizarSituacion(id, { estado: "Archivado" });
+      // Llamada al método correcto (PATCH)
+      await archivarSituacion(id);
+
+      // Actualiza el estado local de la lista
       setSituaciones((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, estado: "Archivado" } : s))
+        prev.map((s) => (s.id === id ? { ...s, estado: "baja" } : s))
       );
+
       toast.success("Situación archivada correctamente.", {
         position: "bottom-right",
         autoClose: 2000,
@@ -188,6 +194,26 @@ export default function SituacionesTerapeuticas() {
     } catch (error) {
       console.error("Error al archivar la situación:", error);
       toast.error("No se pudo archivar la situación.", {
+        position: "bottom-right",
+      });
+    }
+  };
+
+   const handleEditarEstado = async (situacionId, nuevoEstado) => {
+    try {
+      await actualizarSituacion(situacionId, { estado: nuevoEstado });
+      setSituaciones((prev) =>
+        prev.map((s) =>
+          s.id === situacionId ? { ...s, estado: nuevoEstado } : s
+        )
+      );
+      toast.success(`Estado actualizado a "${nuevoEstado}"`, {
+        position: "bottom-right",
+        autoClose: 2000,
+      });
+    } catch (error) {
+      console.error("Error actualizando estado:", error);
+      toast.error("No se pudo actualizar el estado.", {
         position: "bottom-right",
       });
     }
@@ -253,7 +279,10 @@ export default function SituacionesTerapeuticas() {
           </h3>
 
           <div style={{ textAlign: "right", width: "80%", margin: "0 auto" }}>
-            <button className="btn-nueva-situacion" onClick={handleNuevaSituacion}>
+            <button
+              className="btn-nueva-situacion"
+              onClick={handleNuevaSituacion}
+            >
               <FiPlus style={{ marginRight: "6px" }} /> Nueva Situación
             </button>
           </div>
@@ -289,7 +318,9 @@ export default function SituacionesTerapeuticas() {
                         <button
                           className="btn-ver-mas"
                           data-tooltip-id={`desc-${s.id}`}
-                          data-tooltip-content={s.descripcion || "Sin descripción"}
+                          data-tooltip-content={
+                            s.descripcion || "Sin descripción"
+                          }
                         >
                           Ver más
                         </button>
@@ -324,7 +355,7 @@ export default function SituacionesTerapeuticas() {
                       <td>
                         <button
                           className="btn btn-sm btn-outline-secondary"
-                          onClick={() => handleArchivar(s.id)}
+                          onClick={() => handleArchivar(s.id, s.estado)}
                         >
                           <Folder size={16} />
                         </button>

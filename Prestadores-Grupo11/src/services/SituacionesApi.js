@@ -1,4 +1,3 @@
-
 import api from "./Api";
 
 /**
@@ -100,25 +99,27 @@ export const getSituacionesByPacienteId = async (pacienteId, tipoPaciente) => {
  * @returns {Promise<object>} - Retorna la situación creada
  */
 export const crearSituacion = async (prestadorId, datos) => {
-  // Validaciones
   if (!prestadorId) throw new Error("Falta el prestadorId");
-  if (!datos.afiliadoId) throw new Error("Falta el afiliadoId");
-  if (!datos.integranteId) throw new Error("Falta el integranteId");
+
+  // Validaciones mínimas
+  if (!datos.afiliadoId && !datos.integranteId)
+    throw new Error("Falta el afiliadoId o integranteId");
   if (!datos.fecha_inicio && !datos.fecha)
     throw new Error("Falta la fecha de inicio");
 
   try {
-    // Forzar estado "alta" para evitar errores del backend
     const payload = {
       ...datos,
-      estado: "alta",
+      estado: datos.estado || "alta",
     };
 
-    const res = await api.post(`/situaciones/${integranteId}`, payload);
-    return res.data; // { message, situacion }
+    // Enviar siempre con el prestadorId en la URL
+    const res = await api.post(`/situaciones/${prestadorId}`, payload);
+
+    return res.data;
   } catch (error) {
-    console.error("Error en crearSituacion:", error);
-    throw error; // el interceptor de axios ya transforma el error en { status, data, message }
+    console.error("Error en crearSituacion:", error.response || error);
+    throw error;
   }
 };
 
@@ -129,8 +130,6 @@ export const crearSituacion = async (prestadorId, datos) => {
 export const actualizarSituacion = async (id, datos) => {
   try {
     const res = await api.put(`/situaciones/${id}`, datos);
-
-    // Algunos backends devuelven 204 sin contenido
     return res.data || { success: true, id, ...datos };
   } catch (error) {
     console.error(
@@ -142,12 +141,14 @@ export const actualizarSituacion = async (id, datos) => {
 };
 
 /**
- * Archivar (dar de baja) una situación
- * PATCH /situaciones/:id/archivar
+ * Archivar (dar de baja) una situación terapéutica
+ * PATCH /situaciones/:id
+ * Solo acepta estado: "baja"
  */
 export const archivarSituacion = async (id) => {
   try {
-    const res = await api.patch(`/situaciones/${id}/archivar`);
+    //  el backend exige estado = "baja"
+    const res = await api.patch(`/situaciones/${id}`, { estado: "baja" });
     return res.data;
   } catch (error) {
     console.error(

@@ -1,20 +1,19 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import SideBar from "../components/SideBar";
-import { motion } from "framer-motion";
-import { Save, ArrowLeft, Loader2 } from "lucide-react";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import "../styles/SituacionesTerapeuticas.css";
+import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { crearSituacion } from "../services/SituacionesApi";
 
-export default function AltaSituacionTerapeutica({ onNuevaSituacion }) {
-  const { dni } = useParams(); // ID del afiliado o integrante
+export default function AltaSituacionTerapeutica({ onNuevaSituacion, integranteInfo }) {
+  
+  const { dni, id, afiliadoId } = useParams();
   const navigate = useNavigate();
 
-  // Obtener prestadorId del usuario logueado
   const storedUser = JSON.parse(localStorage.getItem("miapp_user"));
   const prestadorId = storedUser?.id;
 
@@ -24,7 +23,6 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion }) {
     observaciones: "",
     fecha_inicio: "",
   });
-
   const [loading, setLoading] = useState(false);
 
   const refs = {
@@ -34,17 +32,18 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion }) {
     fecha_inicio: useRef(null),
   };
 
-  // Validar sesión al cargar
-  if (!prestadorId || !dni) {
+  // Validar sesión
+  if (!prestadorId) {
     return (
       <div style={{ padding: "2rem" }}>
-        <p>
-          Error: No se encontró prestador o afiliado. Por favor, inicie sesión
-          nuevamente.
-        </p>
+        <p>Error: No se encontró el prestador. Inicie sesión nuevamente.</p>
       </div>
     );
   }
+
+  // Determinar tipo de paciente
+  const esIntegrante = !!(id || dni || integranteInfo);
+  const identificador = integranteInfo?.id || id || dni || afiliadoId;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -60,66 +59,78 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion }) {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!formData.especialidad.trim()) {
-      toast.error("Debes ingresar la especialidad", { autoClose: 2000 });
-      return;
+  // Validaciones de campos del formulario
+  if (!formData.especialidad.trim()) {
+    toast.error("Debes ingresar la especialidad");
+    return;
+  }
+  if (!formData.situacion.trim()) {
+    toast.error("Debes describir la situación terapéutica");
+    return;
+  }
+  if (!formData.fecha_inicio) {
+    toast.error("Debes seleccionar la fecha de inicio");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    // Determinar si es integrante o afiliado
+    const esIntegrante = !!dni || !!id;
+    const identificador = afiliadoId || id || dni;
+
+    // Construir payload asegurando IDs correctos
+    const payload = {
+      prestadorId,
+      especialidad: formData.especialidad.trim(),
+      situacion: formData.situacion.trim(),
+      observaciones: formData.observaciones.trim(),
+      fecha_inicio: formData.fecha_inicio,
+      fecha_final: formData.fecha_inicio,
+      estado: "alta",
+      afiliadoId: esIntegrante ? null : identificador,
+      integranteId: esIntegrante ? identificador : null,
+    };
+
+    console.log("Payload a enviar:", payload); // depuración
+
+    // Crear situación en el backend
+    const response = await crearSituacion(prestadorId, payload);
+
+    toast.success("Situación terapéutica creada exitosamente", {
+      autoClose: 2000,
+    });
+
+    // Resetear formulario
+    setFormData({
+      especialidad: "",
+      situacion: "",
+      observaciones: "",
+      fecha_inicio: "",
+    });
+
+    // Notificar al componente padre si aplica
+    if (onNuevaSituacion) {
+      onNuevaSituacion(response.situacion || response);
     }
-    if (!formData.situacion.trim()) {
-      toast.error("Debes describir la situación terapéutica", {
-        autoClose: 2000,
-      });
-      return;
-    }
-    if (!formData.fecha_inicio) {
-      toast.error("Debes seleccionar la fecha de inicio", { autoClose: 2000 });
-      return;
-    }
 
-    setLoading(true);
+    // Volver atrás después de un momento
+    setTimeout(() => navigate(-1), 1500);
+  } catch (error) {
+    console.error("Error al crear situación:", error);
+    const mensaje =
+      error.response?.data?.error || error.message || "Intenta nuevamente.";
+    toast.error(`Error al guardar la situación: ${mensaje}`, {
+      autoClose: 3000,
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
-    try {
-      const integranteId = dni; // asumimos que dni = id del integrante
-      const payload = {
-        afiliadoId: storedUser?.afiliadoId, // si lo tenés, o ajusta según tu lógica
-        integranteId, // OBLIGATORIO
-        prestadorId, // del usuario logueado
-        especialidad: formData.especialidad.trim(),
-        situacion: formData.situacion.trim(),
-        observaciones: formData.observaciones.trim(),
-        fecha_inicio: formData.fecha_inicio,
-        fecha_final: formData.fecha_inicio,
-        estado: "alta",
-      };
-
-      const response = await crearSituacion(prestadorId, payload);
-
-      toast.success("Situación terapéutica creada exitosamente", {
-        autoClose: 1500,
-      });
-
-      setFormData({
-        especialidad: "",
-        situacion: "",
-        observaciones: "",
-        fecha_inicio: "",
-      });
-
-      if (onNuevaSituacion) {
-        onNuevaSituacion(response.situacion || response);
-      }
-    } catch (error) {
-      console.error("Error al crear situación:", error);
-      const mensaje =
-        error.data?.error || error.message || "Intenta nuevamente.";
-      toast.error(`Error al guardar la situación: ${mensaje}`, {
-        autoClose: 3000,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <>
@@ -129,9 +140,9 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion }) {
           <div className="flex-grow-1 p-4">
             <motion.button
               className="btn-volver mb-3"
-              whileHover={{ scale: 1.05, backgroundColor: "var(--verde-agua)" }}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => window.history.back()}
+              onClick={() => navigate(-1)}
             >
               <ArrowLeft size={18} className="me-2" /> Volver
             </motion.button>
@@ -165,6 +176,7 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion }) {
                   value={formData.situacion}
                   onChange={handleChange}
                   onKeyDown={(e) => handleKeyDown(e, "observaciones")}
+                  required
                 />
               </div>
 
@@ -207,10 +219,7 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion }) {
                 >
                   {loading ? (
                     <>
-                      <Loader2
-                        size={18}
-                        className="me-2 spinner-border spinner-border-sm"
-                      />
+                      <Loader2 size={18} className="me-2 spinner-border" />
                       Guardando...
                     </>
                   ) : (
