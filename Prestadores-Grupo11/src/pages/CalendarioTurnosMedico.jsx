@@ -15,10 +15,6 @@ import {
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import TablaHistorial from "../components/TablaHistorial";
 import "react-tooltip/dist/react-tooltip.css";
-import {
-  getTurnosByPrestadorId,
-  updateNotasTurno,
-} from "../services/TurnosApi";
 import { getHistoriaClinicaByAfiliado, addNotaAHistoriaClinica, getHistorialClinicoById } from "../services/HistorialClinicaApi";
 
 export default function CalendarioTurnosMedico() {
