@@ -142,6 +142,7 @@ export default function HistorialClinico() {
           >
             <ArrowLeft size={18} className="me-2" /> Volver
           </motion.button>
+          
           <h3>Detalle Historial Clinico</h3>
 
           {/* Card paciente */}

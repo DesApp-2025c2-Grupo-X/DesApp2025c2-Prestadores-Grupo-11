@@ -10,7 +10,8 @@
 
 .contenedorSolicitud {
   display: grid;
-  grid-template-columns: 80% 20%;
+  grid-template-columns: 70% 20%;
+  grid-column-gap: 15px;
 }
 
 strong {
@@ -28,3 +29,22 @@ strong {
 .img-icon:hover {
   cursor: pointer;
 }
+
+.selectorEstado {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 20px 20px; /* un poco de aire interno */
+  height: auto; /* 👈 se ajusta al contenido */
+  align-self: flex-start; /* 👈 evita que se estire si está dentro de un flex padre */
+}
+
+.selectorEstado h2 {
+  text-align: center;
+}
+
+/* .tablaDetalleSolicitud {
+  background-color: #b6e4db;
+  border-radius: 15px;
+  padding: 50px;
+} */
