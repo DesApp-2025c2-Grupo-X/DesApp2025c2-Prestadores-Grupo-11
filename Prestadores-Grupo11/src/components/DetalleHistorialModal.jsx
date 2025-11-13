@@ -41,6 +41,12 @@ const DetalleHistorialModal = ({ mostrar, onClose, detalle }) => {
               <strong>Especialidad:</strong>
               <p>{detalle.especialidad}</p>
             </span>
+            {detalle.duration != null && (
+              <span>
+                <strong>Duración:</strong>{" "}
+                <p>{detalle.duration} minutos</p>
+              </span>
+            )}
             <span>
               <strong>Descripción:</strong>{" "}
               <p>{detalle.descripcion || "Sin descripción"}</p>

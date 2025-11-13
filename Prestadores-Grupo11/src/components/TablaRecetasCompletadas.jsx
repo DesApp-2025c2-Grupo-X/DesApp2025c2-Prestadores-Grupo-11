@@ -18,7 +18,7 @@ export default function TablaRecetas({ solicitudes }) {
         <tbody>
           {solicitudes && solicitudes.length > 0 ? (
             solicitudes.map((s) => (
-              <tr key={s.id}>
+              <tr key={s.id} className="align-middle">
                 <td>{s.integrante?.nombre ?? "Sin datos"}</td>
                 <td>{s.medicamento}</td>
                 <td>{s.cantidad}</td>

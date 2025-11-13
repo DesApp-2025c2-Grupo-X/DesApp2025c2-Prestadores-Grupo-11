@@ -18,7 +18,7 @@ export default function TablaReintegrosCompletadas({ solicitudes }) {
         <tbody>
           {solicitudes && solicitudes.length > 0 ? (
             solicitudes.map((s) => (
-              <tr key={s.id}>
+              <tr key={s.id} className="align-middle">
                 <td>
                   {new Date(s.fecha_prestacion).toLocaleString("es-AR", {
                     day: "2-digit",

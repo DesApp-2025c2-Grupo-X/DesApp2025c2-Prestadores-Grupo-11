@@ -174,19 +174,21 @@ export default function HistorialClinico() {
             transition={{ duration: 0.4 }}
           >
             {/*Checkbox para filtrar entre notas propias*/}
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id="checkDefault"
-                checked={filtroNotas}
-                onChange={(e) => setFiltroNotas(e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="checkDefault">
-                Filtrar por notas propias
-              </label>
+            <div className="d-flex justify-content-center mb-3">
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="checkDefault"
+                  checked={filtroNotas}
+                  onChange={(e) => setFiltroNotas(e.target.checked)}
+                />
+                <label className="form-check-label ms-2" htmlFor="checkDefault">
+                  Filtrar por notas propias
+                </label>
+              </div>
             </div>
-            
+
             <TablaHistorial
               consultas={consultas}
               filtroNotas={filtroNotas}

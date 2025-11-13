@@ -15,7 +15,7 @@ export default function SideBar() {
     try {
       const user = JSON.parse(userStr);
       if (user?.role === "medico") return "/prestadores/calendario/medico";
-      if (user?.role === "centro") return "/prestadores/calendario/centro";
+      if (user?.role === "centro_medico") return "/prestadores/calendario/centro";
       return "/prestadores/calendario";
     } catch (e) {
       console.error("Error parsing user data:", e);
