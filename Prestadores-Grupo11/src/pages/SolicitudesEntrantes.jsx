@@ -5,27 +5,44 @@ import "../styles/SituacionesTerapeuticas.css";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import SideBar from "../components/SideBar";
+import TablaReintegros from "../components/tablaReintegros";
+import TablaAutorizaciones from "../components/TablaAutorizaciones";
+import TablaRecetas from "../components/TablaRecetas";
+import TablaAutorizacionesCompletadas from "../components/TablaAutorizacionesCompletadas";
+import TablaReintegrosCompletadas from "../components/TablaReintegrosCompletadas";
+import TablaRecetasCompletadas from "../components/TablaRecetasCompletadas";
 import {
-	getAutorizacionesPropias, getRecetasPropias, getReintegrosPropias, cantSolicitudesAnalisisApi, getSolicitudesByTipo,
-	cantSolicitudesDiaApi, cantSolicitudesSemanaApi, cambiarEstadoAutorizacion, cambiarEstadoReceta, cambiarEstadoReintegro
+	getAutorizacionesPropias, getRecetasPropias, getReintegrosPropias, getAutorizacionesCompletados,
+	getRecetasCompletados, getReintegrosCompletados, getAutorizacionesPropiasAnalisis, getReintegrosPropiasAnalisis, getRecetasPropiasAnalisis,
+	getSolicitudesByTipo, cambiarEstadoAutorizacion, cambiarEstadoReceta, cambiarEstadoReintegro
 } from "../services/Solicitudes";
 import { SidebarProvider } from "../context/SidebarContext";
 
 export default function SolicitudesEntrantes() {
 	const navigate = useNavigate();
 
+	// Utilizado para la tabla de los pendientes
 	const [tipoSolicitud, setTipoSolicitud] = useState("reintegros")
-	const [reintegros, setReintegros] = useState([])
-	const [autorizaciones, setAutorizaciones] = useState([])
-	const [recetas, setRecetas] = useState([])
+	// Utilizado para la tabla de los completados
+	const [tipoSolicitudCompletados, setTipoSolicitudCompletados] = useState("reintegros")
+
+	const [reintegrosDisponibles, setReintegrosDisponibles] = useState([])
+	const [autorizacionesDisponibles, setAutorizacionesDisponibles] = useState([])
+	const [recetasDisponibles, setRecetasDisponibles] = useState([])
+
+	const [reintegrosCompletados, setReintegrosCompletados] = useState([])
+	const [autorizacionesCompletados, setAutorizacionesCompletados] = useState([])
+	const [recetasCompletados, setRecetasCompletados] = useState([])
 
 	//Para mostrar la info de las solicitudes
-	const [cantSolicitudesAnalisis, setCantSolicitudesAnalisis] = useState(0);
-	const [cantSolicitudesDia, setCantSolicitudesDia] = useState(0);
-	const [cantSolicitudesSemana, setCantSolicitudesSemana] = useState(0);
+	const [cantReintegrosAnalisis, setCantReintegrosAnalisis] = useState(0);
+	const [cantAutorizacionesAnalisis, setCantAutorizacionesAnalisis] = useState(0);
+	const [cantRecetasAnalisis, setCantRecetasAnalisis] = useState(0);
 
 	//solicitudesDisponibles contiene los reintegros/autorizaciones/recetas a mostrar (estado "recibido" o "en analisis")
 	const [solicitudesDisponibles, setSolicitudesDisponibles] = useState([])
+	//solicitudesCompletadas contiene los reintegros/autorizaciones/recetas aprobados (estado "aprobado", "rechazado" o "observado")
+	const [solicitudesCompletadas, setSolicitudesCompletadas] = useState([])
 
 	const user = JSON.parse(localStorage.getItem("miapp_user"));
 
@@ -38,9 +55,9 @@ export default function SolicitudesEntrantes() {
 	const mostrarSolicitudesDisponibles = async () => {
 
 		const solicitudes = {
-			reintegros: reintegros,
-			autorizaciones: autorizaciones,
-			recetas: recetas,
+			reintegros: reintegrosDisponibles,
+			autorizaciones: autorizacionesDisponibles,
+			recetas: recetasDisponibles,
 		};
 
 		const lista = solicitudes[tipoSolicitud];
@@ -53,19 +70,37 @@ export default function SolicitudesEntrantes() {
 		setSolicitudesDisponibles(lista);
 	}
 
+	const mostrarSolicitudesCompletadas = async () => {
+
+		const solicitudes = {
+			reintegros: reintegrosCompletados,
+			autorizaciones: autorizacionesCompletados,
+			recetas: recetasCompletados,
+		};
+
+		const lista = solicitudes[tipoSolicitudCompletados]
+
+		if (!lista) {
+			console.error("Tipo de solicitud invalido:", tipoSolicitudCompletados)
+			return;
+		}
+
+		setSolicitudesCompletadas(lista);
+	}
+
 	const infoCantSolicitudes = async () => {
 		try {
-			//Solicitudes pendientes
-			const cantidadSolicitudesAnalisis = await cantSolicitudesAnalisisApi(user.id)
-			setCantSolicitudesAnalisis(cantidadSolicitudesAnalisis)
+			//Reintegros en analisis
+			const cantidadReintegrosAnalisis = await getReintegrosPropiasAnalisis(user.id)
+			setCantReintegrosAnalisis(cantidadReintegrosAnalisis.length)
 
-			//Todas las solicitudes resueltas del dia
-			const cantidadSolicitudesDia = await cantSolicitudesDiaApi()
-			setCantSolicitudesDia(cantidadSolicitudesDia)
+			//Autorizaciones en analisis
+			const cantidadAutorizacionesAnalisis = await getAutorizacionesPropiasAnalisis(user.id)
+			setCantAutorizacionesAnalisis(cantidadAutorizacionesAnalisis.length)
 
-			//Todas las solicitudes resueltas de la semana
-			const cantidadSolicitudesSemana = await cantSolicitudesSemanaApi()
-			setCantSolicitudesSemana(cantidadSolicitudesSemana)
+			//Recetas en analisis
+			const cantidadRecetasAnalisis = await getRecetasPropiasAnalisis(user.id)
+			setCantRecetasAnalisis(cantidadRecetasAnalisis.length)
 
 
 		} catch (error) {
@@ -127,14 +162,23 @@ export default function SolicitudesEntrantes() {
 		const fetchDatos = async () => {
 			try {
 
-				const dataReintegros = await getReintegrosPropias(user.id);
-				setReintegros(dataReintegros);
+				const dataReintegrosDisponibles = await getReintegrosPropias(user.id);
+				setReintegrosDisponibles(dataReintegrosDisponibles);
 
-				const dataRecetas = await getRecetasPropias(user.id);
-				setRecetas(dataRecetas)
+				const dataRecetasDisponibles = await getRecetasPropias(user.id);
+				setRecetasDisponibles(dataRecetasDisponibles)
 
-				const dataAutorizaciones = await getAutorizacionesPropias(user.id);
-				setAutorizaciones(dataAutorizaciones);
+				const dataAutorizacionesDisponibles = await getAutorizacionesPropias(user.id);
+				setAutorizacionesDisponibles(dataAutorizacionesDisponibles);
+
+				const dataReintegrosCompletados = await getReintegrosCompletados(user.id);
+				setReintegrosCompletados(dataReintegrosCompletados)
+
+				const dataAutorizacionesCompletados = await getAutorizacionesCompletados(user.id);
+				setAutorizacionesCompletados(dataAutorizacionesCompletados)
+
+				const dataRecetasCompletados = await getRecetasCompletados(user.id);
+				setRecetasCompletados(dataRecetasCompletados)
 
 			} catch (err) {
 				console.error("Error cargando datos:", err);
@@ -144,53 +188,75 @@ export default function SolicitudesEntrantes() {
 		fetchDatos();
 	}, []);
 
-	// Segundo useEffect: filtrar cuando los datos o el tipo cambian
+	// Filtrar cuando el tipo cambia
 	useEffect(() => {
 		mostrarSolicitudesDisponibles();
+	}, [reintegrosDisponibles, tipoSolicitud]);
+
+	// Filtrar cuando el tipo de las completadas cambia
+	useEffect(() => {
+		mostrarSolicitudesCompletadas();
+	}, [tipoSolicitudCompletados, reintegrosCompletados, autorizacionesCompletados, recetasCompletados])
+
+	// Actualizar la info de las solicitudes cuando cambian las solicitudes
+	useEffect(() => {
 		infoCantSolicitudes();
-	}, [reintegros, autorizaciones, recetas, tipoSolicitud]);
+	}, [reintegrosDisponibles, autorizacionesDisponibles, recetasDisponibles])
 
 	return (
 		<SidebarProvider>
 			<PrestadoresLayout header={<HeaderPrestadores />}>
 				<SideBar />
 				<div className="contenido-principal main-with-sidebar">
+
+					{/* Selector de tipo de solicitud */}
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.5 }}
-						style={{
-							display: "flex",
-							justifyContent: "center",
-							gap: "30px",
-							marginBottom: "30px",
-						}}
+						className="cards-container"
 					>
-						<div className="info-card">
-							<h5>Solicitudes "En análisis" Pendientes</h5>
-							<p>{cantSolicitudesAnalisis}</p>
-						</div>
-						<div className="info-card">
-							<h5>Solicitudes resueltas del día</h5>
-							<p>{cantSolicitudesDia}</p>
-						</div>
-						<div className="info-card">
-							<h5>Solicitudes resueltas de la semana</h5>
-							<p>{cantSolicitudesSemana}</p>
-						</div>
+						{/* Reintegros */}
+						<motion.div
+							className={`info-card cardSolicitud ${tipoSolicitud === "reintegros" ? "selected" : ""}`}
+							whileHover={{ scale: 1.03 }}
+							whileTap={{ scale: 0.97 }}
+							onClick={() => setTipoSolicitud("reintegros")}
+						>
+							<h1>Reintegros</h1>
+							<hr />
+							<h5>Reintegros por analizar:</h5>
+							<p>{cantReintegrosAnalisis}</p>
+						</motion.div>
+
+						{/* Autorizaciones */}
+						<motion.div
+							className={`info-card cardSolicitud ${tipoSolicitud === "autorizaciones" ? "selected" : ""}`}
+							whileHover={{ scale: 1.03 }}
+							whileTap={{ scale: 0.97 }}
+							onClick={() => setTipoSolicitud("autorizaciones")}
+						>
+							<h1>Autorizaciones</h1>
+							<hr />
+							<h5>Autorizaciones por analizar:</h5>
+							<p>{cantAutorizacionesAnalisis}</p>
+						</motion.div>
+
+						{/* Recetas */}
+						<motion.div
+							className={`info-card cardSolicitud ${tipoSolicitud === "recetas" ? "selected" : ""}`}
+							whileHover={{ scale: 1.03 }}
+							whileTap={{ scale: 0.97 }}
+							onClick={() => setTipoSolicitud("recetas")}
+						>
+							<h1>Recetas</h1>
+							<hr />
+							<h5>Recetas por analizar:</h5>
+							<p>{cantRecetasAnalisis}</p>
+						</motion.div>
 					</motion.div>
 
-					<select
-						className="form-select"
-						aria-label="Tipo de solicitud"
-						value={tipoSolicitud}
-						onChange={(e) => setTipoSolicitud(e.target.value)}
-					>
-						<option value="reintegros">Reintegro</option>
-						<option value="autorizaciones">Autorización</option>
-						<option value="recetas">Receta</option>
-					</select>
-
+					{/* Tabla de solicitudes */}
 					<motion.div
 						className="tabla-container"
 						initial={{ opacity: 0 }}
@@ -198,192 +264,128 @@ export default function SolicitudesEntrantes() {
 						transition={{ duration: 0.4 }}
 					>
 						<div className="tabla-container">
+
 							{/* Tabla para los reintegros */}
 							{tipoSolicitud === "reintegros" && (
-								<table className="table table-striped">
-									<thead>
-										<tr>
-											<th>Fecha prestación</th>
-											<th>Integrante</th>
-											<th>Médico</th>
-											<th>Especialidad</th>
-											<th>Estado</th>
-											<th>Acción</th>
-										</tr>
-									</thead>
-									<tbody>
-										{solicitudesDisponibles && solicitudesDisponibles.length > 0 ? (
-											solicitudesDisponibles.map((s) => (
-												<tr key={s.id}>
-													<td>
-														{new Date(s.fecha_prestacion).toLocaleString("es-AR", {
-															day: "2-digit",
-															month: "2-digit",
-															year: "numeric",
-															hour: "2-digit",
-															minute: "2-digit",
-														})}
-													</td>
-													<td>{s.integrante?.nombre ?? "Sin datos"}</td>
-													<td>{s.medico}</td>
-													<td>{s.especialidad}</td>
-													<td>{s.estado}</td>
-													<td>
-														{s.estado === "recibido" ? (
-															<button
-																className="btn-accion"
-																onClick={() => tomarSolicitud(s.id)}
-															>
-																Tomar solicitud
-															</button>
-														) : (
-															<button
-																className="btn-accion"
-																onClick={() =>
-																	navigate(
-																		`/prestadores/solicitudes/${s.id}?tipo=${tipoSolicitud}`,
-																		{ state: { solicitud: s } }
-																	)
-																}
-															>
-																Ver más y gestionar
-															</button>
-														)}
-													</td>
-												</tr>
-											))
-										) : (
-											<tr>
-												<td colSpan="6" style={{ textAlign: "center" }}>
-													No hay solicitudes disponibles
-												</td>
-											</tr>
-										)}
-									</tbody>
-								</table>
+								<TablaReintegros
+									solicitudes={solicitudesDisponibles}
+									tomarSolicitud={tomarSolicitud}
+									navigate={navigate}
+								/>
 							)}
 
 							{/* Tabla para las autorizaciones */}
 							{tipoSolicitud === "autorizaciones" && (
-								<table className="table table-striped">
-									<thead>
-										<tr>
-											<th>Fecha prevista</th>
-											<th>Integrante</th>
-											<th>Médico</th>
-											<th>Especialidad</th>
-											<th>Estado</th>
-											<th>Acción</th>
-										</tr>
-									</thead>
-									<tbody>
-										{solicitudesDisponibles && solicitudesDisponibles.length > 0 ? (
-											solicitudesDisponibles.map((s) => (
-												<tr key={s.id}>
-													<td>
-														{new Date(s.fecha_prevista).toLocaleString("es-AR", {
-															day: "2-digit",
-															month: "2-digit",
-															year: "numeric",
-															hour: "2-digit",
-															minute: "2-digit",
-														})}
-													</td>
-													<td>{s.integrante?.nombre ?? "Sin datos"}</td>
-													<td>{s.medico}</td>
-													<td>{s.especialidad}</td>
-													<td>{s.estado}</td>
-													<td>
-														{s.estado === "recibido" ? (
-															<button
-																className="btn-accion"
-																onClick={() => tomarSolicitud(s.id)}
-															>
-																Tomar solicitud
-															</button>
-														) : (
-															<button
-																className="btn-accion"
-																onClick={() =>
-																	navigate(
-																		`/prestadores/solicitudes/${s.id}?tipo=${tipoSolicitud}`,
-																		{ state: { solicitud: s } }
-																	)
-																}
-															>
-																Ver más y gestionar
-															</button>
-														)}
-													</td>
-												</tr>
-											))
-										) : (
-											<tr>
-												<td colSpan="6" style={{ textAlign: "center" }}>
-													No hay solicitudes disponibles
-												</td>
-											</tr>
-										)}
-									</tbody>
-								</table>
+								<TablaAutorizaciones
+									solicitudes={solicitudesDisponibles}
+									tomarSolicitud={tomarSolicitud}
+									navigate={navigate}
+								/>
 							)}
 
 							{/* Tabla para las recetas */}
 							{tipoSolicitud === "recetas" && (
-								<table className="table table-striped">
-									<thead>
-										<tr>
-											<th>Integrante</th>
-											<th>Medicamento</th>
-											<th>Cantidad</th>
-											<th>Presentación</th>
-											<th>Estado</th>
-											<th>Acción</th>
-										</tr>
-									</thead>
-									<tbody>
-										{solicitudesDisponibles && solicitudesDisponibles.length > 0 ? (
-											solicitudesDisponibles.map((s) => (
-												<tr key={s.id}>
-													<td>{s.integrante?.nombre ?? "Sin datos"}</td>
-													<td>{s.medicamento}</td>
-													<td>{s.cantidad}</td>
-													<td>{s.presentacion}</td>
-													<td>{s.estado}</td>
-													<td>
-														{s.estado === "recibido" ? (
-															<button
-																className="btn-accion"
-																onClick={() => tomarSolicitud(s.id)}
-															>
-																Tomar solicitud
-															</button>
-														) : (
-															<button
-																className="btn-accion"
-																onClick={() =>
-																	navigate(
-																		`/prestadores/solicitudes/${s.id}?tipo=${tipoSolicitud}`,
-																		{ state: { solicitud: s } }
-																	)
-																}
-															>
-																Ver más y gestionar
-															</button>
-														)}
-													</td>
-												</tr>
-											))
-										) : (
-											<tr>
-												<td colSpan="6" style={{ textAlign: "center" }}>
-													No hay solicitudes disponibles
-												</td>
-											</tr>
-										)}
-									</tbody>
-								</table>
+								<TablaRecetas
+									solicitudes={solicitudesDisponibles}
+									tomarSolicitud={tomarSolicitud}
+									navigate={navigate}
+								/>
 							)}
+
+						</div>
+					</motion.div>
+
+					{/* Seccion de solicitudes aprobadas, rechazadas y observadas */}
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.5 }}
+						style={{
+							// display: "flex",
+							// justifyContent: "center",
+							gap: "30px",
+							marginBottom: "30px",
+						}}
+					>
+						<p className="d-flex justify-content-center">
+							<a className="verMas" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+								Ver tus solicitudes completadas ↓
+							</a>
+						</p>
+						<div className="collapse" id="collapseExample">
+
+							<hr />
+
+							{/* Selector de tipo de solicitud */}
+							<motion.div
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ duration: 0.5 }}
+								className="cards-container"
+							>
+								{/* Reintegros */}
+								<motion.div
+									className={`cardSolicitudCompletada ${tipoSolicitudCompletados === "reintegros" ? "selected" : ""}`}
+									whileHover={{ scale: 1.03 }}
+									whileTap={{ scale: 0.97 }}
+									onClick={() => setTipoSolicitudCompletados("reintegros")}
+								>
+									<h2>Reintegros</h2>
+								</motion.div>
+
+								{/* Autorizaciones */}
+								<motion.div
+									className={`cardSolicitudCompletada ${tipoSolicitudCompletados === "autorizaciones" ? "selected" : ""}`}
+									whileHover={{ scale: 1.03 }}
+									whileTap={{ scale: 0.97 }}
+									onClick={() => setTipoSolicitudCompletados("autorizaciones")}
+								>
+									<h2>Autorizaciones</h2>
+								</motion.div>
+
+								{/* Recetas */}
+								<motion.div
+									className={`cardSolicitudCompletada ${tipoSolicitudCompletados === "recetas" ? "selected" : ""}`}
+									whileHover={{ scale: 1.03 }}
+									whileTap={{ scale: 0.97 }}
+									onClick={() => setTipoSolicitudCompletados("recetas")}
+								>
+									<h2>Recetas</h2>
+								</motion.div>
+							</motion.div>
+
+							{/* Tabla de solicitudes completadas */}
+							<motion.div
+								className="tabla-container"
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								transition={{ duration: 0.4 }}
+							>
+								<div className="tabla-container">
+
+									{/* Tabla para los reintegros completados */}
+									{tipoSolicitudCompletados === "reintegros" && (
+										<TablaReintegrosCompletadas
+											solicitudes={solicitudesCompletadas}
+										/>
+									)}
+
+									{/* Tabla para las autorizaciones completados */}
+									{tipoSolicitudCompletados === "autorizaciones" && (
+										<TablaAutorizacionesCompletadas
+											solicitudes={solicitudesCompletadas}
+										/>
+									)}
+
+									{/* Tabla para las recetas completados */}
+									{tipoSolicitudCompletados === "recetas" && (
+										<TablaRecetasCompletadas
+											solicitudes={solicitudesCompletadas}
+										/>
+									)}
+
+								</div>
+							</motion.div>
 						</div>
 					</motion.div>
 				</div>

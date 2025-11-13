@@ -196,7 +196,7 @@ export default function CalendarioTurnosMedico() {
                         <textarea
                           rows={3}
                           maxLength={500}
-                          value={turno.notas || ""}
+                          value={turno.notas || ""} //turno.notes?????
                           onChange={(e) => handleNoteChange(turno.id, e.target.value)}
                           placeholder="Agregar notas (máx. 500 caracteres)"
                         />

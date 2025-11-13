@@ -1,0 +1,42 @@
+.tableScroll tbody {
+  display: block;
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.tableScroll thead,
+.tableScroll tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.tableScroll thead {
+  background-color: #f8f9fa;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* Todo lo de aca abajo es para customizar la barra de scroll */
+.tableScroll tbody::-webkit-scrollbar {
+  width: 10px; /* ancho del scroll */
+}
+
+.tableScroll tbody::-webkit-scrollbar-track {
+  background: #f5f5f5; /* fondo del track */
+  border-radius: 8px;
+}
+
+.tableScroll tbody::-webkit-scrollbar-thumb {
+  background-color: #b4dbdc; /* color del scroll */
+  border-radius: 8px;
+  border: 2px solid #f5f5f5; /* espacio entre el thumb y el track */
+}
+
+.tableScroll tbody::-webkit-scrollbar-thumb:hover {
+  background-color: #0077b6; /* color en hover */
+  border-color: #e0f0f1; /* leve contraste */
+  box-shadow: 0 0 4px rgba(0, 119, 182, 0.4); /* brillo sutil */
+}

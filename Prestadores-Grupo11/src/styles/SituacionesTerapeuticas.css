@@ -414,6 +414,84 @@ h3, h4, h5 {
   animation: spin 1.2s linear infinite;
 }
 
+.verMas {
+  text-decoration: none;
+  text-align: center;
+}
+
+/* Contenedor de las cards */
+.cards-container {
+	display: flex;
+	justify-content: center;
+	gap: 30px;
+	margin-bottom: 30px;
+	flex-wrap: wrap; /* permite que bajen de línea */
+}
+
+.cardSolicitud {
+  padding: 0px 16px;
+  background-color: white;
+  border: 2px solid #336785;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  flex: 1 1 250px;
+	max-width: 320px;
+	min-width: 250px;
+  /* height: 220px; */
+}
+
+.cardSolicitud h1 {
+  margin-top: 20px;
+  color: #336785;
+}
+
+.cardSolicitud h5 {
+  margin-top: 0px;
+}
+
+.cardSolicitud.selected {
+	background-color: #e3f2fd; /* azul claro */
+	border-color: #2196f3;
+	box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+	transform: scale(1.02);
+}
+
+.cardSolicitud h2 {
+  margin: 0px;
+}
+
+.cardSolicitudCompletada {
+  padding: 0px 16px;
+  background-color: white;
+  border: 2px solid #336785;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  flex: 1 1 250px;
+	max-width: 320px;
+	min-width: 250px;
+  height: 50px;
+  text-align: center;
+  align-items: center;
+  border-radius: 15px;
+}
+
+.cardSolicitudCompletada h2 {
+  color: #336785;
+  margin-top: 2px;
+  margin-bottom: 0px;
+}
+
+.cardSolicitudCompletada.selected {
+	background-color: #e3f2fd; /* azul claro */
+	border-color: #2196f3;
+	box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+	transform: scale(1.02);
+}
+
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -482,6 +560,16 @@ h3, h4, h5 {
     width: 100%;
     margin-top: 0.5rem;
   }
+
+  .cards-container {
+		flex-direction: column;
+		align-items: center;
+		gap: 20px;
+	}
+
+	.cardSolicitud {
+		width: 90%;
+	}
 }
 
 /* --- Ajustes para móviles pequeños (<= 576px) --- */
