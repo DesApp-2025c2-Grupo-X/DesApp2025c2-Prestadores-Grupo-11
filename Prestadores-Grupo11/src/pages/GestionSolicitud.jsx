@@ -9,6 +9,8 @@ import { motion } from "framer-motion";
 import "../styles/GestionSolicitud.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ArrowLeft } from "lucide-react";
+import { CheckCircle, XCircle, Eye } from "lucide-react";
 import check from "../assets/check.png";
 import cross from "../assets/cross.png";
 import eye from "../assets/eye.png"
@@ -30,6 +32,24 @@ export default function GestionSolicitud() {
 
   const [estadoSeleccionado, setEstadoSeleccionado] = useState(null)
   const [motivo, setMotivo] = useState("")
+
+  // Esta funcion es usada para renderizar las cards para el detalle de cada solicitud.
+  const renderCampo = (titulo, valor) => (
+    <div className="col-md-6 mb-3">
+      <div className="p-3 border rounded bg-light h-100">
+        <strong className="d-block mb-1 text-primary">{titulo}</strong>
+        {Array.isArray(valor) ? (
+          <ul className="mb-0 ps-3">
+            {valor.map((v, i) => (
+              <li key={i}>{v}</li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mb-0">{valor || "—"}</p>
+        )}
+      </div>
+    </div>
+  );
 
   // Para mostrar las fechas con mejor formato
   const formatearFecha = (fechaString) => {
@@ -99,144 +119,117 @@ export default function GestionSolicitud() {
       <PrestadoresLayout header={<HeaderPrestadores />}>
         <SideBar />
         <div className="contenido-principal main-with-sidebar">
+          {/* Botón volver */}
+          <motion.button
+            className="btn-volver mb-3"
+            whileHover={{ scale: 1.05, backgroundColor: "var(--verde-agua)" }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft size={18} className="me-2" /> Volver
+          </motion.button>
           <h1>Datos de la solicitud</h1>
-          <div className="contenedorSolicitud">
+
+          {/* Contenedor de informacion y selector de estado */}
+          <div className="contenedorSolicitud" >
+
+            {/* Seccion donde se muestra la info de la solicitud */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="contenedorInfo"
+              transition={{ duration: 0.4 }}
+              className="container py-3 tablaDetalleSolicitud"
             >
-              {tipo === "autorizaciones" && (
-                <>
-                  <span>
-                    <strong>Fecha prevista</strong>
-                    <p>{formatearFecha(solicitud.fecha_prevista)}</p>
-                  </span>
-                  <span>
-                    <strong>Integrante</strong>
-                    <p>{solicitud.integranteId}</p>
-                  </span>
-                  <span>
-                    <strong>Médico</strong>
-                    <p>{solicitud.medico}</p>
-                  </span>
-                  <span>
-                    <strong>Especialidad</strong>
-                    <p>{solicitud.especialidad}</p>
-                  </span>
-                  <span>
-                    <strong>Lugar donde se realizará la prestación</strong>
-                    <p>{solicitud.lugar}</p>
-                  </span>
-                  <span>
-                    <strong>Días de internación</strong>
-                    <p>{solicitud.dias_internacion}</p>
-                  </span>
-                  <span>
-                    <strong>Observaciones</strong>
-                    <p>{solicitud.observaciones}</p>
-                  </span>
-                </>
-              )}
+              <div className="row g-3">
+                {tipo === "autorizaciones" && (
+                  <>
+                    {renderCampo("Fecha prevista", formatearFecha(solicitud.fecha_prevista))}
+                    {renderCampo("Integrante", solicitud.integranteId)}
+                    {renderCampo("Médico", solicitud.medico)}
+                    {renderCampo("Especialidad", solicitud.especialidad)}
+                    {renderCampo("Lugar donde se realizará la prestación", solicitud.lugar)}
+                    {renderCampo("Días de internación", solicitud.dias_internacion)}
+                    {renderCampo("Observaciones", solicitud.observaciones)}
+                  </>
+                )}
 
-              {tipo === "recetas" && (
-                <>
-                  <span>
-                    <strong>Integrante</strong>
-                    <p>{solicitud.integrante.nombre}</p>
-                  </span>
-                  <span>
-                    <strong>Medicamento</strong>
-                    <p>{solicitud.medicamento}</p>
-                  </span>
-                  <span>
-                    <strong>Cantidad</strong>
-                    <p>{solicitud.cantidad}</p>
-                  </span>
-                  <span>
-                    <strong>Presentacion</strong>
-                    <p>{solicitud.presentacion}</p>
-                  </span>
-                  <span>
-                    <strong>Observaciones</strong>
-                    <p>{solicitud.observaciones}</p>
-                  </span>
-                </>
-              )}
+                {tipo === "recetas" && (
+                  <>
+                    {renderCampo("Integrante", solicitud.integrante?.nombre)}
+                    {renderCampo("Medicamento", solicitud.medicamento)}
+                    {renderCampo("Cantidad", solicitud.cantidad)}
+                    {renderCampo("Presentación", solicitud.presentacion)}
+                    {renderCampo("Observaciones", solicitud.observaciones)}
+                  </>
+                )}
 
-              {tipo === "reintegros" && (
-                <>
-                  <span>
-                    <strong>Fecha de la prestacion</strong>
-                    <p>{formatearFecha(solicitud.fecha_prestacion)}</p>
-                  </span>
-                  <span>
-                    <strong>Integrante</strong>
-                    <p>{solicitud.integrante.nombre}</p>
-                  </span>
-                  <span>
-                    <strong>Medico</strong>
-                    <p>{solicitud.medico}</p>
-                  </span>
-                  <span>
-                    <strong>Especialidad</strong>
-                    <p>{solicitud.especialidad}</p>
-                  </span>
-                  <span>
-                    <strong>Lugar donde fue atendido</strong>
-                    <p>{solicitud.lugar}</p>
-                  </span>
-                  <span>
-                    <strong>Datos de la factura</strong>
-                    <ul>
-                      <li>{formatearFecha(solicitud.factura_fecha)}</li>
-                      <li>{solicitud.factura_cuit}</li>
-                      <li>{solicitud.factura_valor}</li>
-                      <li>{solicitud.factura_persona}</li>
-                    </ul>
-                  </span>
-                  <span>
-                    <strong>Forma de pago del reintegro</strong>
-                    <p>{solicitud.forma_pago}</p>
-                  </span>
-                  <span>
-                    <strong>Observaciones</strong>
-                    <p>{solicitud.comprobante}</p>
-                  </span>
-                </>
-              )}
+                {tipo === "reintegros" && (
+                  <>
+                    {renderCampo("Fecha de la prestación", formatearFecha(solicitud.fecha_prestacion))}
+                    {renderCampo("Integrante", solicitud.integrante?.nombre)}
+                    {renderCampo("Médico", solicitud.medico)}
+                    {renderCampo("Especialidad", solicitud.especialidad)}
+                    {renderCampo("Lugar donde fue atendido", solicitud.lugar)}
+                    {renderCampo("Datos de la factura", [
+                      `Fecha: ${formatearFecha(solicitud.factura_fecha)}`,
+                      `Cuit: ${solicitud.factura_cuit}`,
+                      `Valor: $${solicitud.factura_valor}`,
+                      `A nombre de: ${solicitud.factura_persona}`,
+                    ])}
+                    {renderCampo("Forma de pago del reintegro", solicitud.forma_pago)}
+                    {renderCampo("Observaciones", solicitud.comprobante)}
+                  </>
+                )}
+              </div>
             </motion.div>
-            <div style={{ textAlign: "center" }}>
-              <img
-                src={check}
-                onClick={() => setEstadoSeleccionado("aprobado")}
-                className="img-icon"
-                style={{
-                  border: estadoSeleccionado === "aprobado" ? "5px solid #b6e4db" : "none",
-                  borderRadius: "50%",
-                }}
+
+            {/* Selector de nuevo estado */}
+            <div className="d-flex flex-column justify-content-center gap-3 my-3 selectorEstado">
+              <h2>Seleccionar estado</h2>
+              {/* Aprobado */}
+              <input
+                type="radio"
+                className="btn-check"
+                name="estado"
+                id="aprobado"
+                autoComplete="off"
+                checked={estadoSeleccionado === "aprobado"}
+                onChange={() => setEstadoSeleccionado("aprobado")}
               />
-              <img
-                src={cross}
-                onClick={() => setEstadoSeleccionado("rechazado")}
-                className="img-icon"
-                style={{
-                  border: estadoSeleccionado === "rechazado" ? "5px solid #b6e4db" : "none",
-                  borderRadius: "50%",
-                }}
+              <label className="btn btn-outline-success d-flex align-items-center gap-2 px-3" htmlFor="aprobado">
+                <CheckCircle size={18} /> Aprobado
+              </label>
+
+              {/* Rechazado */}
+              <input
+                type="radio"
+                className="btn-check"
+                name="estado"
+                id="rechazado"
+                autoComplete="off"
+                checked={estadoSeleccionado === "rechazado"}
+                onChange={() => setEstadoSeleccionado("rechazado")}
               />
-              <img
-                src={eye}
-                onClick={() => setEstadoSeleccionado("observado")}
-                className="img-icon"
-                style={{
-                  border: estadoSeleccionado === "observado" ? "5px solid #b6e4db" : "none",
-                  borderRadius: "50%",
-                }}
+              <label className="btn btn-outline-danger d-flex align-items-center gap-2 px-3" htmlFor="rechazado">
+                <XCircle size={18} /> Rechazado
+              </label>
+
+              {/* Observado */}
+              <input
+                type="radio"
+                className="btn-check"
+                name="estado"
+                id="observado"
+                autoComplete="off"
+                checked={estadoSeleccionado === "observado"}
+                onChange={() => setEstadoSeleccionado("observado")}
               />
+              <label className="btn btn-outline-warning d-flex align-items-center gap-2 px-3" htmlFor="observado">
+                <Eye size={18} /> Observado
+              </label>
             </div>
           </div>
+
           {/*Renderizado del input y boton de cambio de estado*/}
           {estadoSeleccionado && (
             <div style={{ marginTop: "30px" }}>
@@ -251,7 +244,10 @@ export default function GestionSolicitud() {
                 </>
               )}
               <br />
-              <button className="btn-accion" onClick={() => revisarMotivoYActualizarEstado()}>Actualizar estado</button>
+              <button
+                className="btn btn-primary btn-lg"
+                onClick={() => revisarMotivoYActualizarEstado()}
+              >Actualizar estado</button>
             </div>
           )}
         </div>
