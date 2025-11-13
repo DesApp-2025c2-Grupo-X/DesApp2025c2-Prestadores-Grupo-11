@@ -12,7 +12,7 @@ import { Tooltip as ReactTooltip } from "react-tooltip";
 import TablaHistorial from "../components/TablaHistorial";
 import "react-tooltip/dist/react-tooltip.css";
 import {
-  getTurnosByPrestador,
+  getTurnosByPrestadorId,
   updateNotasTurno,
 } from "../services/TurnosApi";
 import { getHistoriaClinicaByAfiliado, addNotaAHistoriaClinica, getHistorialClinicoById } from "../services/HistorialClinicaApi";
@@ -55,7 +55,7 @@ export default function CalendarioTurnosMedico() {
       }
 
       try {
-        const response = await getTurnosByPrestador(prestadorId);
+        const response = await getTurnosByPrestadorId(prestadorId);
         const turnosValidos = Array.isArray(response) ? response : [];
         setTurnos(turnosValidos);
         localStorage.setItem("turnos_medico", JSON.stringify(turnosValidos));

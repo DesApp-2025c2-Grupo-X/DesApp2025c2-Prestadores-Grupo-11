@@ -125,11 +125,6 @@ export default function LoginPage() {
                 </button>
               </div>
             </form>
-
-            <p id="login-help" className="mt-3 small text-muted">
-              Usuarios de prueba: <strong>medico / 12345</strong> —{" "}
-              <strong>centro medico / 9876</strong>
-            </p>
           </div>
         </div>
       </div>
