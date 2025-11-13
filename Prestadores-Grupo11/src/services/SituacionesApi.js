@@ -79,6 +79,37 @@ export const getSituacionesByIntegranteId = async (integranteId, signal) => {
 
 
 /**
+ * Obtiene todas las situaciones de un integrante
+ * GET /situaciones/Integrante/:idIntegrante
+ */
+export const getSituacionesDePrestadorByIntegranteId = async (prestadorId, integranteId, signal) => {
+  try {
+    const res = await api.get(`/situaciones/Integrante/${integranteId}`, {
+      signal,
+    });
+    const integrante = res.data
+
+    const situacionesFiltradas = (integrante.situaciones || []).filter(
+      (s) => s.prestadorId === prestadorId
+    );
+    
+    return {
+      ...integrante,
+      situaciones: situacionesFiltradas,
+    };
+  } catch (error) {
+    if (error.name === "CanceledError" || error.name === "AbortError")
+      throw error;
+    console.error(
+      `Error al traerse las situaciones del integrante ${integranteId}:`,
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+
+/**
  * Obtiene todas las situaciones de un paciente (Afiliado o Integrante)
  * GET /situaciones/:tipoPaciente/:idIntegrante
  */
