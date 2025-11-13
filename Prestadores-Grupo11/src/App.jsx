@@ -20,7 +20,7 @@ import BusquedaHistorialClinico from "./pages/BusquedaHistorialClinico";
 import SolicitudesEntrantes from "./pages/SolicitudesEntrantes";
 import GestionSolicitud from "./pages/GestionSolicitud";
 import HistorialClinico from "./pages/HistorialClinico";
-import "./styles/ToastStyles.css"
+import "./styles/ToastStyles.css";
 
 export default function App() {
   return (
@@ -84,7 +84,7 @@ export default function App() {
 
         {/* Alta de Situación Terapéutica */}
         <Route
-          path="/prestadores/situaciones/alta/:dni"
+          path="/prestadores/situaciones/alta/:afiliadoId"
           element={
             <RequireAuth roles={["medico", "centro_medico"]}>
               <AltaSituacionTerapeutica />
