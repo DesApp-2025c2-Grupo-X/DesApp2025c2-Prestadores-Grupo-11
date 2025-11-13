@@ -65,20 +65,24 @@ export default function BusquedaSituacionesTerapeuticas() {
           pacientes = [data];
         }
 
+        console.log("Este es mi paciente", pacientes)
+
         // Deduplicar por un identificador estable (id | afiliadoId | dni | nombre+apellido)
+
+        //POSIBLEMENTE BORRAR ESTO DE ACA ABAJO, NO MODIFICA EN NADA LO QUE LE ENTRA
         const seen = new Set();
         const dedupe = pacientes.filter((p) => {
           const key =
-            p.id ??
-            p.afiliadoId ??
-            p.dni ??
-            `${p.nombre || ""}-${p.apellido || ""}`;
+          p.dni ??
+          `${p.nombre || ""}-${p.apellido || ""}`;
           if (seen.has(key)) return false;
           seen.add(key);
           return true;
         });
-
+        
         console.log(" Datos normalizados para la tabla (dedupe):", dedupe);
+        //lista pacientes == lista dedupe
+
         setResultados(dedupe);
       } catch (err) {
         console.error(" Error en la búsqueda:", err);
@@ -106,8 +110,10 @@ export default function BusquedaSituacionesTerapeuticas() {
       return;
     }
 
-    console.log(`Redirigiendo a /prestadores/situaciones/integrante/${id}`);
-    navigate(`/prestadores/situaciones/integrante/${id}`);
+    const tipoPaciente = integrante.apellido ? "afiliado" : "integrante";
+
+    console.log(`Redirigiendo a /prestadores/situaciones/integrante/${id}?tipoPaciente=${tipoPaciente}`);
+    navigate(`/prestadores/situaciones/integrante/${id}?tipoPaciente=${tipoPaciente}`);
   };
   // --- Renderizado ---
   return (

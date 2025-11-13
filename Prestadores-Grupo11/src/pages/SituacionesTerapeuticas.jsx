@@ -14,21 +14,25 @@ import "../styles/SituacionesTerapeuticas.css";
 import {
   getSituacionesByAfiliadoId,
   getSituacionesByIntegranteId,
+  getSituacionesDePrestadorByIntegranteId,
   archivarSituacion,
   actualizarSituacion,
 } from "../services/SituacionesApi";
 
 export default function SituacionesTerapeuticas() {
   const { id } = useParams();
-  const location = useLocation();
   const navigate = useNavigate();
-
+  
   const [paciente, setPaciente] = useState(null);
   const [situaciones, setSituaciones] = useState([]);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState(false);
-
-  const esIntegrante = location.pathname.toLowerCase().includes("/integrante/");
+  
+  //Se fija en el url si el paciente es afiliado o integrante
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const tipoPaciente = queryParams.get("tipoPaciente"); // "afiliado" o "integrante"
+  const esIntegrante = tipoPaciente === "integrante";
 
   useEffect(() => {
     if (!id) return;
@@ -52,7 +56,7 @@ export default function SituacionesTerapeuticas() {
         let responseData;
 
         if (esIntegrante) {
-          responseData = await getSituacionesByIntegranteId(id);
+          responseData = await getSituacionesDePrestadorByIntegranteId(prestadorId, id);
         } else {
           responseData = await getSituacionesByAfiliadoId(
             prestadorId,
@@ -77,19 +81,16 @@ export default function SituacionesTerapeuticas() {
             descripcion: s.observaciones || "—",
             estado: s.estado || "Pendiente",
             prestador_nombre: s.prestador?.username || "—",
-            pacienteNombre: `${
-              s.afiliado?.nombre || s.integrante?.nombre || ""
-            } ${s.afiliado?.apellido || s.integrante?.apellido || ""}`.trim(),
+            pacienteNombre: `${s.afiliado?.nombre || s.integrante?.nombre || ""
+              } ${s.afiliado?.apellido || s.integrante?.apellido || ""}`.trim(),
             pacienteDNI: s.afiliado?.dni || s.integrante?.dni || "—",
           }));
 
           const ref = data[0];
           pacienteInfo = {
-            nombre: `${
-              ref?.afiliado?.nombre || ref?.integrante?.nombre || ""
-            } ${
-              ref?.afiliado?.apellido || ref?.integrante?.apellido || ""
-            }`.trim(),
+            nombre: `${ref?.afiliado?.nombre || ref?.integrante?.nombre || ""
+              } ${ref?.afiliado?.apellido || ref?.integrante?.apellido || ""
+              }`.trim(),
             afiliadoId: ref?.afiliadoId || ref?.integranteId || id,
             dni: ref?.afiliado?.dni || ref?.integrante?.dni || "—",
           };
@@ -107,15 +108,14 @@ export default function SituacionesTerapeuticas() {
             descripcion: s.observaciones || "—",
             estado: s.estado || "Pendiente",
             prestador_nombre: s.prestador?.username || "—",
-            pacienteNombre: `${data.nombre || ""} ${
-              data.apellido || ""
-            }`.trim(),
+            pacienteNombre: `${data.nombre || ""} ${data.apellido || ""
+              }`.trim(),
             pacienteDNI: data.dni || "—",
           }));
 
           pacienteInfo = {
             nombre: `${data.nombre || ""} ${data.apellido || ""}`.trim(),
-            afiliadoId: data.id || id,
+            id: data.id || id,
             dni: data.dni || "—",
           };
         } else {
@@ -144,13 +144,13 @@ export default function SituacionesTerapeuticas() {
 
   // === Acción: Nueva Situación ===
   const handleNuevaSituacion = () => {
-    if (!paciente?.afiliadoId && !paciente?.dni) {
+    if (!paciente?.id && !paciente?.dni) {
       toast.error("No se pudo obtener el identificador del paciente");
       return;
     }
 
-    const identificador = paciente.afiliadoId; // usamos el ID interno, no el DNI
-    navigate(`/prestadores/situaciones/alta/${identificador}`);
+    let identificador = paciente.id; // usamos el ID interno, no el DNI
+    navigate(`/prestadores/situaciones/alta/${identificador}?tipoPaciente=${tipoPaciente}`);
   };
 
 
@@ -158,8 +158,10 @@ export default function SituacionesTerapeuticas() {
     try {
       const situacion = situaciones.find((s) => s.id === id);
 
+      console.log("Situacion", situacion)
+      console.log("Estado de la situacion: ", situacion.estado)
       //  Validación previa: solo se archivan las finalizadas
-      if (situacion && situacion.estado !== "finalizado") {
+      if (situacion && situacion.estado !== "baja") {
         toast.warn("Solo se pueden archivar situaciones finalizadas.", {
           position: "bottom-right",
         });
@@ -199,7 +201,7 @@ export default function SituacionesTerapeuticas() {
     }
   };
 
-   const handleEditarEstado = async (situacionId, nuevoEstado) => {
+  const handleEditarEstado = async (situacionId, nuevoEstado) => {
     try {
       await actualizarSituacion(situacionId, { estado: nuevoEstado });
       setSituaciones((prev) =>
@@ -341,15 +343,14 @@ export default function SituacionesTerapeuticas() {
                           onChange={(e) =>
                             handleEditarEstado(s.id, e.target.value)
                           }
-                          className={`form-select form-select-sm ${
-                            s.estado === "Finalizado"
+                          className={`form-select form-select-sm ${s.estado === "Finalizado"
                               ? "estado-finalizado"
                               : "estado-proceso"
-                          }`}
+                            }`}
                         >
-                          <option value="Pendiente">Pendiente</option>
-                          <option value="En proceso">En proceso</option>
-                          <option value="Finalizado">Finalizado</option>
+                          <option value="alta">Pendiente</option>
+                          <option value="en proceso">En proceso</option>
+                          <option value="baja">Finalizado</option>
                         </select>
                       </td>
                       <td>
