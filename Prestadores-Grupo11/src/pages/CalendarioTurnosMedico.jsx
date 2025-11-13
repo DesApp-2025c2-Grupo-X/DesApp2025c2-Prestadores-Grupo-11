@@ -8,6 +8,10 @@ import { format } from "date-fns";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import "../styles/CalendarioTurnos.css";
+import {
+  getTurnosByPrestadorId,
+  updateNotasTurno,
+} from "../services/TurnosApi";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import TablaHistorial from "../components/TablaHistorial";
 import "react-tooltip/dist/react-tooltip.css";
@@ -115,7 +119,7 @@ export default function CalendarioTurnosMedico() {
       //   afiliado: turno.afiliado,
       //   notas: historia?.notas || [],
       // });
-      setShowHistoriaModal(true); // 👈 abrimos el modal
+      setShowHistoriaModal(true); //  abrimos el modal
     } catch (error) {
       console.error("Error al obtener historia clínica:", error);
       toast.error(" No se pudo cargar la historia clínica del paciente.");
@@ -155,8 +159,9 @@ export default function CalendarioTurnosMedico() {
 
   // === Filtrar los turnos del día seleccionado ===
   const turnosDelDia = turnos.filter((t) => {
-    if (!t.date) return false;
-    const fechaTurno = new Date(t.date);
+    if (!selectedDate) return false; // Evita error cuando DayPicker borra la fecha
+    const fechaTurno = new Date(t.start || t.date); // soporta ambas claves
+    if (isNaN(fechaTurno)) return false; // fecha inválida
     return (
       fechaTurno.getDate() === selectedDate.getDate() &&
       fechaTurno.getMonth() === selectedDate.getMonth() &&
