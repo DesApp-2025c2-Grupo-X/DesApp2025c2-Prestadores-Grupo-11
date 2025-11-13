@@ -31,7 +31,7 @@ export default function CalendarioTurnosMedico() {
 
   //Estos dos estados son utilizados para abrir la ventana emergente para el historial.
   const [showHistoriaModal, setShowHistoriaModal] = useState(false);
-  const [historiaSeleccionada, setHistoriaSeleccionada] = useState(null);
+  const [historiaSeleccionada, setHistoriaSeleccionada] = useState(null); //Borrar?
 
   //Para mostrar el historial clinico
   const [consultas, setConsultas] = useState([])
@@ -97,8 +97,6 @@ export default function CalendarioTurnosMedico() {
     const tipoPaciente = (turno.afiliadoId === null) ? "Integrante" : "Afiliado"
     const pacienteId = (tipoPaciente === "Integrante") ? turno.integranteId : turno.afiliadoId
 
-    console.log(`${tipoPaciente}Id`, pacienteId)
-
     if (!pacienteId) {
       toast.warn(" Este turno no tiene paciente asociado.");
       return;
@@ -141,11 +139,16 @@ export default function CalendarioTurnosMedico() {
       localStorage.setItem("turnos_medico", JSON.stringify(turnosActualizados));
 
       // Guardar nota en la historia clínica
-      if (turno.afiliado?.id) {
-        await addNotaAHistoriaClinica(turno.afiliado.id, turno.notas);
-      }
+      // if (turno.afiliado?.id) {
+      //   await addNotaAHistoriaClinica(turno.afiliado.id, turno.notas);
+      // }
 
-      toast.success(`Nota guardada para ${turno.afiliado?.nombre ?? "Paciente"}`);
+      toast.success(
+        `Nota guardada para ${turno.integrante
+          ? turno.integrante.nombre
+          : `${turno.afiliado.nombre} ${turno.afiliado.apellido}`
+        }`
+      );
       setSelectedTurno(null);
     } catch (error) {
       console.error("Error al guardar nota:", error);
@@ -156,7 +159,7 @@ export default function CalendarioTurnosMedico() {
   // === Filtrar los turnos del día seleccionado ===
   const turnosDelDia = turnos.filter((t) => {
     if (!selectedDate) return false; // Evita error cuando DayPicker borra la fecha
-    const fechaTurno = new Date(t.start || t.date); // soporta ambas claves
+    const fechaTurno = new Date(t.date); // soporta ambas claves
     if (isNaN(fechaTurno)) return false; // fecha inválida
     return (
       fechaTurno.getDate() === selectedDate.getDate() &&
@@ -205,86 +208,114 @@ export default function CalendarioTurnosMedico() {
               {loading ? (
                 <p>Cargando turnos...</p>
               ) : turnosDelDia.length > 0 ? (
-                turnosDelDia.map((turno) => (
-                  <div key={turno.id} className="turno-card">
+                turnosDelDia.map((turno) => {
+
+                  const fechaTurno = new Date(turno.date);
+                  const hoy = new Date();
+
+                  // Normalizamos el horario para solamente tildar como turno pasado las de ayer para atras
+                  fechaTurno.setHours(0, 0, 0, 0);
+                  hoy.setHours(0, 0, 0, 0);
+
+                  const turnoPasado = fechaTurno < hoy;
+
+                  return (
                     <div
-                      className="turno-header"
-                      onClick={() =>
-                        setSelectedTurno(selectedTurno === turno.id ? null : turno.id)
-                      }
+                      key={turno.id}
+                      className={`turno-card ${turnoPasado ? "turno-pasado" : ""}`} // opcional: clase para estilos
                     >
-                      <span className="hora">{format(new Date(turno.start), "HH:mm")}</span>
-                      <span className="paciente">
-                        {turno.afiliado
-                          ? `${turno.afiliado.nombre} ${turno.afiliado.apellido}`
-                          : turno.integrante
-                            ? turno.integrante.nombre
-                            : "Paciente no especificado"}
-                      </span>
-                      <button className="btn-ver">📝 Ver</button>
-                    </div>
-
-                    {selectedTurno === turno.id && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        transition={{ duration: 0.3 }}
-                        className="notas-box"
+                      <div
+                        className="turno-header"
+                        onClick={() =>
+                          setSelectedTurno(selectedTurno === turno.id ? null : turno.id)
+                        }
                       >
-                        <textarea
-                          rows={3}
-                          maxLength={500}
-                          value={nota}
-                          onChange={(e) => setNota(e.target.value)}
-                          placeholder="Agregar notas (máx. 500 caracteres)"
-                        />
+                        <span className="hora">{format(new Date(turno.date), "HH:mm")}</span>
+                        <span className="paciente">
+                          {turno.afiliado
+                            ? `${turno.afiliado.nombre} ${turno.afiliado.apellido}`
+                            : turno.integrante
+                              ? turno.integrante.nombre
+                              : "Paciente no especificado"}
+                        </span>
+                        <button className="btn-ver">📝 Ver</button>
+                      </div>
 
-                        <div
-                          className="botones-turno"
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            marginTop: "10px",
-                            alignItems: "center",
-                          }}
+                      {selectedTurno === turno.id && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          transition={{ duration: 0.3 }}
+                          className="notas-box"
                         >
-                          <button
-                            className="btn-historia"
-                            data-tooltip-id={`historia-${turno.id}`}
-                            data-tooltip-content={
-                              historias[turno.afiliado?.id] ||
-                              "Cargar historia clínica"
+                          <textarea
+                            rows={3}
+                            maxLength={500}
+                            value={nota}
+                            onChange={(e) => setNota(e.target.value)}
+                            placeholder={turnoPasado ? "No se puede agregar notas a un turno pasado." : "Agregar notas (máx. 500 caracteres)"}
+                            disabled={turnoPasado}
+                            style={
+                              turnoPasado
+                                ? { backgroundColor: "#f0f0f0", color: "#777" }
+                                : {}
                             }
-                            onClick={() => handleVerHistoriaClinica(turno)}
-                          >
-                            Historia clínica
-                          </button>
-
-                          <button
-                            className="btn-guardar"
-                            onClick={() => handleGuardarNota(turno.id)}
-                          >
-                            Guardar nota
-                          </button>
-
-                          <ReactTooltip
-                            id={`historia-${turno.id}`}
-                            place="top"
-                            style={{
-                              backgroundColor: "var(--rosa)",
-                              color: "var(--azul-petroleo)",
-                              maxWidth: "300px",
-                            }}
                           />
-                        </div>
-                      </motion.div>
-                    )}
-                  </div>
-                ))
+
+                          <div
+                            className="botones-turno"
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              marginTop: "10px",
+                              alignItems: "center",
+                            }}
+                          >
+                            <button
+                              className="btn-historia"
+                              data-tooltip-id={`historia-${turno.id}`}
+                              data-tooltip-content={
+                                historias[turno.afiliado?.id] ||
+                                "Cargar historia clínica"
+                              }
+                              onClick={() => handleVerHistoriaClinica(turno)}
+                            >
+                              Historia clínica
+                            </button>
+
+                            <button
+                              className="btn-guardar"
+                              onClick={() => handleGuardarNota(turno.id)}
+                              disabled={turnoPasado}
+                              style={
+                                turnoPasado
+                                  ? { opacity: 0.6, cursor: "not-allowed" }
+                                  : {}
+                              }
+                            >
+                              Guardar nota
+                            </button>
+
+                            <ReactTooltip
+                              id={`historia-${turno.id}`}
+                              place="top"
+                              style={{
+                                backgroundColor: "var(--rosa)",
+                                color: "var(--azul-petroleo)",
+                                maxWidth: "300px",
+                              }}
+                            />
+                          </div>
+                        </motion.div>
+                      )}
+                    </div>
+                  );
+                })
               ) : (
                 <p className="sin-turnos">No hay turnos para esta fecha.</p>
               )}
             </div>
+
           </div>
 
           {/* === Modal Historia Clínica === */}

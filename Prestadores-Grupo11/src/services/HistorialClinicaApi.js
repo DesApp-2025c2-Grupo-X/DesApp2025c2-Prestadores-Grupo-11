@@ -69,7 +69,8 @@ export const getHistorialClinicoById = async (pacienteId, tipoPaciente, filtroNo
         descripcion: s.observaciones,
         especialidad: s.especialidad,
         medico: s.prestador.username,
-        notas: ""
+        notas: "-",
+        duration: null
       })),
       ...turnosResult.map(t => ({
         tipo: "Turno",
@@ -77,7 +78,8 @@ export const getHistorialClinicoById = async (pacienteId, tipoPaciente, filtroNo
         descripcion: t.descripción,
         especialidad: t.prestador?.especialidad || "",
         medico: t.prestador?.username || "",
-        notas: t.notes || ""
+        notas: t.notes || "",
+        duration: t.duration
       }))
     ];
 

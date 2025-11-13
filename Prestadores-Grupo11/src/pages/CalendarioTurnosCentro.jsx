@@ -9,6 +9,7 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import "../styles/CalendarioTurnos.css";
 import DetalleHistorialModal from "../components/DetalleHistorialModal";
+import TablaHistorial from "../components/TablaHistorial";
 import {
   getTurnosByPrestadorId,
   updateNotasTurno,
@@ -16,6 +17,7 @@ import {
 import {
   addNotaAHistoriaClinica,
   getHistoriaClinicaByAfiliado,
+  getHistorialClinicoById,
 } from "../services/HistorialClinicaApi";
 
 export default function CalendarioTurnosCentro() {
@@ -27,6 +29,8 @@ export default function CalendarioTurnosCentro() {
   const [selectedTurno, setSelectedTurno] = useState(null);
   const [loading, setLoading] = useState(true);
   const [modalDetalle, setModalDetalle] = useState(null);
+  const [consultas, setConsultas] = useState([]);
+  const [showHistoriaModal, setShowHistoriaModal] = useState(false);
 
   // === NUEVOS ESTADOS PARA FILTROS ===
   const [especialidad, setEspecialidad] = useState("");
@@ -68,78 +72,82 @@ export default function CalendarioTurnosCentro() {
   };
 
   /**  Guarda la nota del turno y la agrega al historial */
-  const handleGuardarNota = async (id) => {
-    const turno = turnos.find((t) => t.id === id);
-    if (!turno) return;
+  // const handleGuardarNota = async (id) => {
+  //   const turno = turnos.find((t) => t.id === id);
+  //   if (!turno) return;
 
-    try {
-      await updateNotasTurno(prestadorId, id, turno.notes);
+  //   try {
+  //     await updateNotasTurno(prestadorId, id, turno.notes);
 
-      setTurnos((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, notes: turno.notes } : t))
-      );
+  //     setTurnos((prev) =>
+  //       prev.map((t) => (t.id === id ? { ...t, notes: turno.notes } : t))
+  //     );
 
-      if (turno.afiliadoId || turno.integranteId) {
-        const pacienteId = turno.afiliadoId || turno.integranteId;
-        const prestadorNombre = user.username || "Prestador";
-        const notaHistorial = {
-          texto: turno.notes || "",
-          prestador: prestadorNombre,
-          fecha: turno.start,
-        };
+  //     if (turno.afiliadoId || turno.integranteId) {
+  //       const pacienteId = turno.afiliadoId || turno.integranteId;
+  //       const prestadorNombre = user.username || "Prestador";
+  //       const notaHistorial = {
+  //         texto: turno.notes || "",
+  //         prestador: prestadorNombre,
+  //         fecha: turno.start,
+  //       };
 
-        await addNotaAHistoriaClinica(pacienteId, notaHistorial);
-      }
+  //       await addNotaAHistoriaClinica(pacienteId, notaHistorial);
+  //     }
 
-      toast.success(
-        `Nota guardada para ${
-          turno.afiliado?.nombre
-            ? `${turno.afiliado.nombre} ${turno.afiliado.apellido}`
-            : turno.integrante?.nombre || "Paciente"
-        }`
-      );
-    } catch (error) {
-      console.error(" Error al guardar nota:", error);
-      toast.error("No se pudo guardar la nota.");
-    }
-  };
+  //     toast.success(
+  //       `Nota guardada para ${turno.afiliado?.nombre
+  //         ? `${turno.afiliado.nombre} ${turno.afiliado.apellido}`
+  //         : turno.integrante?.nombre || "Paciente"
+  //       }`
+  //     );
+  //   } catch (error) {
+  //     console.error(" Error al guardar nota:", error);
+  //     toast.error("No se pudo guardar la nota.");
+  //   }
+  // };
 
   /** Muestra historia clínica del paciente */
   const handleVerHistoriaClinica = async (turno) => {
-    if (!turno.afiliadoId && !turno.integranteId) {
-      toast.warn("Este paciente no tiene afiliado o integrante asociado.");
+    const tipoPaciente = (turno.afiliadoId === null) ? "Integrante" : "Afiliado"
+    const pacienteId = (tipoPaciente === "Integrante") ? turno.integranteId : turno.afiliadoId
+
+    if (!pacienteId) {
+      toast.warn(" Este turno no tiene paciente asociado.");
       return;
     }
 
     try {
-      let detalle = null;
-      if (turno.afiliadoId) {
-        detalle = await getHistoriaClinicaByAfiliado(turno.afiliadoId);
-      } else {
-        toast.warn("Integrante aún no tiene historia clínica.");
-        return;
-      }
-
-      setModalDetalle(detalle || { notas: "Sin historial clínico." });
+      const consultas = await getHistorialClinicoById(pacienteId, tipoPaciente);
+      setConsultas(consultas)
+      // setHistorias((prev) => ({
+      //   ...prev,
+      //   [pacienteId]: historia?.notas || [],
+      // }));
+      // setHistoriaSeleccionada({
+      //   afiliado: turno.afiliado,
+      //   notas: historia?.notas || [],
+      // });
+      setShowHistoriaModal(true); //  abrimos el modal
     } catch (error) {
-      console.error(" Error al obtener historia clínica:", error);
-      toast.error("No se pudo cargar la historia clínica del paciente.");
+      console.error("Error al obtener historia clínica:", error);
+      toast.error(" No se pudo cargar la historia clínica del paciente.");
     }
   };
 
   /** Filtra los turnos por fecha */
-const turnosDelDia = useMemo(() => {
-  return turnos.filter((t) => {
-    if (!selectedDate) return false; // Evita error cuando DayPicker borra la fecha
-    const fechaTurno = new Date(t.start || t.date); // soporta ambas claves
-    if (isNaN(fechaTurno)) return false; // fecha inválida
-    return (
-      fechaTurno.getDate() === selectedDate.getDate() &&
-      fechaTurno.getMonth() === selectedDate.getMonth() &&
-      fechaTurno.getFullYear() === selectedDate.getFullYear()
-    );
-  });
-}, [turnos, selectedDate]);
+  const turnosDelDia = useMemo(() => {
+    return turnos.filter((t) => {
+      if (!selectedDate) return false; // Evita error cuando DayPicker borra la fecha
+      const fechaTurno = new Date(t.date); // soporta ambas claves
+      if (isNaN(fechaTurno)) return false; // fecha inválida
+      return (
+        fechaTurno.getDate() === selectedDate.getDate() &&
+        fechaTurno.getMonth() === selectedDate.getMonth() &&
+        fechaTurno.getFullYear() === selectedDate.getFullYear()
+      );
+    });
+  }, [turnos, selectedDate]);
 
   /** === NUEVO: FILTROS CENTRO === */
   const medicosDisponibles = useMemo(
@@ -262,53 +270,19 @@ const turnosDelDia = useMemo(() => {
                     <div key={turno.id} className="turno-card">
                       <div
                         className="turno-header"
-                        onClick={() =>
-                          setSelectedTurno(
-                            selectedTurno === turno.id ? null : turno.id
-                          )
-                        }
+
                       >
                         <span className="hora">
-                          {format(new Date(turno.start), "HH:mm")}
+                          {format(new Date(turno.date), "HH:mm")}
                         </span>
                         <span className="paciente">{nombrePaciente}</span>
-                        <button className="btn-ver">Ver</button>
-                      </div>
-
-                      {selectedTurno === turno.id && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          transition={{ duration: 0.3 }}
-                          className="notas-box"
+                        <button
+                          className="btn-historia"
+                          onClick={() => handleVerHistoriaClinica(turno)}
                         >
-                          <textarea
-                            rows={3}
-                            maxLength={1000}
-                            value={turno.notes || ""}
-                            onChange={(e) =>
-                              handleNoteChange(turno.id, e.target.value)
-                            }
-                            placeholder="Agregar notas (máx. 1000 caracteres)"
-                          />
-
-                          <div className="botones-turno">
-                            <button
-                              className="btn-historia"
-                              onClick={() => handleVerHistoriaClinica(turno)}
-                            >
-                              Historia clínica
-                            </button>
-
-                            <button
-                              className="btn-guardar"
-                              onClick={() => handleGuardarNota(turno.id)}
-                            >
-                              Guardar nota
-                            </button>
-                          </div>
-                        </motion.div>
-                      )}
+                          Historia clínica
+                        </button>
+                      </div>
                     </div>
                   );
                 })
@@ -317,6 +291,53 @@ const turnosDelDia = useMemo(() => {
               )}
             </div>
           </div>
+
+          {/* === Modal Historia Clínica === */}
+          {showHistoriaModal && (
+            <div
+              className="modal fade show"
+              style={{
+                display: "block",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                zIndex: 1055,
+              }}
+              tabIndex="-1"
+              role="dialog"
+            >
+              <div className="modal-dialog modal-xl modal-dialog-scrollable">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">
+                      Historia clínica
+                    </h5>
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={() => setShowHistoriaModal(false)}
+                    ></button>
+                  </div>
+
+                  <div className="modal-body">
+                    {/* Tu componente TablaHistorial */}
+                    <TablaHistorial
+                      consultas={consultas}
+                      filtroNotas={false}
+                    />
+                  </div>
+
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => setShowHistoriaModal(false)}
+                    >
+                      Cerrar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <footer className="footer-vista">
