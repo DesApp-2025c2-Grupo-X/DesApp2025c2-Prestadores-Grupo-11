@@ -24,11 +24,11 @@ export default function HistorialClinico() {
   //Me traigo el tipo de paciente de los query parameters
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const tipo = queryParams.get("tipo"); // "afiliados", "integrantes"
+  const tipo = queryParams.get("tipo"); // "Afiliado", "Integrante"
 
   const [paciente, setPaciente] = useState(null);
   //const [situaciones, setSituaciones] = useState([]);
-  const [consultas, setConsultas] = useState([]);
+  //const [consultas, setConsultas] = useState([]);
 
   //Este estado es para manejar el problema en donde tengo el idPrestador, y necesito saber el nombre
   //Para poder mostrarlo en la tabla de historial clinico
@@ -68,17 +68,18 @@ export default function HistorialClinico() {
 
   }, [dni]);
 
+
   // Con la informacion del paciente, busca su historial clinico
-  useEffect(() => {
-    if (!paciente) return; // Si no hay paciente cargado no hace nada
+  // useEffect(() => {
+  //   if (!paciente) return; // Si no hay paciente cargado no hace nada
 
-    const getConsultas = async () => {
-      const consultas = await getHistorialClinicoById(paciente.id, tipo, filtroNotas)
-      setConsultas(consultas)
-    };
+  //   const getConsultas = async () => {
+  //     const consultas = await getHistorialClinicoById(paciente.id, tipo, filtroNotas)
+  //     setConsultas(consultas)
+  //   };
 
-    getConsultas()
-  }, [paciente, filtroNotas, tipo])
+  //   getConsultas()
+  // }, [paciente, filtroNotas, tipo])
 
   // Estado: cargando
   if (loading) {
@@ -175,7 +176,7 @@ export default function HistorialClinico() {
             transition={{ duration: 0.4 }}
           >
             {/*Checkbox para filtrar entre notas propias*/}
-            <div className="d-flex justify-content-center mb-3">
+            {/*<div className="d-flex justify-content-center mb-3">
               <div className="form-check">
                 <input
                   className="form-check-input"
@@ -188,11 +189,11 @@ export default function HistorialClinico() {
                   Filtrar por notas propias
                 </label>
               </div>
-            </div>
+            </div>*/}
 
             <TablaHistorial
-              consultas={consultas}
-              filtroNotas={filtroNotas}
+              pacienteId={paciente.id}
+              tipo={tipo}
             />
 
           </motion.div>

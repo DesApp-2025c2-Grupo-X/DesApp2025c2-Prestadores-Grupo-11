@@ -1,14 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { getHistorialClinicoById } from "../services/HistorialClinicaApi";
 import DetalleHistorialModal from "./DetalleHistorialModal";
 
 
 export default function TablaHistorial({
-  consultas,
-  filtroNotas,
+  pacienteId,
+  tipo
 }) {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [detalleSeleccionado, setDetalleSeleccionado] = useState(null);
+
+  const [consultas, setConsultas] = useState([])
+  const [filtroNotas, setFiltroNotas] = useState(false)
+
+  // Con la informacion del paciente, busca su historial clinico
+    useEffect(() => {
+      if (!pacienteId) return; // Si no hay paciente cargado no hace nada
+  
+      const getConsultas = async () => {
+        const consultas = await getHistorialClinicoById(pacienteId, tipo, filtroNotas)
+        setConsultas(consultas)
+      };
+  
+      getConsultas()
+    }, [pacienteId, filtroNotas, tipo])
 
   const abrirModal = (consulta) => {
     setDetalleSeleccionado(consulta);
@@ -25,6 +41,21 @@ export default function TablaHistorial({
 
   return (
     <>
+      {/*Checkbox para filtrar entre notas propias*/}
+      <div className="d-flex justify-content-center mb-3">
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="checkDefault"
+            checked={filtroNotas}
+            onChange={(e) => setFiltroNotas(e.target.checked)}
+          />
+          <label className="form-check-label ms-2" htmlFor="checkDefault">
+            Filtrar por notas propias
+          </label>
+        </div>
+      </div>
       <motion.div
         className="tabla-container"
         initial={{ opacity: 0 }}

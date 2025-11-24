@@ -33,6 +33,10 @@ export default function CalendarioTurnosMedico() {
   const [showHistoriaModal, setShowHistoriaModal] = useState(false);
   const [historiaSeleccionada, setHistoriaSeleccionada] = useState(null); //Borrar?
 
+  //Informacion necesaria para poder cargar el historial de un paciente
+  const [pacienteId, setPacienteId] = useState(0)
+  const [tipoPaciente, setTipoPaciente] = useState("")
+
   //Para mostrar el historial clinico
   const [consultas, setConsultas] = useState([])
 
@@ -76,23 +80,6 @@ export default function CalendarioTurnosMedico() {
 
   // === Obtener historia clínica de un paciente ===
   const handleVerHistoriaClinica = async (turno) => {
-    // const afiliadoId = turno.afiliado?.id || turno.afiliadoId;
-    // if (!afiliadoId) {
-    //   toast.warn(" Este paciente no tiene afiliado asociado.");
-    //   return;
-    // }
-
-    // try {
-    //   const historia = await getHistoriaClinicaByAfiliado(afiliadoId);
-    //   setHistorias((prev) => ({
-    //     ...prev,
-    //     [afiliadoId]: historia?.notas || "Sin historia clínica registrada",
-    //   }));
-    //   toast.success("Historia clínica cargada.");
-    // } catch (error) {
-    //   console.error("Error al obtener historia clínica:", error);
-    //   toast.error(" No se pudo cargar la historia clínica del paciente.");
-    // }
 
     const tipoPaciente = (turno.afiliadoId === null) ? "Integrante" : "Afiliado"
     const pacienteId = (tipoPaciente === "Integrante") ? turno.integranteId : turno.afiliadoId
@@ -102,22 +89,11 @@ export default function CalendarioTurnosMedico() {
       return;
     }
 
-    try {
-      const consultas = await getHistorialClinicoById(pacienteId, tipoPaciente);
-      setConsultas(consultas)
-      // setHistorias((prev) => ({
-      //   ...prev,
-      //   [pacienteId]: historia?.notas || [],
-      // }));
-      // setHistoriaSeleccionada({
-      //   afiliado: turno.afiliado,
-      //   notas: historia?.notas || [],
-      // });
-      setShowHistoriaModal(true); //  abrimos el modal
-    } catch (error) {
-      console.error("Error al obtener historia clínica:", error);
-      toast.error(" No se pudo cargar la historia clínica del paciente.");
-    }
+    setPacienteId(pacienteId)
+    setTipoPaciente(tipoPaciente)
+
+    setShowHistoriaModal(true); //  abrimos el modal
+    
   };
 
   // === Actualizar texto de notas ===
@@ -344,10 +320,9 @@ export default function CalendarioTurnosMedico() {
                   </div>
 
                   <div className="modal-body">
-                    {/* Tu componente TablaHistorial */}
                     <TablaHistorial
-                      consultas={consultas}
-                      filtroNotas={false}
+                      pacienteId={pacienteId}
+                      tipo={tipoPaciente}
                     />
                   </div>
 
