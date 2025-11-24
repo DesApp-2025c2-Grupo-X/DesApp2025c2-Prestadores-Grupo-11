@@ -32,6 +32,10 @@ export default function CalendarioTurnosCentro() {
   const [consultas, setConsultas] = useState([]);
   const [showHistoriaModal, setShowHistoriaModal] = useState(false);
 
+  //Informacion necesaria para poder cargar el historial de un paciente
+  const [pacienteId, setPacienteId] = useState(0)
+  const [tipoPaciente, setTipoPaciente] = useState("")
+
   // === NUEVOS ESTADOS PARA FILTROS ===
   const [especialidad, setEspecialidad] = useState("");
   const [medico, setMedico] = useState("");
@@ -117,22 +121,11 @@ export default function CalendarioTurnosCentro() {
       return;
     }
 
-    try {
-      const consultas = await getHistorialClinicoById(pacienteId, tipoPaciente);
-      setConsultas(consultas)
-      // setHistorias((prev) => ({
-      //   ...prev,
-      //   [pacienteId]: historia?.notas || [],
-      // }));
-      // setHistoriaSeleccionada({
-      //   afiliado: turno.afiliado,
-      //   notas: historia?.notas || [],
-      // });
-      setShowHistoriaModal(true); //  abrimos el modal
-    } catch (error) {
-      console.error("Error al obtener historia clínica:", error);
-      toast.error(" No se pudo cargar la historia clínica del paciente.");
-    }
+    setPacienteId(pacienteId)
+    setTipoPaciente(tipoPaciente)
+
+    setShowHistoriaModal(true); //  abrimos el modal
+    
   };
 
   /** Filtra los turnos por fecha */
@@ -318,10 +311,9 @@ export default function CalendarioTurnosCentro() {
                   </div>
 
                   <div className="modal-body">
-                    {/* Tu componente TablaHistorial */}
                     <TablaHistorial
-                      consultas={consultas}
-                      filtroNotas={false}
+                      pacienteId={pacienteId}
+                      tipo={tipoPaciente}
                     />
                   </div>
 
