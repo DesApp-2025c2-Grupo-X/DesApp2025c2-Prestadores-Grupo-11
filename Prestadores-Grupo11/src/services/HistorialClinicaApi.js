@@ -37,7 +37,7 @@ export const getHistorialClinicoById = async (pacienteId, tipoPaciente, filtroNo
         tipo: "Turno",
         fecha: t.date,
         descripcion: t.descripción,
-        especialidad: t.prestador?.especialidad || "",
+        especialidad: t.prestador?.especialidades[0] || "",
         medico: t.prestador?.username || "",
         notas: t.notes || "",
       }));
@@ -76,7 +76,7 @@ export const getHistorialClinicoById = async (pacienteId, tipoPaciente, filtroNo
         tipo: "Turno",
         fecha: t.date,
         descripcion: t.descripción,
-        especialidad: t.prestador?.especialidad || "",
+        especialidad: t.prestador?.especialidades[0] || "",
         medico: t.prestador?.username || "",
         notas: t.notes || "",
         duration: t.duration
