@@ -37,7 +37,7 @@ export default function TablaRecetas({ solicitudes, tomarSolicitud, navigate }) 
                         })
                       }
                     >
-                      Ver más y gestionar
+                      Gestionar
                     </button>
                   )}
                 </td>

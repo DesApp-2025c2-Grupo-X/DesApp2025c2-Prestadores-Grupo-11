@@ -46,12 +46,6 @@ export default function SolicitudesEntrantes() {
 
 	const user = JSON.parse(localStorage.getItem("miapp_user"));
 
-	//Funcion para capitalizar la primera letra de cada palabra
-	// const mayusculas = (str) => {
-	// 	if (typeof str !== "string") return str; // evita errores con undefined o null
-	// 	str.toLowerCase().replace(/(^|\s)\p{L}/gu, (c) => c.toUpperCase())
-	// };
-
 	const mostrarSolicitudesDisponibles = async () => {
 
 		const solicitudes = {
@@ -145,7 +139,7 @@ export default function SolicitudesEntrantes() {
 			console.log(`${tipoSolicitud} ahora en análisis:`, response.data);
 
 			//Actualiza la lista nuevamente tras hacer el cambio, asi se ve la solicitud cambiada
-			const nuevasSolicitudes = await getSolicitudesByTipo(tipoSolicitud, user.id);
+			const nuevasSolicitudes = await getSolicitudesByTipo(tipoSolicitud, user);
 			setSolicitudesDisponibles(nuevasSolicitudes);
 
 		} catch (error) {
@@ -162,13 +156,13 @@ export default function SolicitudesEntrantes() {
 		const fetchDatos = async () => {
 			try {
 
-				const dataReintegrosDisponibles = await getReintegrosPropias(user.id);
+				const dataReintegrosDisponibles = await getReintegrosPropias(user);
 				setReintegrosDisponibles(dataReintegrosDisponibles);
 
 				const dataRecetasDisponibles = await getRecetasPropias(user.id);
 				setRecetasDisponibles(dataRecetasDisponibles)
 
-				const dataAutorizacionesDisponibles = await getAutorizacionesPropias(user.id);
+				const dataAutorizacionesDisponibles = await getAutorizacionesPropias(user);
 				setAutorizacionesDisponibles(dataAutorizacionesDisponibles);
 
 				const dataReintegrosCompletados = await getReintegrosCompletados(user.id);

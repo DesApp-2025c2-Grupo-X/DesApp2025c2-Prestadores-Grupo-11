@@ -4,18 +4,25 @@ import api from "./Api";
 // Trae todas las autorizaciones en estado "recibido", y las autorizaciones en estado "en análisis", que esten
 // vinculadas al prestadorId
 
-export const getAutorizacionesPropias = async (prestadorId) => {
+export const getAutorizacionesPropias = async (prestador) => {
+  
+  let tipo = ""
+  if (prestador.role === "medico") {
+    tipo = "medico"
+  } else {
+    tipo = "centro"
+  }
+  let autorizaciones = []
+
   try {
-    const autorizacionesRecibidas = await api.get('/autorizaciones/bandeja?estado=recibido')
-    const autorizacionesEnAnalisis = await api.get(`/pendientes/${prestadorId}`)
 
-    // Unifica los arrays
-    const unificado = [
-      ...autorizacionesRecibidas.data,
-      ...(autorizacionesEnAnalisis.data?.autorizaciones ?? [])
-    ];
+    if (tipo === "medico") {
+      autorizaciones = await api.get(`autorizaciones/pendientes/prestadorId/${prestador.id}`)
+    } else {
+      autorizaciones = await api.get(`autorizaciones/pendientes/centroId/${prestador.id}`)
+    }
 
-    return unificado;
+    return autorizaciones.data
   } catch (error) {
     console.error("Error al traerse las autorizaciones disponibles", error);
     throw error;
@@ -25,26 +32,34 @@ export const getAutorizacionesPropias = async (prestadorId) => {
 // Trae todos los reintegros en estado "recibido", y los reintegros en estado "en análisis", que esten
 // vinculadas al prestadorId
 
-export const getReintegrosPropias = async (prestadorId) => {
+export const getReintegrosPropias = async (prestador) => {
+
+  let tipo = ""
+  if (prestador.role === "medico") {
+    tipo = "medico"
+  } else {
+    tipo = "centro"
+  }
+  let reintegros = []
+
   try {
-    const reintegrosRecibidos = await api.get('/reintegros/estado?estado=recibido')
-    const reintegrosEnAnalisis = await api.get(`/pendientes/${prestadorId}`)
 
-    // Unifica los arrays
-    const unificado = [
-      ...reintegrosRecibidos.data,
-      ...(reintegrosEnAnalisis.data?.reintegros ?? [])
-    ];
+    if (tipo === "medico") {
+      reintegros = await api.get(`reintegros/pendientes/prestadorId/${prestador.id}`)
+    } else {
+      reintegros = await api.get(`reintegros/pendientes/centroId/${prestador.id}`)
+    }
 
-    return unificado;
+    return reintegros.data
+
   } catch (error) {
     console.error("Error al traerse los reintegros disponibles", error);
     throw error;
   }
 }
 
-// Trae todas las recetas en estado "recibido", y las recetas en estado "en análisis", que esten
-// vinculadas al prestadorId
+
+// Trae todas las recetas en estado "recibido", y las recetas en estado "en análisis"
 
 export const getRecetasPropias = async (prestadorId) => {
   try {
@@ -72,8 +87,8 @@ export const getReintegrosCompletados = async (prestadorId) => {
     const allReintegros = await api.get('/reintegros')
     const reintegrosPropios = allReintegros.data.filter(reintegro => reintegro.usuarioUltimoCambio === prestadorId)
     const reintegrosTerminados = reintegrosPropios.filter(reintegro => reintegro.estado === "aprobado" ||
-                                                                       reintegro.estado === "rechazado" ||
-                                                                       reintegro.estado === "observado")
+      reintegro.estado === "rechazado" ||
+      reintegro.estado === "observado")
 
     return reintegrosTerminados
   } catch (error) {
@@ -90,8 +105,8 @@ export const getAutorizacionesCompletados = async (prestadorId) => {
     const allAutorizaciones = await api.get('/autorizaciones')
     const autorizacionesPropios = allAutorizaciones.data.filter(autorizacion => autorizacion.usuarioUltimoCambio === prestadorId)
     const autorizacionesTerminados = autorizacionesPropios.filter(autorizacion => autorizacion.estado === "aprobado" ||
-                                                                       autorizacion.estado === "rechazado" ||
-                                                                       autorizacion.estado === "observado")
+      autorizacion.estado === "rechazado" ||
+      autorizacion.estado === "observado")
 
     return autorizacionesTerminados
   } catch (error) {
@@ -108,8 +123,8 @@ export const getRecetasCompletados = async (prestadorId) => {
     const allRecetas = await api.get('/recetas')
     const recetasPropios = allRecetas.data.filter(receta => receta.usuarioUltimoCambio === prestadorId)
     const recetasTerminados = recetasPropios.filter(receta => receta.estado === "aprobado" ||
-                                                                       receta.estado === "rechazado" ||
-                                                                       receta.estado === "observado")
+      receta.estado === "rechazado" ||
+      receta.estado === "observado")
 
     return recetasTerminados
   } catch (error) {
@@ -196,9 +211,9 @@ export const cambiarEstadoReintegro = async (reintegroId, body) => {
 export const cantSolicitudesAnalisisApi = async (prestadorId) => {
   try {
     const res = await api.get(`/pendientes/${prestadorId}`)
-    const cant =  res.data.autorizaciones.length +
-                  res.data.recetas.length +
-                  res.data.reintegros.length;
+    const cant = res.data.autorizaciones.length +
+      res.data.recetas.length +
+      res.data.reintegros.length;
     return cant;
   } catch (error) {
     console.log("Error al traerse la cantida de solicitudes en analisis", error)
@@ -253,19 +268,19 @@ export const cantSolicitudesSemanaApi = async () => {
 }
 
 //Trae todas las solicitudes del tipo **tipoSolicitud**
-export const getSolicitudesByTipo = async (tipoSolicitud, prestadorId) => {
+export const getSolicitudesByTipo = async (tipoSolicitud, prestador) => {
   try {
 
     let res;
     switch (tipoSolicitud) {
       case "autorizaciones":
-        res = await getAutorizacionesPropias(prestadorId);
+        res = await getAutorizacionesPropias(prestador);
         break;
       case "recetas":
-        res = await getRecetasPropias(prestadorId);
+        res = await getRecetasPropias(prestador.id);
         break;
       case "reintegros":
-        res = await getReintegrosPropias(prestadorId);
+        res = await getReintegrosPropias(prestador);
         break;
       default:
         throw new Error(`Tipo de solicitud no válido: ${tipoSolicitud}`);
