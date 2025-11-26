@@ -67,10 +67,9 @@ export default function TablaHistorial({
             <tr>
               <th>Tipo</th>
               <th>Fecha</th>
-              <th>Descripcion</th>
+              <th>Notas</th>
               <th>Especialidad</th>
               <th>Medico</th>
-              <th>Notas</th>
               <th>Acción</th>
             </tr>
           </thead>
@@ -95,10 +94,9 @@ export default function TablaHistorial({
                       minute: "2-digit",
                     })}
                   </td>
-                  <td>{truncarTexto(consulta.descripcion)}</td>
+                  <td>{truncarTexto(consulta.notas)}</td>
                   <td>{mayusculas(consulta.especialidad)}</td>
                   <td>{mayusculas(consulta.medico)}</td>
-                  <td>{truncarTexto(consulta.notas)}</td>
 
                   <td>
                     <button
@@ -112,7 +110,7 @@ export default function TablaHistorial({
               ))
             ) : (
               <tr>
-                <td colSpan={7}>
+                <td colSpan={6}>
                   {filtroNotas
                     ? "No hay turnos con notas tuyas."
                     : "Este paciente todavía no tuvo ninguna consulta."}

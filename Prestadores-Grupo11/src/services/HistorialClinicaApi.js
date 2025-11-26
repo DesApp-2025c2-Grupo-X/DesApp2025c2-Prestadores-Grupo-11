@@ -36,7 +36,7 @@ export const getHistorialClinicoById = async (pacienteId, tipoPaciente, filtroNo
       const turnosFiltrados = turnosEncontrados.map((t) => ({
         tipo: "Turno",
         fecha: t.date,
-        descripcion: t.descripción,
+        //descripcion: t.descripción,
         especialidad: t.prestador?.especialidades[0] || "",
         medico: t.prestador?.username || "",
         notas: t.notes || "",
@@ -66,16 +66,14 @@ export const getHistorialClinicoById = async (pacienteId, tipoPaciente, filtroNo
       ...situacionesDeBaja.map(s => ({
         tipo: "Situacion terapeutica",
         fecha: s.fecha_final,
-        descripcion: s.observaciones,
+        notas: s.observaciones,
         especialidad: s.especialidad,
         medico: s.prestador.username,
-        notas: "-",
         duration: null
       })),
       ...turnosResult.map(t => ({
         tipo: "Turno",
         fecha: t.date,
-        descripcion: t.descripción,
         especialidad: t.prestador?.especialidades[0] || "",
         medico: t.prestador?.username || "",
         notas: t.notes || "",
