@@ -45,7 +45,7 @@ export default function TablaReintegros({ solicitudes, tomarSolicitud, navigate 
                         })
                       }
                     >
-                      Ver más y gestionar
+                      Gestionar
                     </button>
                   )}
                 </td>

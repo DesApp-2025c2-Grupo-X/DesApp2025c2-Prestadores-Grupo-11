@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
-import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { format } from "date-fns";
@@ -12,13 +11,9 @@ import DetalleHistorialModal from "../components/DetalleHistorialModal";
 import TablaHistorial from "../components/TablaHistorial";
 import {
   getTurnosByPrestadorId,
-  updateNotasTurno,
 } from "../services/TurnosApi";
-import {
-  addNotaAHistoriaClinica,
-  getHistoriaClinicaByAfiliado,
-  getHistorialClinicoById,
-} from "../services/HistorialClinicaApi";
+import { getMedicosDeCentroApi } from "../services/PrestadoresApi"
+
 
 export default function CalendarioTurnosCentro() {
   const user = JSON.parse(localStorage.getItem("miapp_user"));
@@ -36,17 +31,13 @@ export default function CalendarioTurnosCentro() {
   const [pacienteId, setPacienteId] = useState(0)
   const [tipoPaciente, setTipoPaciente] = useState("")
 
+  const [medicosCentro, setMedicosCentro] = useState([])
+
   // === NUEVOS ESTADOS PARA FILTROS ===
   const [especialidad, setEspecialidad] = useState("");
   const [medico, setMedico] = useState("");
 
-  // Ejemplo estático (luego reemplazar por datos reales del backend)
-  const especialidadesEjemplo = ["Cardiología", "Pediatría", "Dermatología"];
-  const medicosEjemplo = {
-    Cardiología: ["Dr. Gómez", "Dra. Ramírez"],
-    Pediatría: ["Dra. Torres", "Dr. Fernández"],
-    Dermatología: ["Dr. López"],
-  };
+  const especialidades = user.especialidades
 
   /**  Cargar turnos */
   useEffect(() => {
@@ -66,50 +57,19 @@ export default function CalendarioTurnosCentro() {
     };
 
     fetchTurnos();
+
+    const fetchMedicos = async () => {
+      try {
+        const medicos = await getMedicosDeCentroApi(user.id)
+        setMedicosCentro(medicos)
+      } catch (error) {
+        console.error("Error al obtener turnos:", error);
+        throw error;
+      }
+    }
+
+    fetchMedicos()
   }, [prestadorId]);
-
-  /**  Actualiza la nota escrita en el textarea */
-  const handleNoteChange = (id, value) => {
-    setTurnos((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, notes: value } : t))
-    );
-  };
-
-  /**  Guarda la nota del turno y la agrega al historial */
-  // const handleGuardarNota = async (id) => {
-  //   const turno = turnos.find((t) => t.id === id);
-  //   if (!turno) return;
-
-  //   try {
-  //     await updateNotasTurno(prestadorId, id, turno.notes);
-
-  //     setTurnos((prev) =>
-  //       prev.map((t) => (t.id === id ? { ...t, notes: turno.notes } : t))
-  //     );
-
-  //     if (turno.afiliadoId || turno.integranteId) {
-  //       const pacienteId = turno.afiliadoId || turno.integranteId;
-  //       const prestadorNombre = user.username || "Prestador";
-  //       const notaHistorial = {
-  //         texto: turno.notes || "",
-  //         prestador: prestadorNombre,
-  //         fecha: turno.start,
-  //       };
-
-  //       await addNotaAHistoriaClinica(pacienteId, notaHistorial);
-  //     }
-
-  //     toast.success(
-  //       `Nota guardada para ${turno.afiliado?.nombre
-  //         ? `${turno.afiliado.nombre} ${turno.afiliado.apellido}`
-  //         : turno.integrante?.nombre || "Paciente"
-  //       }`
-  //     );
-  //   } catch (error) {
-  //     console.error(" Error al guardar nota:", error);
-  //     toast.error("No se pudo guardar la nota.");
-  //   }
-  // };
 
   /** Muestra historia clínica del paciente */
   const handleVerHistoriaClinica = async (turno) => {
@@ -143,16 +103,15 @@ export default function CalendarioTurnosCentro() {
   }, [turnos, selectedDate]);
 
   /** === NUEVO: FILTROS CENTRO === */
-  const medicosDisponibles = useMemo(
-    () => (especialidad ? medicosEjemplo[especialidad] || [] : []),
-    [especialidad]
-  );
+  // const medicosDisponibles = useMemo(() => (especialidad ? medicosEjemplo[especialidad] || [] : []),
+  //   [especialidad]
+  // );
 
   const turnosFiltrados = useMemo(() => {
     return turnosDelDia.filter(
       (t) =>
-        (!especialidad || t.especialidad === especialidad) &&
-        (!medico || t.medico === medico)
+        (!especialidad || t.prestador.especialidades.includes(especialidad)) &&
+        (!medico || t.prestador.username === medico)
     );
   }, [turnosDelDia, especialidad, medico]);
 
@@ -188,7 +147,7 @@ export default function CalendarioTurnosCentro() {
                 }}
               >
                 <option value="">Todas</option>
-                {especialidadesEjemplo.map((esp) => (
+                {especialidades.map((esp) => (
                   <option key={esp} value={esp}>
                     {esp}
                   </option>
@@ -205,9 +164,9 @@ export default function CalendarioTurnosCentro() {
                 disabled={!especialidad}
               >
                 <option value="">Todos</option>
-                {medicosDisponibles.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
+                {medicosCentro.map((m) => (
+                  <option key={m.id} value={m}>
+                    {m.username}
                   </option>
                 ))}
               </select>

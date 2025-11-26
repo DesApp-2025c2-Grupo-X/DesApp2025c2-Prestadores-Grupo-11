@@ -47,7 +47,7 @@ export default function TablaAutorizaciones({ solicitudes, tomarSolicitud, navig
                         })
                       }
                     >
-                      Ver más y gestionar
+                      Gestionar
                     </button>
                   )}
                 </td>

@@ -48,10 +48,6 @@ const DetalleHistorialModal = ({ mostrar, onClose, detalle }) => {
               </span>
             )}
             <span>
-              <strong>Descripción:</strong>{" "}
-              <p>{detalle.descripcion || "Sin descripción"}</p>
-            </span>
-            <span>
               <strong>Notas:</strong>{" "}
               <p>{detalle.notas && detalle.notas.trim() !== ""
                 ? detalle.notas

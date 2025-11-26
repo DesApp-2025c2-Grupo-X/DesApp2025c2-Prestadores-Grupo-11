@@ -55,7 +55,7 @@ export default function LoginPage() {
 
       // === Manejo de respuesta exitosa ===
       if (data.message === "Acceso exitoso" && data.prestador) {
-        const { id, username, role } = data.prestador;
+        const { id, username, role, especialidades } = data.prestador;
 
         const normalizedRole = role.trim().toLowerCase(); // normalizado
 
@@ -65,6 +65,7 @@ export default function LoginPage() {
             id,
             username,
             role: normalizedRole,
+            especialidades
           })
         );
 
