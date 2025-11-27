@@ -17,7 +17,7 @@ export const addNotaAHistoriaClinica = async (afiliadoId, nota) => {
 // hayan sucedido, o que tengan una nota asociada.
 // Recibe el id (afiliadoId, integranteId), y el tipo de paciente (Afiliado/Integrante)
 
-export const getHistorialClinicoById = async (pacienteId, tipoPaciente, filtro) => {
+export const getHistorialClinicoById = async (pacienteId, tipoPaciente, filtro, fechaInicio, fechaFin) => {
 
   if (!pacienteId) return; // Si no hay paciente, no hace nada
 
@@ -53,25 +53,41 @@ export const getHistorialClinicoById = async (pacienteId, tipoPaciente, filtro) 
       (a, b) => new Date(b.fecha) - new Date(a.fecha)
     );
 
+    //Se hace el filtrado entre un periodo de fechas.
+    const inicio = fechaInicio ? new Date(fechaInicio) : null;
+    const fin = fechaFin ? new Date(fechaFin) : null;
+
+    const dentroDeRango = (f) => {
+      const fecha = new Date(f);
+      if (inicio && fecha < inicio) return false;
+      if (fin && fecha > fin) return false;
+      return true;
+    };
+
+    const situacionesPorFecha = situacionesOrdenadas.filter(s => dentroDeRango(s.fecha));
+    const turnosPorFecha = turnosOrdenados.filter(t => dentroDeRango(t.fecha));
+
     // Comprobacion de filtro
     if (filtro === "notas") {
-      const turnosEncontrados = turnosOrdenados.filter(turno => turno.notas)
+      const turnosEncontrados = turnosPorFecha.filter(turno => turno.notas)
       return (turnosEncontrados);
+
     } else if (filtro === "situaciones") {
-      return (situacionesOrdenadas)
+      return (situacionesPorFecha)
+
     } else if (filtro === "situacionesActivas") {
-      const situacionesFiltradas = situacionesOrdenadas.filter(situ => situ.estado === "en proceso")
-      return (situacionesFiltradas)
+      return situacionesPorFecha.filter(situ => situ.estado === "en proceso")
+
     } else if (filtro === "situacionesFinalizadas") {
-      const situacionesFiltradas = situacionesOrdenadas.filter(situ => situ.estado === "baja")
-      return (situacionesFiltradas)
+      return situacionesPorFecha.filter(situ => situ.estado === "baja")
+
     }
 
     //Transformo el nombre de los atributos de situaciones y turnos, para que
     //sea mas facil mostrarlos en la tabla.
     const unificados = [
-      ...situacionesFormato,
-      ...turnosFormato
+      ...situacionesPorFecha,
+      ...turnosPorFecha
     ];
 
     const ordenadosPorFecha = unificados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));

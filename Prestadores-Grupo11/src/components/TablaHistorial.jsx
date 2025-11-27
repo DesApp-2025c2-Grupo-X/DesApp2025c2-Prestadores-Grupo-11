@@ -15,17 +15,27 @@ export default function TablaHistorial({
   const [consultas, setConsultas] = useState([])
   const [filtro, setFiltro] = useState("none");
 
+  const [fechaInicio, setFechaInicio] = useState("");
+  const [fechaFin, setFechaFin] = useState("");
+  const hayFechas = fechaInicio || fechaFin;
+
   // Con la informacion del paciente, busca su historial clinico
   useEffect(() => {
     if (!pacienteId) return; // Si no hay paciente cargado no hace nada
 
     const getConsultas = async () => {
-      const consultas = await getHistorialClinicoById(pacienteId, tipo, filtro)
+      const consultas = await getHistorialClinicoById(
+        pacienteId,
+        tipo,
+        filtro,
+        fechaInicio,
+        fechaFin
+      );
       setConsultas(consultas)
     };
 
     getConsultas()
-  }, [pacienteId, filtro, tipo])
+  }, [pacienteId, filtro, tipo, fechaInicio, fechaFin])
 
   const abrirModal = (consulta) => {
     setDetalleSeleccionado(consulta);
@@ -47,6 +57,31 @@ export default function TablaHistorial({
         filtro={filtro}
         onChange={(nuevo) => setFiltro(nuevo)}
       />
+
+      {/*Filtro de fechas*/}
+      <div
+        className="d-flex justify-content-center gap-3 mt-2 mb-3 align-items-center w-100"
+      >
+        <div>
+          <label className="form-label mb-0">Fecha inicio:</label>
+          <input
+            type="date"
+            className="form-control"
+            value={fechaInicio}
+            onChange={(e) => setFechaInicio(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <label className="form-label mb-0">Fecha fin:</label>
+          <input
+            type="date"
+            className="form-control"
+            value={fechaFin}
+            onChange={(e) => setFechaFin(e.target.value)}
+          />
+        </div>
+      </div>
 
       <motion.div
         className="tabla-container"
@@ -103,9 +138,14 @@ export default function TablaHistorial({
             ) : (
               <tr>
                 <td colSpan={6}>
-                  {filtro
-                    ? "No hay turnos con notas tuyas."
-                    : "Este paciente todavía no tuvo ninguna consulta."}
+                  {(() => {
+                    if (filtro === "none") {
+                      return hayFechas
+                        ? "No hay ningún resultado para estos filtros."
+                        : "Este paciente todavía no tuvo ninguna consulta.";
+                    }
+                    return "No hay resultados para este filtro.";
+                  })()}
                 </td>
               </tr>
             )}
