@@ -17,7 +17,7 @@ const DetalleHistorialModal = ({ mostrar, onClose, detalle }) => {
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">Detalle de {detalle.tipo}</h5>
+            <h5 className="modal-title">Detalle de {detalle.duration == null ? "Situacion Terapeutica" : "Turno"}</h5>
             <button
               type="button"
               className="btn-close"
@@ -52,10 +52,16 @@ const DetalleHistorialModal = ({ mostrar, onClose, detalle }) => {
               </span>
             )}
             {detalle.duration == null && (
-              <span>
-                <strong>Lugar de la situación:</strong>{" "}
-                <p>{lugar}</p>
-              </span>
+              <div>
+                <span>
+                  <strong>Lugar de la situación:</strong>{" "}
+                  <p>{lugar}</p>
+                </span>
+                <span>
+                  <strong>Estado:</strong>{" "}
+                  <p>{detalle.estado}</p>
+                </span>
+              </div>
             )}
             <span>
               <strong>Notas:</strong>{" "}

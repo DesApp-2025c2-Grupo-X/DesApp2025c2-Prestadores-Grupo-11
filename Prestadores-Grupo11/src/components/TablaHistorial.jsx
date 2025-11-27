@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { getHistorialClinicoById } from "../services/HistorialClinicaApi";
 import DetalleHistorialModal from "./DetalleHistorialModal";
+import HistorialFiltroRadios from "./HistorialFiltroRadios";
 
 
 export default function TablaHistorial({
@@ -12,19 +13,19 @@ export default function TablaHistorial({
   const [detalleSeleccionado, setDetalleSeleccionado] = useState(null);
 
   const [consultas, setConsultas] = useState([])
-  const [filtroNotas, setFiltroNotas] = useState(false)
+  const [filtro, setFiltro] = useState("none");
 
   // Con la informacion del paciente, busca su historial clinico
-    useEffect(() => {
-      if (!pacienteId) return; // Si no hay paciente cargado no hace nada
-  
-      const getConsultas = async () => {
-        const consultas = await getHistorialClinicoById(pacienteId, tipo, filtroNotas)
-        setConsultas(consultas)
-      };
-  
-      getConsultas()
-    }, [pacienteId, filtroNotas, tipo])
+  useEffect(() => {
+    if (!pacienteId) return; // Si no hay paciente cargado no hace nada
+
+    const getConsultas = async () => {
+      const consultas = await getHistorialClinicoById(pacienteId, tipo, filtro)
+      setConsultas(consultas)
+    };
+
+    getConsultas()
+  }, [pacienteId, filtro, tipo])
 
   const abrirModal = (consulta) => {
     setDetalleSeleccionado(consulta);
@@ -41,21 +42,12 @@ export default function TablaHistorial({
 
   return (
     <>
-      {/*Checkbox para filtrar entre notas propias*/}
-      <div className="d-flex justify-content-center mb-3">
-        <div className="form-check">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            id="checkDefault"
-            checked={filtroNotas}
-            onChange={(e) => setFiltroNotas(e.target.checked)}
-          />
-          <label className="form-check-label ms-2" htmlFor="checkDefault">
-            Filtrar por notas propias
-          </label>
-        </div>
-      </div>
+      {/*Radio para filtrar el historial*/}
+      <HistorialFiltroRadios
+        filtro={filtro}
+        onChange={(nuevo) => setFiltro(nuevo)}
+      />
+
       <motion.div
         className="tabla-container"
         initial={{ opacity: 0 }}
@@ -111,7 +103,7 @@ export default function TablaHistorial({
             ) : (
               <tr>
                 <td colSpan={6}>
-                  {filtroNotas
+                  {filtro
                     ? "No hay turnos con notas tuyas."
                     : "Este paciente todavía no tuvo ninguna consulta."}
                 </td>
