@@ -144,7 +144,7 @@ export default function GestionSolicitud() {
                 {tipo === "autorizaciones" && (
                   <>
                     {renderCampo("Fecha prevista", formatearFecha(solicitud.fecha_prevista))}
-                    {renderCampo("Integrante", solicitud.integranteId)}
+                    {renderCampo("Integrante", solicitud.integrante?.nombre)}
                     {renderCampo("Médico", solicitud.medico)}
                     {renderCampo("Especialidad", solicitud.especialidad)}
                     {renderCampo("Lugar donde se realizará la prestación", solicitud.lugar)}

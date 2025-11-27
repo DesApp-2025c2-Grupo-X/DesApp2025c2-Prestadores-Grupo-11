@@ -2,6 +2,10 @@ import React from "react";
 
 const DetalleHistorialModal = ({ mostrar, onClose, detalle }) => {
   if (!detalle) return null;
+  console.log("Mi detalle!", detalle)
+
+  const user = JSON.parse(localStorage.getItem("miapp_user"));
+  let lugar = (user.role === "medico") ? user.centro : user.username
 
   return (
     <div
@@ -45,6 +49,12 @@ const DetalleHistorialModal = ({ mostrar, onClose, detalle }) => {
               <span>
                 <strong>Duración:</strong>{" "}
                 <p>{detalle.duration} minutos</p>
+              </span>
+            )}
+            {detalle.duration == null && (
+              <span>
+                <strong>Lugar de la situación:</strong>{" "}
+                <p>{lugar}</p>
               </span>
             )}
             <span>
