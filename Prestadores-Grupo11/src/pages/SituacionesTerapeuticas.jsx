@@ -22,16 +22,15 @@ import {
 export default function SituacionesTerapeuticas() {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const [paciente, setPaciente] = useState(null);
   const [situaciones, setSituaciones] = useState([]);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState(false);
-  
-  //Se fija en el url si el paciente es afiliado o integrante
+
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const tipoPaciente = queryParams.get("tipoPaciente"); // "afiliado" o "integrante"
+  const tipoPaciente = queryParams.get("tipoPaciente");
   const esIntegrante = tipoPaciente === "integrante";
 
   useEffect(() => {
@@ -56,7 +55,10 @@ export default function SituacionesTerapeuticas() {
         let responseData;
 
         if (esIntegrante) {
-          responseData = await getSituacionesDePrestadorByIntegranteId(prestadorId, id);
+          responseData = await getSituacionesDePrestadorByIntegranteId(
+            prestadorId,
+            id
+          );
         } else {
           responseData = await getSituacionesByAfiliadoId(
             prestadorId,
@@ -66,7 +68,7 @@ export default function SituacionesTerapeuticas() {
         }
 
         const data = responseData?.data || responseData;
-        console.log("📦 Datos recibidos del backend:", data);
+        console.log("Datos recibidos del backend:", data);
 
         let listaSituaciones = [];
         let pacienteInfo = {};
@@ -79,26 +81,25 @@ export default function SituacionesTerapeuticas() {
               : "—",
             especialidad: s.especialidad || "—",
             descripcion: s.observaciones || "—",
-            estado: s.estado || "Pendiente",
+            estado: s.estado || "activa",
             prestador_nombre: s.prestador?.username || "—",
-            pacienteNombre: `${s.afiliado?.nombre || s.integrante?.nombre || ""
-              } ${s.afiliado?.apellido || s.integrante?.apellido || ""}`.trim(),
+            pacienteNombre: `${
+              s.afiliado?.nombre || s.integrante?.nombre || ""
+            } ${s.afiliado?.apellido || s.integrante?.apellido || ""}`.trim(),
             pacienteDNI: s.afiliado?.dni || s.integrante?.dni || "—",
           }));
 
           const ref = data[0];
           pacienteInfo = {
-            nombre: `${ref?.afiliado?.nombre || ref?.integrante?.nombre || ""
-              } ${ref?.afiliado?.apellido || ref?.integrante?.apellido || ""
-              }`.trim(),
-            afiliadoId: ref?.afiliadoId || ref?.integranteId || id,
+            nombre: `${
+              ref?.afiliado?.nombre || ref?.integrante?.nombre || ""
+            } ${
+              ref?.afiliado?.apellido || ref?.integrante?.apellido || ""
+            }`.trim(),
+            id: ref?.afiliadoId || ref?.integranteId || id,
             dni: ref?.afiliado?.dni || ref?.integrante?.dni || "—",
           };
-        } else if (
-          data &&
-          data.situaciones &&
-          Array.isArray(data.situaciones)
-        ) {
+        } else if (data?.situaciones && Array.isArray(data.situaciones)) {
           listaSituaciones = data.situaciones.map((s) => ({
             id: s.id,
             fecha_inicio: s.fecha_inicio
@@ -106,10 +107,9 @@ export default function SituacionesTerapeuticas() {
               : "—",
             especialidad: s.especialidad || "—",
             descripcion: s.observaciones || "—",
-            estado: s.estado || "Pendiente",
+            estado: s.estado || "activa",
             prestador_nombre: s.prestador?.username || "—",
-            pacienteNombre: `${data.nombre || ""} ${data.apellido || ""
-              }`.trim(),
+            pacienteNombre: `${data.nombre || ""} ${data.apellido || ""}`.trim(),
             pacienteDNI: data.dni || "—",
           }));
 
@@ -122,11 +122,10 @@ export default function SituacionesTerapeuticas() {
           throw new Error("Respuesta inválida del backend");
         }
 
-        console.log("📋 Datos del paciente:", pacienteInfo);
         setPaciente(pacienteInfo);
         setSituaciones(listaSituaciones);
       } catch (err) {
-        if (err.name === "CanceledError" || err.name === "AbortError") return;
+        if (err.name === "AbortError") return;
         console.error("Error cargando situaciones:", err);
         toast.error("No se pudieron cargar los datos del paciente.", {
           position: "bottom-right",
@@ -142,27 +141,27 @@ export default function SituacionesTerapeuticas() {
     return () => controller.abort();
   }, [id, esIntegrante]);
 
-  // === Acción: Nueva Situación ===
+  // === Alta de nueva situación ===
   const handleNuevaSituacion = () => {
-    if (!paciente?.id && !paciente?.dni) {
-      toast.error("No se pudo obtener el identificador del paciente");
+    if (!paciente?.id) {
+      toast.error("No se pudo obtener el identificador del paciente.");
       return;
     }
 
-    let identificador = paciente.id; // usamos el ID interno, no el DNI
-    navigate(`/prestadores/situaciones/alta/${identificador}?tipoPaciente=${tipoPaciente}`);
+    navigate(
+      `/prestadores/situaciones/alta/${paciente.id}?tipoPaciente=${tipoPaciente}`
+    );
   };
 
-
-  const handleArchivar = async (id) => {
+  // === Archivar ===
+  const handleArchivar = async (idSituacion) => {
     try {
-      const situacion = situaciones.find((s) => s.id === id);
+      const situacion = situaciones.find((s) => s.id === idSituacion);
 
-      console.log("Situacion", situacion)
-      console.log("Estado de la situacion: ", situacion.estado)
-      //  Validación previa: solo se archivan las finalizadas
-      if (situacion && situacion.estado !== "baja") {
-        toast.warn("Solo se pueden archivar situaciones finalizadas.", {
+      if (!situacion) return;
+
+      if (situacion.estado !== "cerrada") {
+        toast.warn("Solo se pueden archivar situaciones cerradas.", {
           position: "bottom-right",
         });
         return;
@@ -170,7 +169,7 @@ export default function SituacionesTerapeuticas() {
 
       const confirm = await Swal.fire({
         title: "¿Archivar situación?",
-        text: "Esto moverá la situación al historial clínico del paciente.",
+        text: "Esto moverá la situación al historial.",
         icon: "warning",
         showCancelButton: true,
         confirmButtonText: "Sí, archivar",
@@ -181,12 +180,12 @@ export default function SituacionesTerapeuticas() {
 
       if (!confirm.isConfirmed) return;
 
-      // Llamada al método correcto (PATCH)
-      await archivarSituacion(id);
+      await archivarSituacion(idSituacion);
 
-      // Actualiza el estado local de la lista
       setSituaciones((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, estado: "baja" } : s))
+        prev.map((s) =>
+          s.id === idSituacion ? { ...s, estado: "archivada" } : s
+        )
       );
 
       toast.success("Situación archivada correctamente.", {
@@ -194,21 +193,24 @@ export default function SituacionesTerapeuticas() {
         autoClose: 2000,
       });
     } catch (error) {
-      console.error("Error al archivar la situación:", error);
+      console.error("Error al archivar:", error);
       toast.error("No se pudo archivar la situación.", {
         position: "bottom-right",
       });
     }
   };
 
-  const handleEditarEstado = async (situacionId, nuevoEstado) => {
+  // === Cambiar estado (activa / cerrada) ===
+  const handleEditarEstado = async (idSituacion, nuevoEstado) => {
     try {
-      await actualizarSituacion(situacionId, { estado: nuevoEstado });
+      await actualizarSituacion(idSituacion, { estado: nuevoEstado });
+
       setSituaciones((prev) =>
         prev.map((s) =>
-          s.id === situacionId ? { ...s, estado: nuevoEstado } : s
+          s.id === idSituacion ? { ...s, estado: nuevoEstado } : s
         )
       );
+
       toast.success(`Estado actualizado a "${nuevoEstado}"`, {
         position: "bottom-right",
         autoClose: 2000,
@@ -221,15 +223,14 @@ export default function SituacionesTerapeuticas() {
     }
   };
 
+  // === Pantallas de carga / error ===
   if (cargando) {
     return (
       <PrestadoresLayout header={<HeaderPrestadores />}>
         <div className="d-flex">
           <SideBar />
           <div className="container mt-5 text-center">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Cargando...</span>
-            </div>
+            <div className="spinner-border text-primary" role="status" />
             <p className="mt-3">Cargando datos del paciente...</p>
           </div>
         </div>
@@ -258,6 +259,7 @@ export default function SituacionesTerapeuticas() {
     );
   }
 
+  // === Render principal ===
   return (
     <PrestadoresLayout header={<HeaderPrestadores />}>
       <div className="d-flex">
@@ -281,10 +283,7 @@ export default function SituacionesTerapeuticas() {
           </h3>
 
           <div style={{ textAlign: "right", width: "80%", margin: "0 auto" }}>
-            <button
-              className="btn-nueva-situacion"
-              onClick={handleNuevaSituacion}
-            >
+            <button className="btn-nueva-situacion" onClick={handleNuevaSituacion}>
               <FiPlus style={{ marginRight: "6px" }} /> Nueva Situación
             </button>
           </div>
@@ -308,6 +307,7 @@ export default function SituacionesTerapeuticas() {
                   <th>Acciones</th>
                 </tr>
               </thead>
+
               <tbody>
                 {situaciones.length > 0 ? (
                   situaciones.map((s) => (
@@ -320,9 +320,7 @@ export default function SituacionesTerapeuticas() {
                         <button
                           className="btn-ver-mas"
                           data-tooltip-id={`desc-${s.id}`}
-                          data-tooltip-content={
-                            s.descripcion || "Sin descripción"
-                          }
+                          data-tooltip-content={s.descripcion || "Sin descripción"}
                         >
                           Ver más
                         </button>
@@ -337,26 +335,24 @@ export default function SituacionesTerapeuticas() {
                         />
                       </td>
                       <td>{s.prestador_nombre}</td>
+
                       <td>
                         <select
-                          value={s.estado || "Pendiente"}
+                          value={s.estado}
                           onChange={(e) =>
                             handleEditarEstado(s.id, e.target.value)
                           }
-                          className={`form-select form-select-sm ${s.estado === "Finalizado"
-                              ? "estado-finalizado"
-                              : "estado-proceso"
-                            }`}
+                          className="form-select form-select-sm"
                         >
-                          <option value="alta">Pendiente</option>
-                          <option value="en proceso">En proceso</option>
-                          <option value="baja">Finalizado</option>
+                          <option value="activa">Activa</option>
+                          <option value="cerrada">Cerrada</option>
                         </select>
                       </td>
+
                       <td>
                         <button
                           className="btn btn-sm btn-outline-secondary"
-                          onClick={() => handleArchivar(s.id, s.estado)}
+                          onClick={() => handleArchivar(s.id)}
                         >
                           <Folder size={16} />
                         </button>

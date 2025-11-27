@@ -17,11 +17,15 @@ import TablaHistorial from "../components/TablaHistorial";
 import "react-tooltip/dist/react-tooltip.css";
 import { getHistoriaClinicaByAfiliado, addNotaAHistoriaClinica, getHistorialClinicoById } from "../services/HistorialClinicaApi";
 
+import { es } from "date-fns/locale";
+
+
 export default function CalendarioTurnosMedico() {
   const user = JSON.parse(localStorage.getItem("miapp_user"));
   const prestadorId = user?.id;
   const role = user?.role;
 
+  // Siempre empezamos con una fecha válida
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [turnos, setTurnos] = useState([]);
   const [selectedTurno, setSelectedTurno] = useState(null);
@@ -29,17 +33,21 @@ export default function CalendarioTurnosMedico() {
   const [historias, setHistorias] = useState({});
   const [nota, setNota] = useState("");
 
-  //Estos dos estados son utilizados para abrir la ventana emergente para el historial.
   const [showHistoriaModal, setShowHistoriaModal] = useState(false);
-  const [historiaSeleccionada, setHistoriaSeleccionada] = useState(null); //Borrar?
+  const [historiaSeleccionada, setHistoriaSeleccionada] = useState(null); // no usado, pero lo dejo
 
-  //Informacion necesaria para poder cargar el historial de un paciente
-  const [pacienteId, setPacienteId] = useState(0)
-  const [tipoPaciente, setTipoPaciente] = useState("")
+  const [pacienteId, setPacienteId] = useState(0);
+  const [tipoPaciente, setTipoPaciente] = useState("");
 
-  //Para mostrar el historial clinico
-  const [consultas, setConsultas] = useState([])
+  const [consultas, setConsultas] = useState([]);
 
+  // === Handler seguro para DayPicker ===
+  const handleSelectDate = (date) => {
+    // DayPicker pasa `undefined`/`null` si se des‑selecciona (segundo clic).
+    // Si eso pasa, no cambiamos el estado para evitar dejarlo inválido.
+    if (!date) return;
+    setSelectedDate(date);
+  };
 
   // === Cargar turnos ===
   useEffect(() => {
@@ -53,7 +61,9 @@ export default function CalendarioTurnosMedico() {
       }
 
       if (role !== "medico") {
-        toast.error(" Acceso no autorizado. Solo médicos pueden acceder a este calendario.");
+        toast.error(
+          " Acceso no autorizado. Solo médicos pueden acceder a este calendario."
+        );
         setLoading(false);
         return;
       }
@@ -66,8 +76,11 @@ export default function CalendarioTurnosMedico() {
         console.log("Turnos recibidos del backend:", turnosValidos);
       } catch (error) {
         console.error("Error al obtener turnos:", error);
-        toast.warn(" No se pudo conectar con el servidor. Cargando datos locales...");
-        const localTurnos = JSON.parse(localStorage.getItem("turnos_medico")) || [];
+        toast.warn(
+          " No se pudo conectar con el servidor. Cargando datos locales..."
+        );
+        const localTurnos =
+          JSON.parse(localStorage.getItem("turnos_medico")) || [];
         setTurnos(localTurnos);
       } finally {
         setLoading(false);
@@ -80,25 +93,28 @@ export default function CalendarioTurnosMedico() {
 
   // === Obtener historia clínica de un paciente ===
   const handleVerHistoriaClinica = async (turno) => {
-
-    const tipoPaciente = (turno.afiliadoId === null) ? "Integrante" : "Afiliado"
-    const pacienteId = (tipoPaciente === "Integrante") ? turno.integranteId : turno.afiliadoId
+    const tipoPaciente =
+      turno.afiliadoId === null ? "Integrante" : "Afiliado";
+    const pacienteId =
+      tipoPaciente === "Integrante" ? turno.integranteId : turno.afiliadoId;
 
     if (!pacienteId) {
       toast.warn(" Este turno no tiene paciente asociado.");
       return;
     }
 
-    setPacienteId(pacienteId)
-    setTipoPaciente(tipoPaciente)
+    setPacienteId(pacienteId);
+    setTipoPaciente(tipoPaciente);
 
-    setShowHistoriaModal(true); //  abrimos el modal
-    
+    setShowHistoriaModal(true);
   };
 
-  // === Actualizar texto de notas ===
+  // === Actualizar texto de notas en el estado ===
   const handleNoteChange = (id, value) => {
-    setTurnos((prev) => prev.map((t) => (t.id === id ? { ...t, notas: value } : t)));
+    setTurnos((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, notas: value } : t))
+    );
+    setNota(value);
   };
 
   // === Guardar nota y agregar al historial clínico ===
@@ -109,23 +125,23 @@ export default function CalendarioTurnosMedico() {
     try {
       await updateNotasTurno(prestadorId, id, nota);
       const turnosActualizados = turnos.map((t) =>
-        t.id === id ? { ...t, notas: turno.notas } : t
+        t.id === id ? { ...t, notas: nota } : t
       );
       setTurnos(turnosActualizados);
-      localStorage.setItem("turnos_medico", JSON.stringify(turnosActualizados));
-
-      // Guardar nota en la historia clínica
-      // if (turno.afiliado?.id) {
-      //   await addNotaAHistoriaClinica(turno.afiliado.id, turno.notas);
-      // }
+      localStorage.setItem(
+        "turnos_medico",
+        JSON.stringify(turnosActualizados)
+      );
 
       toast.success(
-        `Nota guardada para ${turno.integrante
-          ? turno.integrante.nombre
-          : `${turno.afiliado.nombre} ${turno.afiliado.apellido}`
+        `Nota guardada para ${
+          turno.integrante
+            ? turno.integrante.nombre
+            : `${turno.afiliado.nombre} ${turno.afiliado.apellido}`
         }`
       );
       setSelectedTurno(null);
+      setNota("");
     } catch (error) {
       console.error("Error al guardar nota:", error);
       toast.error(" No se pudo guardar la nota en la base de datos");
@@ -134,9 +150,9 @@ export default function CalendarioTurnosMedico() {
 
   // === Filtrar los turnos del día seleccionado ===
   const turnosDelDia = turnos.filter((t) => {
-    if (!selectedDate) return false; // Evita error cuando DayPicker borra la fecha
-    const fechaTurno = new Date(t.date); // soporta ambas claves
-    if (isNaN(fechaTurno)) return false; // fecha inválida
+    if (!selectedDate) return false; // defensa adicional, aunque ya no debería ser null
+    const fechaTurno = new Date(t.date);
+    if (isNaN(fechaTurno)) return false;
     return (
       fechaTurno.getDate() === selectedDate.getDate() &&
       fechaTurno.getMonth() === selectedDate.getMonth() &&
@@ -144,9 +160,12 @@ export default function CalendarioTurnosMedico() {
     );
   });
 
-  // === Error de login ===
   if (!prestadorId) {
-    return <p style={{ padding: "2rem" }}>No se encontró el médico logueado.</p>;
+    return (
+      <p style={{ padding: "2rem" }}>
+        No se encontró el médico logueado.
+      </p>
+    );
   }
 
   return (
@@ -161,11 +180,12 @@ export default function CalendarioTurnosMedico() {
             <DayPicker
               mode="single"
               selected={selectedDate}
-              onSelect={setSelectedDate}
+              onSelect={handleSelectDate}
               footer={
                 selectedDate && (
                   <p className="seleccion-fecha">
-                    Fecha seleccionada: {format(selectedDate, "dd/MM/yyyy")}
+                    Fecha seleccionada:{" "}
+                    {format(selectedDate, "dd/MM/yyyy")}
                   </p>
                 )
               }
@@ -176,7 +196,13 @@ export default function CalendarioTurnosMedico() {
           <div className="agenda-box card shadow-sm">
             <div className="card-header">
               <h5 className="mb-0">
-                {format(selectedDate, "EEEE dd 'de' MMMM yyyy")}
+                {selectedDate
+                  ? format(
+                      selectedDate,
+                      "EEEE dd 'de' MMMM yyyy",
+                      { locale: es }
+                    )
+                  : "Selecciona una fecha"}
               </h5>
             </div>
 
@@ -185,11 +211,9 @@ export default function CalendarioTurnosMedico() {
                 <p>Cargando turnos...</p>
               ) : turnosDelDia.length > 0 ? (
                 turnosDelDia.map((turno) => {
-
                   const fechaTurno = new Date(turno.date);
                   const hoy = new Date();
 
-                  // Normalizamos el horario para solamente tildar como turno pasado las de ayer para atras
                   fechaTurno.setHours(0, 0, 0, 0);
                   hoy.setHours(0, 0, 0, 0);
 
@@ -198,21 +222,27 @@ export default function CalendarioTurnosMedico() {
                   return (
                     <div
                       key={turno.id}
-                      className={`turno-card ${turnoPasado ? "turno-pasado" : ""}`} // opcional: clase para estilos
+                      className={`turno-card ${
+                        turnoPasado ? "turno-pasado" : ""
+                      }`}
                     >
                       <div
                         className="turno-header"
                         onClick={() =>
-                          setSelectedTurno(selectedTurno === turno.id ? null : turno.id)
+                          setSelectedTurno(
+                            selectedTurno === turno.id ? null : turno.id
+                          )
                         }
                       >
-                        <span className="hora">{format(new Date(turno.date), "HH:mm")}</span>
+                        <span className="hora">
+                          {format(new Date(turno.date), "HH:mm")}
+                        </span>
                         <span className="paciente">
                           {turno.afiliado
                             ? `${turno.afiliado.nombre} ${turno.afiliado.apellido}`
                             : turno.integrante
-                              ? turno.integrante.nombre
-                              : "Paciente no especificado"}
+                            ? turno.integrante.nombre
+                            : "Paciente no especificado"}
                         </span>
                         <button className="btn-ver">📝 Ver</button>
                       </div>
@@ -228,12 +258,21 @@ export default function CalendarioTurnosMedico() {
                             rows={3}
                             maxLength={500}
                             value={nota}
-                            onChange={(e) => setNota(e.target.value)}
-                            placeholder={turnoPasado ? "No se puede agregar notas a un turno pasado." : "Agregar notas (máx. 500 caracteres)"}
+                            onChange={(e) =>
+                              handleNoteChange(turno.id, e.target.value)
+                            }
+                            placeholder={
+                              turnoPasado
+                                ? "No se puede agregar notas a un turno pasado."
+                                : "Agregar notas (máx. 500 caracteres)"
+                            }
                             disabled={turnoPasado}
                             style={
                               turnoPasado
-                                ? { backgroundColor: "#f0f0f0", color: "#777" }
+                                ? {
+                                    backgroundColor: "#f0f0f0",
+                                    color: "#777",
+                                  }
                                 : {}
                             }
                           />
@@ -254,18 +293,25 @@ export default function CalendarioTurnosMedico() {
                                 historias[turno.afiliado?.id] ||
                                 "Cargar historia clínica"
                               }
-                              onClick={() => handleVerHistoriaClinica(turno)}
+                              onClick={() =>
+                                handleVerHistoriaClinica(turno)
+                              }
                             >
                               Historia clínica
                             </button>
 
                             <button
                               className="btn-guardar"
-                              onClick={() => handleGuardarNota(turno.id)}
+                              onClick={() =>
+                                handleGuardarNota(turno.id)
+                              }
                               disabled={turnoPasado}
                               style={
                                 turnoPasado
-                                  ? { opacity: 0.6, cursor: "not-allowed" }
+                                  ? {
+                                      opacity: 0.6,
+                                      cursor: "not-allowed",
+                                    }
                                   : {}
                               }
                             >
@@ -291,7 +337,6 @@ export default function CalendarioTurnosMedico() {
                 <p className="sin-turnos">No hay turnos para esta fecha.</p>
               )}
             </div>
-
           </div>
 
           {/* === Modal Historia Clínica === */}
@@ -309,9 +354,7 @@ export default function CalendarioTurnosMedico() {
               <div className="modal-dialog modal-xl modal-dialog-scrollable">
                 <div className="modal-content">
                   <div className="modal-header">
-                    <h5 className="modal-title">
-                      Historia clínica
-                    </h5>
+                    <h5 className="modal-title">Historia clínica</h5>
                     <button
                       type="button"
                       className="btn-close"
@@ -339,7 +382,6 @@ export default function CalendarioTurnosMedico() {
               </div>
             </div>
           )}
-
         </div>
 
         <footer className="footer-vista">
@@ -349,4 +391,3 @@ export default function CalendarioTurnosMedico() {
     </PrestadoresLayout>
   );
 }
-

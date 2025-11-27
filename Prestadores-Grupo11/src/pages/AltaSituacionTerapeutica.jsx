@@ -10,14 +10,16 @@ import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { crearSituacion } from "../services/SituacionesApi";
 
 export default function AltaSituacionTerapeutica({ onNuevaSituacion, integranteInfo }) {
-
   const { dni, id, afiliadoId } = useParams();
   const navigate = useNavigate();
 
   const storedUser = JSON.parse(localStorage.getItem("miapp_user"));
   const prestadorId = storedUser?.id;
 
-  // Se trae el tipo de paciente de los query parameters
+  // 🔥 DEFINIR TODAY (error anterior)
+  const today = new Date().toISOString().split("T")[0];
+
+  // Tipo de paciente
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const tipoPaciente = queryParams.get("tipoPaciente"); // "afiliado" o "integrante"
@@ -27,8 +29,9 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion, integranteI
     especialidad: "",
     situacion: "",
     observaciones: "",
-    fecha_inicio: "",
+    fecha_inicio: today,
   });
+
   const [loading, setLoading] = useState(false);
 
   const refs = {
@@ -47,13 +50,18 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion, integranteI
     );
   }
 
-  // Determinar tipo de paciente
+  // Identificador dinámico
   const identificador = integranteInfo?.id || id || dni || afiliadoId;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     if (name === "observaciones" && value.length > 1000) return;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleKeyDown = (e, nextField) => {
@@ -66,7 +74,7 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion, integranteI
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validaciones de campos del formulario
+    // Validaciones
     if (!formData.especialidad.trim()) {
       toast.error("Debes ingresar la especialidad");
       return;
@@ -75,57 +83,51 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion, integranteI
       toast.error("Debes describir la situación terapéutica");
       return;
     }
-    if (!formData.fecha_inicio) {
-      toast.error("Debes seleccionar la fecha de inicio");
-      return;
-    }
 
     setLoading(true);
 
     try {
-      const identificador = afiliadoId || id || dni;
-
-      // Construir payload asegurando IDs correctos
+      // Payload alineado al modelo con Date
       const payload = {
         prestadorId,
         especialidad: formData.especialidad.trim(),
         situacion: formData.situacion.trim(),
         observaciones: formData.observaciones.trim(),
-        fecha_inicio: formData.fecha_inicio,
-        fecha_final: formData.fecha_inicio,
+        fecha_inicio: formData.fecha_inicio, // YYYY-MM-DD
+        fecha_final: formData.fecha_inicio,  // mismo valor porque son Date not null
         estado: "alta",
         afiliadoId: esIntegrante ? null : identificador,
         integranteId: esIntegrante ? identificador : null,
       };
 
-      console.log("Payload a enviar:", payload); // depuración
+      console.log("Payload a enviar:", payload);
 
-      // Crear situación en el backend
+      // Crear situación en backend
       const response = await crearSituacion(prestadorId, payload);
 
       toast.success("Situación terapéutica creada exitosamente", {
         autoClose: 2000,
       });
 
-      // Resetear formulario
+      // Reset formulario
       setFormData({
         especialidad: "",
         situacion: "",
         observaciones: "",
-        fecha_inicio: "",
+        fecha_inicio: today,
       });
 
-      // Notificar al componente padre si aplica
       if (onNuevaSituacion) {
         onNuevaSituacion(response.situacion || response);
       }
 
-      // Volver atrás después de un momento
       setTimeout(() => navigate(-1), 1500);
     } catch (error) {
       console.error("Error al crear situación:", error);
       const mensaje =
-        error.response?.data?.error || error.message || "Intenta nuevamente.";
+        error.response?.data?.error ||
+        error.message ||
+        "Intenta nuevamente.";
       toast.error(`Error al guardar la situación: ${mensaje}`, {
         autoClose: 3000,
       });
@@ -133,7 +135,6 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion, integranteI
       setLoading(false);
     }
   };
-
 
   return (
     <>
@@ -208,6 +209,8 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion, integranteI
                   name="fecha_inicio"
                   value={formData.fecha_inicio}
                   onChange={handleChange}
+                  min={today}
+                  max={today}
                   required
                 />
               </div>
