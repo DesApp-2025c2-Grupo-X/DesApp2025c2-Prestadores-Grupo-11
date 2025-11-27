@@ -30,13 +30,8 @@ export default function HistorialClinico() {
   //const [situaciones, setSituaciones] = useState([]);
   //const [consultas, setConsultas] = useState([]);
 
-  //Este estado es para manejar el problema en donde tengo el idPrestador, y necesito saber el nombre
-  //Para poder mostrarlo en la tabla de historial clinico
-  //const [nombresPrestadores, setNombresPrestadores] = useState({});
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filtroNotas, setFiltroNotas] = useState(false);
 
   //Obtiene el user guardado en el localStorage
   const storedUser = JSON.parse(localStorage.getItem("miapp_user") || "null");
@@ -67,19 +62,6 @@ export default function HistorialClinico() {
     cargarPaciente();
 
   }, [dni]);
-
-
-  // Con la informacion del paciente, busca su historial clinico
-  // useEffect(() => {
-  //   if (!paciente) return; // Si no hay paciente cargado no hace nada
-
-  //   const getConsultas = async () => {
-  //     const consultas = await getHistorialClinicoById(paciente.id, tipo, filtroNotas)
-  //     setConsultas(consultas)
-  //   };
-
-  //   getConsultas()
-  // }, [paciente, filtroNotas, tipo])
 
   // Estado: cargando
   if (loading) {
