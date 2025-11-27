@@ -84,13 +84,8 @@ export const getRecetasPropias = async (prestadorId) => {
 
 export const getReintegrosCompletados = async (prestadorId) => {
   try {
-    const allReintegros = await api.get('/reintegros')
-    const reintegrosPropios = allReintegros.data.filter(reintegro => reintegro.usuarioUltimoCambio === prestadorId)
-    const reintegrosTerminados = reintegrosPropios.filter(reintegro => reintegro.estado === "aprobado" ||
-      reintegro.estado === "rechazado" ||
-      reintegro.estado === "observado")
-
-    return reintegrosTerminados
+    const reintegrosCompletados = await api.get(`/reintegros/completados/prestadorId/${prestadorId}`)
+    return reintegrosCompletados.data
   } catch (error) {
     console.error("Error al traerse los reintegros completados", error)
     throw error
@@ -102,13 +97,8 @@ export const getReintegrosCompletados = async (prestadorId) => {
 
 export const getAutorizacionesCompletados = async (prestadorId) => {
   try {
-    const allAutorizaciones = await api.get('/autorizaciones')
-    const autorizacionesPropios = allAutorizaciones.data.filter(autorizacion => autorizacion.usuarioUltimoCambio === prestadorId)
-    const autorizacionesTerminados = autorizacionesPropios.filter(autorizacion => autorizacion.estado === "aprobado" ||
-      autorizacion.estado === "rechazado" ||
-      autorizacion.estado === "observado")
-
-    return autorizacionesTerminados
+    const autorizacionesCompletadas = await api.get(`/autorizaciones/completados/prestadorId/${prestadorId}`)
+    return autorizacionesCompletadas.data
   } catch (error) {
     console.error("Error al traerse las autorizaciones completadas", error)
     throw error
@@ -120,13 +110,8 @@ export const getAutorizacionesCompletados = async (prestadorId) => {
 
 export const getRecetasCompletados = async (prestadorId) => {
   try {
-    const allRecetas = await api.get('/recetas')
-    const recetasPropios = allRecetas.data.filter(receta => receta.usuarioUltimoCambio === prestadorId)
-    const recetasTerminados = recetasPropios.filter(receta => receta.estado === "aprobado" ||
-      receta.estado === "rechazado" ||
-      receta.estado === "observado")
-
-    return recetasTerminados
+    const recetasCompletadas = await api.get(`/recetas/completados/prestadorId/${prestadorId}`)
+    return recetasCompletadas.data
   } catch (error) {
     console.error("Error al traerse las recetas completadas", error)
     throw error
