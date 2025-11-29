@@ -44,7 +44,14 @@ export default function SolicitudesEntrantes() {
 	//solicitudesCompletadas contiene los reintegros/autorizaciones/recetas aprobados (estado "aprobado", "rechazado" o "observado")
 	const [solicitudesCompletadas, setSolicitudesCompletadas] = useState([])
 
+	const [filtroCompletadas, setFiltroCompletadas] = useState("sinFiltro");
+
 	const user = JSON.parse(localStorage.getItem("miapp_user"));
+
+	const solicitudesCompletadasFiltradas = solicitudesCompletadas.filter(s => {
+		if (filtroCompletadas === "sinFiltro") return true;
+		return s.estado === filtroCompletadas;
+	});
 
 	const mostrarSolicitudesDisponibles = async () => {
 
@@ -357,24 +364,39 @@ export default function SolicitudesEntrantes() {
 							>
 								<div className="tabla-container">
 
+									{/* Filtro por estado */}
+									<div className="filtro-completados">
+										<select
+											className="form-select"
+											value={filtroCompletadas}
+											onChange={(e) => setFiltroCompletadas(e.target.value)}
+										>
+											<option value="sinFiltro">Sin filtro</option>
+											<option value="aprobado">Aprobadas</option>
+											<option value="rechazado">Rechazadas</option>
+											<option value="observado">Observadas</option>
+										</select>
+									</div>
+
+
 									{/* Tabla para los reintegros completados */}
 									{tipoSolicitudCompletados === "reintegros" && (
 										<TablaReintegrosCompletadas
-											solicitudes={solicitudesCompletadas}
+											solicitudes={solicitudesCompletadasFiltradas}
 										/>
 									)}
 
 									{/* Tabla para las autorizaciones completados */}
 									{tipoSolicitudCompletados === "autorizaciones" && (
 										<TablaAutorizacionesCompletadas
-											solicitudes={solicitudesCompletadas}
+											solicitudes={solicitudesCompletadasFiltradas}
 										/>
 									)}
 
 									{/* Tabla para las recetas completados */}
 									{tipoSolicitudCompletados === "recetas" && (
 										<TablaRecetasCompletadas
-											solicitudes={solicitudesCompletadas}
+											solicitudes={solicitudesCompletadasFiltradas}
 										/>
 									)}
 
