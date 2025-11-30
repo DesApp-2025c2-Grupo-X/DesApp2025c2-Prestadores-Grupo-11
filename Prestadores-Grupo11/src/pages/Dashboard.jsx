@@ -1,134 +1,253 @@
+
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import PrestadoresLayout from "../components/PrestadoresLayout";
+import DashboardApi from "../services/DashboardApi";
 import HeaderPrestadores from "../components/HeaderPrestadores";
-import { Calendar, FileText, Activity, BookOpen } from "lucide-react";
-import { getAutorizacionesPropiasAnalisis, getReintegrosPropiasAnalisis, getRecetasPropiasAnalisis } from "../services/Solicitudes";
-import "../styles/Dashboard.css";
+import PrestadoresLayout from "../components/PrestadoresLayout";
+
+import Grid from "@mui/material/Grid"; 
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+
+// Recharts
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
 export default function Dashboard() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [cantAutorizacionesPendientes, setCantAutorizacionesPendientes] = useState(0);
-  const [cantRecetasPendientes, setCantRecetasPendientes] = useState(0);
-  const [cantReintegrosPendientes, setCantReintegrosPendientes] = useState(0);
+  const [periodo, setPeriodo] = useState("semana");
+  const [estado, setEstado] = useState("todos");
 
+  const [kpis, setKpis] = useState(null);
+  const [grafico, setGrafico] = useState([]);
+  const [distribucion, setDistribucion] = useState([]);
+  const [registros, setRegistros] = useState([]);
 
-  // determinar ruta de calendario según el role del usuario (case-insensitive)
-  const userStr = localStorage.getItem("miapp_user");
-  let calendarPath = "/prestadores/calendario";
-  try {
-    const role = JSON.parse(userStr)?.role?.toString().trim().toLowerCase();
-    if (role === "medico") calendarPath = "/prestadores/calendario/medico";
-    else if (role === "centro_medico") calendarPath = "/prestadores/calendario/centro";
-  } catch (e) {
-    console.warn("No se pudo parsear miapp_user:", e);
-  }
+  // columnas de la tabla 
+  const columns = [
+    { field: "id", headerName: "ID", width: 80 },
+    {
+      field: "fecha",
+      headerName: "Fecha",
+      width: 160,
+      valueGetter: (params) => {
+        const f = params?.row?.fecha;
+        if (!f) return "";
+        try {
+          return new Date(f).toLocaleString("es-AR");
+        } catch {
+          return "";
+        }
+      },
+    },
+    { field: "tipo", headerName: "Tipo", width: 150 },
+    { field: "estado", headerName: "Estado", width: 150 },
+    { field: "descripcion", headerName: "Descripción", width: 300 },
+  ];
+
+  // colores CSS
+  const COLORS = {
+    rosa: "var(--rosa)",
+    verdeAgua: "var(--verde-agua)",
+    verdeMenta: "var(--verde-menta)",
+    azulProfundo: "var(--azul-profundo)",
+    azulPetroleo: "var(--azul-petroleo)",
+    celeste: "var(--celeste)",
+    verdeSuave: "var(--verde-suave)",
+    grisClaro: "var(--gris-claro)",
+  };
+
+  const cargarFiltrado = async (p = periodo, e = estado) => {
+    try {
+      setLoading(true);
+      const data = await DashboardApi.getFiltrado(p, e);
+
+      setKpis(data.kpis || null);
+
+      setGrafico(
+        (data.grafico || []).map((g) => ({
+          fecha: g.fecha,
+          reintegros: g.reintegros || 0,
+          recetas: g.recetas || 0,
+          autorizaciones: g.autorizaciones || 0,
+        }))
+      );
+
+      setDistribucion(data.distribucion || []);
+
+      setRegistros(
+        (data.registros || []).map((r, i) => ({
+          id: i + 1,
+          fecha: r.fecha ?? null,
+          tipo: r.tipo ?? "",
+          estado: r.estado ?? "",
+          descripcion: r.descripcion ?? "",
+        }))
+      );
+    } catch (err) {
+      console.error(err);
+      setError("Error cargando datos");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchCantidadSolicitudes = async () => {
-      const prestador = JSON.parse(localStorage.getItem("miapp_user"));
+    cargarFiltrado();
+  }, []);
 
-      if (!prestador || !prestador.id) {
-        console.error("No se encontró el prestador en el localStorage");
-        return;
-      }
-
-      const autorizaciones = await getAutorizacionesPropiasAnalisis(prestador.id);
-      const recetas = await getRecetasPropiasAnalisis(prestador.id);
-      const reintegros = await getReintegrosPropiasAnalisis(prestador.id);
-
-      setCantAutorizacionesPendientes(autorizaciones.length)
-      setCantRecetasPendientes(recetas.length)
-      setCantReintegrosPendientes(reintegros.length)
-    }
-
-    fetchCantidadSolicitudes()
-  }, [])
+  useEffect(() => {
+    cargarFiltrado(periodo, estado);
+  }, [periodo, estado]);
 
   return (
-    <PrestadoresLayout header={HeaderPrestadores}>
-      <div className="dashboard-container">
-        {/* HERO */}
-        <div className="dashboard-hero">
-          <h2 className="hero-title">👋 Bienvenido</h2>
-          <p className="hero-subtitle">
-            Aquí encontrarás la información de tus pacientes y turnos.
-          </p>
-        </div>
+    <PrestadoresLayout header={<HeaderPrestadores />}>
+      <Box p={3}>
+        {loading && <Typography>Cargando dashboard...</Typography>}
+        {error && <Typography color="error">{error}</Typography>}
 
-        {/* --- GRID PRINCIPAL: LEFT = CARDS (50%) | RIGHT = ACCESOS (50%) --- */}
-        <div className="row g-4 mt-3">
-          {/* Columna izquierda: cards */}
-          <div className="col-12 col-lg-8">
-            <div className="row g-4">
-              <div className="col-12 col-sm-6 col-lg-3">
-                <div className="info-card">
-                  <h5>Solicitudes "En analisis" pendientes</h5>
-                  <p>{cantAutorizacionesPendientes + cantRecetasPendientes + cantReintegrosPendientes}</p>
-                </div>
-              </div>
+        {/* FILTROS */}
+        <Grid container spacing={2} mb={3}>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <FormControl fullWidth>
+              <InputLabel>Período</InputLabel>
+              <Select value={periodo} label="Período" onChange={(e) => setPeriodo(e.target.value)}>
+                <MenuItem value="hoy">Hoy</MenuItem>
+                <MenuItem value="semana">Esta semana</MenuItem>
+                <MenuItem value="mes">Este mes</MenuItem>
+                <MenuItem value="anio">Este año</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
 
-              <div className="col-12 col-sm-6 col-lg-3">
-                <div className="info-card">
-                  <h5>Autorizaciones "En analisis" Pendientes</h5>
-                  <p>{cantAutorizacionesPendientes}</p>
-                </div>
-              </div>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <FormControl fullWidth>
+              <InputLabel>Estado</InputLabel>
+              <Select value={estado} label="Estado" onChange={(e) => setEstado(e.target.value)}>
+                <MenuItem value="todos">Todos</MenuItem>
+                <MenuItem value="recibido">Recibido</MenuItem>
+                <MenuItem value="analisis">En análisis</MenuItem>
+                <MenuItem value="rechazado">Rechazado</MenuItem>
+                <MenuItem value="aprobado">Aprobado</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
 
-              <div className="col-12 col-sm-6 col-lg-3">
-                <div className="info-card">
-                  <h5>Recetas "En analisis" Pendientes</h5>
-                  <p>{cantRecetasPendientes}</p>
-                </div>
-              </div>
+        {/* KPIS */}
+        {kpis && (
+          <Grid container spacing={2} mb={4}>
+            {[
+              { label: "Reintegros", value: kpis.reintegros, color: COLORS.azulProfundo },
+              { label: "Recetas", value: kpis.recetas, color: COLORS.verdeAgua },
+              { label: "Autorizaciones", value: kpis.autorizaciones, color: COLORS.rosa },
+            ].map((kpi, i) => (
+              <Grid size={{ xs: 12, md: 4 }} key={i}>
+                <Card sx={{ background: "white", borderRadius: 2, textAlign: "center", padding: 2 }}>
+                  <CardContent>
+                    <Typography variant="h3" sx={{ fontWeight: 700 }}>{kpi.value}</Typography>
+                    <Typography variant="subtitle1">{kpi.label}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        )}
 
-              <div className="col-12 col-sm-6 col-lg-3">
-                <div className="info-card">
-                  <h5>Reintegros "En analisis" Pendientes</h5>
-                  <p>{cantReintegrosPendientes}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <Grid container spacing={2}>
+          {/* Gráfico de barras */}
+          <Grid size={{ xs: 12, md: 8 }}>
+            <Card sx={{ padding: 2 }}>
+              <Typography variant="h6" mb={2} color={COLORS.azulPetroleo}>
+                Movimientos por período
+              </Typography>
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={grafico}>
+                  <XAxis dataKey="fecha" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="reintegros" stackId="a" fill="var(--azul-profundo)" />
+                  <Bar dataKey="recetas" stackId="a" fill="var(--verde-agua)" />
+                  <Bar dataKey="autorizaciones" stackId="a" fill="var(--rosa)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+          </Grid>
 
-          {/* accesos directos */}
-          <h2 className="section-title">Accesos Directos</h2>
-          <div className="access-container">
-            <div className="access-grid">
-              {/* Calendario: usa calendarPath */}
-              <Link to={calendarPath} className="access-card">
-                <span>Calendario de Turnos</span>
-                <Calendar className="text-primary" />
-              </Link>
+          {/* torta */}
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Card sx={{ padding: 2 }}>
+              <Typography variant="h6" mb={2} color={COLORS.azulPetroleo}>
+                Distribución por estado
+              </Typography>
+              <ResponsiveContainer width="100%" height={320}>
+                <PieChart>
+                  <Pie
+                    data={distribucion}
+                    dataKey="total"
+                    nameKey="estado"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={110}
+                    label={({ estado }) => estado}
+                  >
+                    {distribucion.map((_, i) => (
+                      <Cell
+                        key={i}
+                        fill={[
+                          "var(--azul-profundo)",
+                          "var(--verde-agua)",
+                          "var(--celeste)",
+                          "var(--rosa)",
+                          "var(--verde-menta)",
+                        ][i % 5]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </Card>
+          </Grid>
+        </Grid>
 
-              {/* Solicitudes */}
-              <Link to="/prestadores/solicitudes" className="access-card">
-                <span>Gestión de Solicitudes</span>
-                <FileText className="text-primary" />
-              </Link>
+        {/* tabla */}
+        <Box mt={3}>
+          <Card sx={{ padding: 2 }}>
+            <Typography variant="h6" mb={2} color={COLORS.azulPetroleo}>
+              Detalle por día / periodo
+            </Typography>
 
-              {/* Historia Clínica */}
-              <Link
-                to="/prestadores/historialClinico/busqueda"
-                className="access-card"
-              >
-                <span>Consultar Historia Clínica</span>
-                <BookOpen className="text-danger" />
-              </Link>
-
-              {/* Situaciones Terapéuticas */}
-              <Link
-                to="/prestadores/situaciones/busqueda"
-                className="access-card"
-              >
-                <span>Situaciones Terapéuticas</span>
-                <Activity className="text-danger" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
+            <DataGrid
+              rows={registros}
+              columns={columns}
+              getRowId={(row) => row.id}
+              pageSizeOptions={[8, 16, 32,48]}
+              initialState={{ pagination: { paginationModel: { pageSize: 8 } } }}
+              autoHeight
+            />
+          </Card>
+        </Box>
+      </Box>
     </PrestadoresLayout>
   );
 }

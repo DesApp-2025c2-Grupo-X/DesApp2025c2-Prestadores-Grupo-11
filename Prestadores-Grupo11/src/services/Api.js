@@ -29,7 +29,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (axios.isCancel(error)) {
-      error.name = "CanceledError"; // homogéneo con tu lógica
+      error.name = "CanceledError"; 
     }
 
     const status = error.response?.status ?? null;
@@ -37,7 +37,7 @@ api.interceptors.response.use(
 
     if (status === 401) {
       localStorage.removeItem("token");
-      // window.location.href = '/login'; // opcional
+     
     }
 
     return Promise.reject({

@@ -42,6 +42,7 @@ export default function App() {
           }
         />
 
+
         {/* Situaciones Terapéuticas - protegidas */}
 
         <Route
