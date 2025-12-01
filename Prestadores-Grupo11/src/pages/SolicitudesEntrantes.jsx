@@ -11,6 +11,7 @@ import TablaRecetas from "../components/TablaRecetas";
 import TablaAutorizacionesCompletadas from "../components/TablaAutorizacionesCompletadas";
 import TablaReintegrosCompletadas from "../components/TablaReintegrosCompletadas";
 import TablaRecetasCompletadas from "../components/TablaRecetasCompletadas";
+import FiltroSolicitudesCompletadas from "../components/FiltroSolicitudesCompletadas";
 import {
 	getAutorizacionesPropias, getRecetasPropias, getReintegrosPropias, getAutorizacionesCompletados,
 	getRecetasCompletados, getReintegrosCompletados, getAutorizacionesPropiasAnalisis, getReintegrosPropiasAnalisis, getRecetasPropiasAnalisis,
@@ -364,19 +365,10 @@ export default function SolicitudesEntrantes() {
 							>
 								<div className="tabla-container">
 
-									{/* Filtro por estado */}
-									<div className="filtro-completados">
-										<select
-											className="form-select"
-											value={filtroCompletadas}
-											onChange={(e) => setFiltroCompletadas(e.target.value)}
-										>
-											<option value="sinFiltro">Sin filtro</option>
-											<option value="aprobado">Aprobadas</option>
-											<option value="rechazado">Rechazadas</option>
-											<option value="observado">Observadas</option>
-										</select>
-									</div>
+									<FiltroSolicitudesCompletadas
+										value={filtroCompletadas}
+										onChange={setFiltroCompletadas}
+									/>
 
 
 									{/* Tabla para los reintegros completados */}
