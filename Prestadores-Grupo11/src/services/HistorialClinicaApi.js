@@ -68,7 +68,8 @@ export const getHistorialClinicoById = async (pacienteId, tipoPaciente, filtro, 
 
     // Comprobacion de filtro
     if (filtro === "notas") {
-      const turnosEncontrados = turnosPorFecha.filter(turno => turno.notas)
+      const user = JSON.parse(localStorage.getItem("miapp_user"));
+      const turnosEncontrados = turnosPorFecha.filter(turno => turno.notas && turno.medico === user.username)
       //const turnosEncontrados = await api.get(`/turnos/prestador/${user.id}/${pacienteId}`)
       // const turnosFormato = turnosEncontrados.data.map(t => ({
       //   tipo: "Turno",
