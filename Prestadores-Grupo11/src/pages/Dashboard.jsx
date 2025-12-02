@@ -1,123 +1,147 @@
-
 import React, { useEffect, useState } from "react";
-import DashboardApi from "../services/DashboardApi";
-import HeaderPrestadores from "../components/HeaderPrestadores";
-import PrestadoresLayout from "../components/PrestadoresLayout";
-
-import Grid from "@mui/material/Grid"; 
 import {
   Box,
+  Grid,
   Card,
   CardContent,
   Typography,
+  MenuItem,
+  TextField,
   FormControl,
   InputLabel,
   Select,
-  MenuItem,
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
 
-// Recharts
 import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
   PieChart,
   Pie,
   Cell,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 
+import { DataGrid } from "@mui/x-data-grid";
+import PrestadoresLayout from "../components/PrestadoresLayout";
+import HeaderPrestadores from "../components/HeaderPrestadores";
+import api from "../services/Api";
+
+// === FORMATEADORES ===
+const formatearFechaCorta = (fechaStr) => {
+  if (!fechaStr) return "";
+  const fecha = new Date(fechaStr);
+  return fecha.toLocaleDateString("es-AR", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
+};
+
+const obtenerNombreMes = (fechaStr) => {
+  if (!fechaStr) return "";
+  const fecha = new Date(fechaStr);
+  return fecha.toLocaleDateString("es-AR", {
+    month: "long",
+  });
+};
+
+const COLORS = {
+  Nudesuave: "#f3e3da",
+  Verdematchapastel: "#d4e9d7",
+  Azulcielopastel: "#c6e7ff",
+  rosa: "#fbc3c2",
+  Verdepistacho: "#cfe8cf",
+};
+
+const columns = [
+  { field: "fecha", headerName: "Fecha", width: 160 },
+  { field: "reintegros", headerName: "Reintegros", width: 140 },
+  { field: "recetas", headerName: "Recetas", width: 120 },
+  { field: "autorizaciones", headerName: "Autorizaciones", width: 160 },
+  { field: "total", headerName: "Total", width: 120 },
+];
+
 export default function Dashboard() {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const [periodo, setPeriodo] = useState("semana");
+  // Filtros
+  const [periodo, setPeriodo] = useState("hoy");
   const [estado, setEstado] = useState("todos");
+  const [desde, setDesde] = useState("");
+  const [hasta, setHasta] = useState("");
 
+  // Data
   const [kpis, setKpis] = useState(null);
   const [grafico, setGrafico] = useState([]);
   const [distribucion, setDistribucion] = useState([]);
   const [registros, setRegistros] = useState([]);
 
-  // columnas de la tabla 
-  const columns = [
-    { field: "id", headerName: "ID", width: 80 },
-    {
-      field: "fecha",
-      headerName: "Fecha",
-      width: 160,
-      valueGetter: (params) => {
-        const f = params?.row?.fecha;
-        if (!f) return "";
-        try {
-          return new Date(f).toLocaleString("es-AR");
-        } catch {
-          return "";
-        }
-      },
-    },
-    { field: "tipo", headerName: "Tipo", width: 150 },
-    { field: "estado", headerName: "Estado", width: 150 },
-    { field: "descripcion", headerName: "Descripción", width: 300 },
-  ];
-
-  // colores CSS
-  const COLORS = {
-    rosa: "var(--rosa)",
-    verdeAgua: "var(--verde-agua)",
-    verdeMenta: "var(--verde-menta)",
-    azulProfundo: "var(--azul-profundo)",
-    azulPetroleo: "var(--azul-petroleo)",
-    celeste: "var(--celeste)",
-    verdeSuave: "var(--verde-suave)",
-    grisClaro: "var(--gris-claro)",
-  };
-
-  const cargarFiltrado = async (p = periodo, e = estado) => {
+  // CARGA DEL DASHBOARD
+  const cargarDashboard = async () => {
     try {
       setLoading(true);
-      const data = await DashboardApi.getFiltrado(p, e);
+      setError("");
 
-      setKpis(data.kpis || null);
+      const res = await api.get(
+        `/dashboard/filtrado?periodo=${periodo}&estado=${estado}&desde=${desde}&hasta=${hasta}`
+      );
 
+      // === KPIS ===
+      setKpis(res.data.kpis || {});
+
+      // === GRAFICO ===
       setGrafico(
-        (data.grafico || []).map((g) => ({
-          fecha: g.fecha,
-          reintegros: g.reintegros || 0,
-          recetas: g.recetas || 0,
-          autorizaciones: g.autorizaciones || 0,
+        (res.data.grafico || []).map((item) => ({
+          ...item,
+          fecha: formatearFechaCorta(item.fecha),
         }))
       );
 
-      setDistribucion(data.distribucion || []);
+      // === DISTRIBUCION ===
+      setDistribucion(res.data.distribucion || []);
 
+      // === TABLA ===
       setRegistros(
-        (data.registros || []).map((r, i) => ({
-          id: i + 1,
-          fecha: r.fecha ?? null,
-          tipo: r.tipo ?? "",
-          estado: r.estado ?? "",
-          descripcion: r.descripcion ?? "",
+        (res.data.registros || []).map((row, index) => ({
+          id: index + 1,
+          ...row,
+          fecha: formatearFechaCorta(row.fecha),
         }))
       );
     } catch (err) {
       console.error(err);
-      setError("Error cargando datos");
+      setError("Error al cargar el dashboard.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Cargar cada vez que cambian los filtros
   useEffect(() => {
-    cargarFiltrado();
-  }, []);
+    cargarDashboard();
+  }, [periodo, estado, desde, hasta]);
 
-  useEffect(() => {
-    cargarFiltrado(periodo, estado);
-  }, [periodo, estado]);
+  // === FORMATEOS PARA GRÁFICOS ===
+  const graficoFormateado = grafico.map((item, i) => ({
+    id: i,
+    ...item,
+    fecha:
+      periodo === "mes" || periodo === "anio"
+        ? obtenerNombreMes(item.fecha)
+        : item.fecha,
+  }));
+
+  const registrosFormateados = registros.map((r) => ({
+    ...r,
+    fecha:
+      periodo === "mes" || periodo === "anio"
+        ? obtenerNombreMes(r.fecha)
+        : r.fecha,
+  }));
 
   return (
     <PrestadoresLayout header={<HeaderPrestadores />}>
@@ -125,12 +149,17 @@ export default function Dashboard() {
         {loading && <Typography>Cargando dashboard...</Typography>}
         {error && <Typography color="error">{error}</Typography>}
 
-        {/* FILTROS */}
-        <Grid container spacing={2} mb={3}>
-          <Grid size={{ xs: 12, md: 6 }}>
+        {/* -------- FILTROS -------- */}
+        <Grid container spacing={4} mb={3}>
+          {/* Período */}
+          <Grid size={{ xs: 12, md: 4 }}>
             <FormControl fullWidth>
               <InputLabel>Período</InputLabel>
-              <Select value={periodo} label="Período" onChange={(e) => setPeriodo(e.target.value)}>
+              <Select
+                value={periodo}
+                label="Período"
+                onChange={(e) => setPeriodo(e.target.value)}
+              >
                 <MenuItem value="hoy">Hoy</MenuItem>
                 <MenuItem value="semana">Esta semana</MenuItem>
                 <MenuItem value="mes">Este mes</MenuItem>
@@ -139,32 +168,84 @@ export default function Dashboard() {
             </FormControl>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
+          {/* Estado */}
+          <Grid size={{ xs: 12, md: 4 }}>
             <FormControl fullWidth>
               <InputLabel>Estado</InputLabel>
-              <Select value={estado} label="Estado" onChange={(e) => setEstado(e.target.value)}>
+              <Select
+                value={estado}
+                label="Estado"
+                onChange={(e) => setEstado(e.target.value)}
+              >
                 <MenuItem value="todos">Todos</MenuItem>
                 <MenuItem value="recibido">Recibido</MenuItem>
                 <MenuItem value="analisis">En análisis</MenuItem>
                 <MenuItem value="rechazado">Rechazado</MenuItem>
                 <MenuItem value="aprobado">Aprobado</MenuItem>
+                <MenuItem value="observado">Aprobado</MenuItem>
               </Select>
             </FormControl>
+          </Grid>
+
+          {/* Desde */}
+          <Grid size={{ xs: 12, md: 2 }}>
+            <TextField
+              fullWidth
+              type="date"
+              label="Desde"
+              InputLabelProps={{ shrink: true }}
+              value={desde}
+              onChange={(e) => setDesde(e.target.value)}
+            />
+          </Grid>
+
+          {/* Hasta */}
+          <Grid size={{ xs: 12, md: 2 }}>
+            <TextField
+              fullWidth
+              type="date"
+              label="Hasta"
+              InputLabelProps={{ shrink: true }}
+              value={hasta}
+              onChange={(e) => setHasta(e.target.value)}
+            />
           </Grid>
         </Grid>
 
         {/* KPIS */}
         {kpis && (
-          <Grid container spacing={2} mb={4}>
+          <Grid container spacing={2}>
             {[
-              { label: "Reintegros", value: kpis.reintegros, color: COLORS.azulProfundo },
-              { label: "Recetas", value: kpis.recetas, color: COLORS.verdeAgua },
-              { label: "Autorizaciones", value: kpis.autorizaciones, color: COLORS.rosa },
+              {
+                label: "Reintegros",
+                value: kpis.reintegros,
+                color: COLORS.Azulcielopastel,
+              },
+              {
+                label: "Recetas",
+                value: kpis.recetas,
+                color: COLORS.Verdepistacho,
+              },
+              {
+                label: "Autorizaciones",
+                value: kpis.autorizaciones,
+                color: COLORS.rosa,
+              },
             ].map((kpi, i) => (
               <Grid size={{ xs: 12, md: 4 }} key={i}>
-                <Card sx={{ background: "white", borderRadius: 2, textAlign: "center", padding: 2 }}>
+                <Card
+                  sx={{
+                    padding: 4,
+                    borderRadius: 5,
+                    textAlign: "center",
+                    marginBottom: 4,
+                    backgroundColor: kpi.color,
+                  }}
+                >
                   <CardContent>
-                    <Typography variant="h3" sx={{ fontWeight: 700 }}>{kpi.value}</Typography>
+                    <Typography variant="h3" fontWeight={700}>
+                      {kpi.value}
+                    </Typography>
                     <Typography variant="subtitle1">{kpi.label}</Typography>
                   </CardContent>
                 </Card>
@@ -173,32 +254,46 @@ export default function Dashboard() {
           </Grid>
         )}
 
-        <Grid container spacing={2}>
-          {/* Gráfico de barras */}
-          <Grid size={{ xs: 12, md: 8 }}>
-            <Card sx={{ padding: 2 }}>
-              <Typography variant="h6" mb={2} color={COLORS.azulPetroleo}>
+        {/* GRÁFICOS */}
+        <Grid container spacing={3}>
+          {/* BARRAS */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Card sx={{ padding: 4 }}>
+              <Typography variant="h6" mb={2}>
                 Movimientos por período
               </Typography>
               <ResponsiveContainer width="100%" height={320}>
-                <BarChart data={grafico}>
-                  <XAxis dataKey="fecha" />
-                  <YAxis />
+                <BarChart data={graficoFormateado} layout="vertical">
+                  <YAxis dataKey="fecha" type="category" />
+                  <XAxis type="number" />
                   <Tooltip />
-                  <Bar dataKey="reintegros" stackId="a" fill="var(--azul-profundo)" />
-                  <Bar dataKey="recetas" stackId="a" fill="var(--verde-agua)" />
-                  <Bar dataKey="autorizaciones" stackId="a" fill="var(--rosa)" />
+                  <Bar
+                    dataKey="reintegros"
+                    fill={COLORS.Azulcielopastel}
+                    stackId="a"
+                  />
+                  <Bar
+                    dataKey="recetas"
+                    fill={COLORS.Verdepistacho}
+                    stackId="a"
+                  />
+                  <Bar
+                    dataKey="autorizaciones"
+                    fill={COLORS.rosa}
+                    stackId="a"
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </Card>
           </Grid>
 
-          {/* torta */}
-          <Grid size={{ xs: 12, md: 4 }}>
+          {/* TORTA */}
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card sx={{ padding: 2 }}>
-              <Typography variant="h6" mb={2} color={COLORS.azulPetroleo}>
+              <Typography variant="h6" mb={2}>
                 Distribución por estado
               </Typography>
+
               <ResponsiveContainer width="100%" height={320}>
                 <PieChart>
                   <Pie
@@ -208,41 +303,44 @@ export default function Dashboard() {
                     cx="50%"
                     cy="50%"
                     outerRadius={110}
-                    label={({ estado }) => estado}
+                    label
                   >
                     {distribucion.map((_, i) => (
                       <Cell
                         key={i}
-                        fill={[
-                          "var(--azul-profundo)",
-                          "var(--verde-agua)",
-                          "var(--celeste)",
-                          "var(--rosa)",
-                          "var(--verde-menta)",
-                        ][i % 5]}
+                        fill={
+                          [
+                            COLORS.Azulcielopastel,
+                            COLORS.Verdepistacho,
+                            COLORS.rosa,
+                            COLORS.Verdematchapastel,
+                            COLORS.Nudesuave,
+                          ][i % 5]
+                        }
                       />
                     ))}
                   </Pie>
-                  <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
             </Card>
           </Grid>
         </Grid>
 
-        {/* tabla */}
+        {/* TABLA */}
         <Box mt={3}>
           <Card sx={{ padding: 2 }}>
-            <Typography variant="h6" mb={2} color={COLORS.azulPetroleo}>
-              Detalle por día / periodo
+            <Typography variant="h6" mb={2}>
+              Detalle por período
             </Typography>
 
             <DataGrid
-              rows={registros}
+              rows={registrosFormateados}
               columns={columns}
               getRowId={(row) => row.id}
-              pageSizeOptions={[8, 16, 32,48]}
-              initialState={{ pagination: { paginationModel: { pageSize: 8 } } }}
+              pageSizeOptions={[8, 16, 32]}
+              initialState={{
+                pagination: { paginationModel: { pageSize: 8 } },
+              }}
               autoHeight
             />
           </Card>
