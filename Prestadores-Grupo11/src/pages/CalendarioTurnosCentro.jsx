@@ -85,7 +85,7 @@ export default function CalendarioTurnosCentro() {
     setTipoPaciente(tipoPaciente)
 
     setShowHistoriaModal(true); //  abrimos el modal
-    
+
   };
 
   /** Filtra los turnos por fecha */
@@ -111,7 +111,7 @@ export default function CalendarioTurnosCentro() {
     return turnosDelDia.filter(
       (t) =>
         (!especialidad || t.prestador.especialidades.includes(especialidad)) &&
-        (!medico || t.prestador.username === medico)
+        (!medico || t.prestador.id === Number(medico))
     );
   }, [turnosDelDia, especialidad, medico]);
 
@@ -165,7 +165,7 @@ export default function CalendarioTurnosCentro() {
               >
                 <option value="">Todos</option>
                 {medicosCentro.map((m) => (
-                  <option key={m.id} value={m}>
+                  <option key={m.id} value={m.id}>
                     {m.username}
                   </option>
                 ))}
@@ -189,7 +189,11 @@ export default function CalendarioTurnosCentro() {
             <DayPicker
               mode="single"
               selected={selectedDate}
-              onSelect={setSelectedDate}
+              onSelect={(date) => {
+                if (date) {
+                  setSelectedDate(date);  // solo actualiza si date es válido
+                }
+              }}
               footer={
                 selectedDate && (
                   <p className="seleccion-fecha">
@@ -204,7 +208,9 @@ export default function CalendarioTurnosCentro() {
           <div className="agenda-box card shadow-sm">
             <div className="card-header">
               <h5 className="mb-0">
-                {format(selectedDate, "EEEE dd 'de' MMMM yyyy")}
+                {selectedDate && !isNaN(new Date(selectedDate))
+                  ? format(new Date(selectedDate), "EEEE dd 'de' MMMM yyyy")
+                  : "Fecha inválida"}
               </h5>
             </div>
 
@@ -227,7 +233,9 @@ export default function CalendarioTurnosCentro() {
                         <span className="hora">
                           {format(new Date(turno.date), "HH:mm")}
                         </span>
-                        <span className="paciente">{nombrePaciente}</span>
+                        <span className="paciente">
+                          <span style={{ fontWeight: "bolder" }}>{nombrePaciente}</span> - {turno.prestador.especialidades[0]} - {turno.prestador.username}
+                        </span>
                         <button
                           className="btn-historia"
                           onClick={() => handleVerHistoriaClinica(turno)}
