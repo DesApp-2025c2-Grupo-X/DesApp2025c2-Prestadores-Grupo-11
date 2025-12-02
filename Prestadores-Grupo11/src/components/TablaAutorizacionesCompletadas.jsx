@@ -6,7 +6,7 @@ export default function TablaAutorizacionesCompletadas({ solicitudes }) {
   const [fechaFin, setFechaFin] = useState("")
 
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 2;
+  const pageSize = 10;
 
   const solicitudesFiltradas = solicitudes?.filter((s) => {
     if (!s.fecha_finalizacion) return false;
@@ -129,7 +129,7 @@ export default function TablaAutorizacionesCompletadas({ solicitudes }) {
       </div>
 
       {/* Paginación */}
-      {solicitudes.length > 0 && (
+      {totalPages > 1 && (
         <div className="d-flex justify-content-center align-items-center mt-3 gap-3">
           <button
             className="btn btn-outline-primary btn-sm"

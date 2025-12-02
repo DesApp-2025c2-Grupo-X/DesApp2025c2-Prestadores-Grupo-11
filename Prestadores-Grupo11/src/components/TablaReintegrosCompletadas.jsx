@@ -5,7 +5,7 @@ export default function TablaReintegrosCompletadas({ solicitudes }) {
   const [fechaFin, setFechaFin] = useState("");
 
   const [paginaActual, setPaginaActual] = useState(1);
-  const itemsPorPagina = 2;
+  const itemsPorPagina = 10;
 
   // --- Filtrado por fecha ---
   const solicitudesFiltradas = solicitudes?.filter((s) => {

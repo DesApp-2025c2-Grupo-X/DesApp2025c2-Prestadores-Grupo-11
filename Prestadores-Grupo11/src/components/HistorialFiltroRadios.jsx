@@ -1,6 +1,7 @@
 import React from "react";
 
 export default function HistorialFiltroRadios({ filtro, onChange }) {
+  const user = JSON.parse(localStorage.getItem("miapp_user"));
   return (
     <div className="d-flex justify-content-center mb-3">
 
@@ -16,17 +17,19 @@ export default function HistorialFiltroRadios({ filtro, onChange }) {
         <label className="form-check-label ms-2">Historial completo</label>
       </div>
 
-      <div className="form-check ms-3">
-        <input
-          className="form-check-input"
-          type="radio"
-          name="filtroHistorial"
-          value="notas"
-          checked={filtro === "notas"}
-          onChange={(e) => onChange(e.target.value)}
-        />
-        <label className="form-check-label ms-2">Notas propias</label>
-      </div>
+      {user.role === "medico" &&
+        <div className="form-check ms-3">
+          <input
+            className="form-check-input"
+            type="radio"
+            name="filtroHistorial"
+            value="notas"
+            checked={filtro === "notas"}
+            onChange={(e) => onChange(e.target.value)}
+          />
+          <label className="form-check-label ms-2">Notas propias</label>
+        </div>
+      }
 
       <div className="form-check ms-3">
         <input

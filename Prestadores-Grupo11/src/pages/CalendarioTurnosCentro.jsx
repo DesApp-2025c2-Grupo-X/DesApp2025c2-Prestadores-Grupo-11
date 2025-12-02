@@ -83,6 +83,11 @@ export default function CalendarioTurnosCentro() {
     setPacienteId(id);
     setTipoPaciente(tipo);
     setShowHistoriaModal(true);
+    setPacienteId(pacienteId)
+    setTipoPaciente(tipoPaciente)
+
+    setShowHistoriaModal(true); //  abrimos el modal
+
   };
 
   /** Filtra los turnos por fecha */
@@ -184,7 +189,11 @@ export default function CalendarioTurnosCentro() {
             <DayPicker
               mode="single"
               selected={selectedDate}
-              onSelect={setSelectedDate}
+              onSelect={(date) => {
+                if (date) {
+                  setSelectedDate(date);  // solo actualiza si date es válido
+                }
+              }}
               footer={
                 selectedDate && (
                   <p className="seleccion-fecha">
@@ -199,7 +208,9 @@ export default function CalendarioTurnosCentro() {
           <div className="agenda-box card shadow-sm">
             <div className="card-header">
               <h5 className="mb-0">
-                {format(selectedDate, "EEEE dd 'de' MMMM yyyy")}
+                {selectedDate && !isNaN(new Date(selectedDate))
+                  ? format(new Date(selectedDate), "EEEE dd 'de' MMMM yyyy")
+                  : "Fecha inválida"}
               </h5>
             </div>
 
@@ -219,7 +230,9 @@ export default function CalendarioTurnosCentro() {
                         <span className="hora">
                           {format(new Date(turno.date), "HH:mm")}
                         </span>
-                        <span className="paciente">{nombrePaciente}</span>
+                        <span className="paciente">
+                          <span style={{ fontWeight: "bolder" }}>{nombrePaciente}</span> - {turno.prestador.especialidades[0]} - {turno.prestador.username}
+                        </span>
                         <button
                           className="btn-historia"
                           onClick={() => handleVerHistoriaClinica(turno)}
