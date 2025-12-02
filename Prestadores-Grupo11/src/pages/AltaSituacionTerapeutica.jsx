@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
@@ -16,6 +16,7 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion, integranteI
 
   const storedUser = JSON.parse(localStorage.getItem("miapp_user"));
   const prestadorId = storedUser?.id;
+  const especialidadesPrestador = storedUser?.especialidades || [];
 
   // Se trae el tipo de paciente de los query parameters
   const location = useLocation();
@@ -30,6 +31,19 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion, integranteI
     fecha_inicio: "",
   });
   const [loading, setLoading] = useState(false);
+
+  // Si el prestador tiene una unica especialidad, la elige automaticamente
+  useEffect(() => {
+    if (
+      especialidadesPrestador.length === 1 &&
+      !formData.especialidad // solo si está vacío
+    ) {
+      setFormData(prev => ({
+        ...prev,
+        especialidad: especialidadesPrestador[0]
+      }));
+    }
+  }, [especialidadesPrestador, formData.especialidad]);
 
   const refs = {
     especialidad: useRef(null),
@@ -85,14 +99,17 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion, integranteI
     try {
       const identificador = afiliadoId || id || dni;
 
+      const fechaInicio = new Date(formData.fecha_inicio);
+      const fechaISO = fechaInicio.toISOString();
+
       // Construir payload asegurando IDs correctos
       const payload = {
         prestadorId,
         especialidad: formData.especialidad.trim(),
         situacion: formData.situacion.trim(),
         observaciones: formData.observaciones.trim(),
-        fecha_inicio: formData.fecha_inicio,
-        fecha_final: formData.fecha_inicio,
+        fecha_inicio: fechaISO,
+        fecha_final: fechaISO,
         estado: "alta",
         afiliadoId: esIntegrante ? null : identificador,
         integranteId: esIntegrante ? identificador : null,
@@ -158,16 +175,25 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion, integranteI
             >
               <div className="mb-3">
                 <label className="form-label fw-semibold">Especialidad</label>
-                <input
+                <select
                   ref={refs.especialidad}
-                  type="text"
-                  className="form-control"
+                  className="form-select"
                   name="especialidad"
                   value={formData.especialidad}
                   onChange={handleChange}
-                  onKeyDown={(e) => handleKeyDown(e, "situacion")}
+                  disabled={especialidadesPrestador.length === 1}
                   required
-                />
+                >
+                  {especialidadesPrestador.length > 1 && (
+                    <option value="">Seleccionar especialidad...</option>
+                  )}
+
+                  {especialidadesPrestador.map((esp, index) => (
+                    <option key={index} value={esp}>
+                      {esp}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="mb-3">
@@ -203,7 +229,7 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion, integranteI
                 <label className="form-label fw-semibold">Fecha Inicio</label>
                 <input
                   ref={refs.fecha_inicio}
-                  type="date"
+                  type="datetime-local"
                   className="form-control"
                   name="fecha_inicio"
                   value={formData.fecha_inicio}

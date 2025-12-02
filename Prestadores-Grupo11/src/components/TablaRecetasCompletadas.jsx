@@ -5,7 +5,7 @@ export default function TablaRecetas({ solicitudes }) {
   const [fechaFin, setFechaFin] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 2;
+  const pageSize = 10;
 
   const solicitudesFiltradas = solicitudes.filter((s) => {
     if (!s.fecha_finalizacion) return false;

@@ -1,6 +1,4 @@
 import api from "./Api";
-import { getSituacionesByPacienteId } from "./SituacionesApi";
-import { getTurnosByPacienteId } from "./TurnosApi";
 
 export const getHistoriaClinicaByAfiliado = async (afiliadoId) => {
   const { data } = await api.get(`/historiaClinica/${afiliadoId}`);
@@ -13,9 +11,10 @@ export const addNotaAHistoriaClinica = async (afiliadoId, nota) => {
 };
 
 
-// Obtiene el historial clinico del paciente, situaciones terapeuticas en estado "baja" y turnos que
+// Obtiene el historial clinico del paciente, situaciones terapeuticas en estado "baja" y "en proceso", y turnos que
 // hayan sucedido, o que tengan una nota asociada.
-// Recibe el id (afiliadoId, integranteId), y el tipo de paciente (Afiliado/Integrante)
+// Recibe el id (afiliadoId, integranteId), y el tipo de paciente (Afiliado/Integrante), como tambien el filtro escogido
+// y la fecha de inicio y de fin si se desea filtrar por fecha
 
 export const getHistorialClinicoById = async (pacienteId, tipoPaciente, filtro, fechaInicio, fechaFin) => {
 
@@ -69,7 +68,19 @@ export const getHistorialClinicoById = async (pacienteId, tipoPaciente, filtro, 
 
     // Comprobacion de filtro
     if (filtro === "notas") {
-      const turnosEncontrados = turnosPorFecha.filter(turno => turno.notas)
+      const user = JSON.parse(localStorage.getItem("miapp_user"));
+      const turnosEncontrados = turnosPorFecha.filter(turno => turno.notas && turno.medico === user.username)
+      //const turnosEncontrados = await api.get(`/turnos/prestador/${user.id}/${pacienteId}`)
+      // const turnosFormato = turnosEncontrados.data.map(t => ({
+      //   tipo: "Turno",
+      //   fecha: t.date,
+      //   especialidad: t.prestador?.especialidades[0] || "",
+      //   medico: t.prestador?.username || "",
+      //   notas: t.notes || "",
+      //   duration: t.duration,
+      //   estado: null
+      // }))
+      // console.log("Turnos formateados",)
       return (turnosEncontrados);
 
     } else if (filtro === "situaciones") {
