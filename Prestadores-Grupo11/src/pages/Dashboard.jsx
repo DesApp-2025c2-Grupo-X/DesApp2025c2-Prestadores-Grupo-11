@@ -19,6 +19,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  Sector,
   Tooltip,
   XAxis,
   YAxis,
@@ -27,7 +28,7 @@ import {
 import { DataGrid } from "@mui/x-data-grid";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
-import api from "../services/Api";
+import { getFiltrado, getKpis } from "../services/DashboardApi";
 
 // === FORMATEADORES ===
 const formatearFechaCorta = (fechaStr) => {
@@ -58,18 +59,54 @@ const COLORS = {
 
 const columns = [
   { field: "fecha", headerName: "Fecha", width: 160 },
-  { field: "reintegros", headerName: "Reintegros", width: 140 },
-  { field: "recetas", headerName: "Recetas", width: 120 },
-  { field: "autorizaciones", headerName: "Autorizaciones", width: 160 },
-  { field: "total", headerName: "Total", width: 120 },
+  { field: "tipo", headerName: "Tipo", width: 150 },
+  { field: "descripcion", headerName: "Descripción", width: 300 },
 ];
+
+const CustomActiveShape = (props) => {
+  const {
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    startAngle,
+    endAngle,
+    fill,
+    value,
+  } = props;
+  return (
+    <g>
+      <text
+        x={cx}
+        y={cy}
+        dy={8}
+        textAnchor="middle"
+        fill={fill}
+        fontWeight="bold"
+      >
+        {value}
+      </text>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius + 10}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+      />
+    </g>
+  );
+};
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [activeIndex, setActiveIndex] = useState(null);
 
   // Filtros
-  const [periodo, setPeriodo] = useState("hoy");
+  const [periodo, setPeriodo] = useState("semana");
   const [estado, setEstado] = useState("todos");
   const [desde, setDesde] = useState("");
   const [hasta, setHasta] = useState("");
@@ -86,28 +123,22 @@ export default function Dashboard() {
       setLoading(true);
       setError("");
 
-      const res = await api.get(
-        `/dashboard/filtrado?periodo=${periodo}&estado=${estado}&desde=${desde}&hasta=${hasta}`
-      );
+      const data = await getFiltrado({ periodo, estado, desde, hasta });
 
-      // === KPIS ===
-      setKpis(res.data.kpis || {});
+      setKpis(data.kpis || {});
 
-      // === GRAFICO ===
       setGrafico(
-        (res.data.grafico || []).map((item) => ({
+        (data.grafico || []).map((item) => ({
           ...item,
           fecha: formatearFechaCorta(item.fecha),
         }))
       );
 
-      // === DISTRIBUCION ===
-      setDistribucion(res.data.distribucion || []);
+      setDistribucion(data.distribucion || []);
 
-      // === TABLA ===
       setRegistros(
-        (res.data.registros || []).map((row, index) => ({
-          id: index + 1,
+        (data.registros || []).map((row, index) => ({
+          id: row.id || `row-${index}`, // si falta id, generamos uno
           ...row,
           fecha: formatearFechaCorta(row.fecha),
         }))
@@ -120,12 +151,11 @@ export default function Dashboard() {
     }
   };
 
-  // Cargar cada vez que cambian los filtros
   useEffect(() => {
     cargarDashboard();
   }, [periodo, estado, desde, hasta]);
 
-  // === FORMATEOS PARA GRÁFICOS ===
+  // === FORMATEO FINAL ===
   const graficoFormateado = grafico.map((item, i) => ({
     id: i,
     ...item,
@@ -150,7 +180,7 @@ export default function Dashboard() {
         {error && <Typography color="error">{error}</Typography>}
 
         {/* -------- FILTROS -------- */}
-        <Grid container spacing={4} mb={3}>
+        <Grid container spacing={3} mb={3}>
           {/* Período */}
           <Grid size={{ xs: 12, md: 4 }}>
             <FormControl fullWidth>
@@ -182,7 +212,7 @@ export default function Dashboard() {
                 <MenuItem value="analisis">En análisis</MenuItem>
                 <MenuItem value="rechazado">Rechazado</MenuItem>
                 <MenuItem value="aprobado">Aprobado</MenuItem>
-                <MenuItem value="observado">Aprobado</MenuItem>
+                <MenuItem value="observado">Observado</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -214,7 +244,7 @@ export default function Dashboard() {
 
         {/* KPIS */}
         {kpis && (
-          <Grid container spacing={2}>
+          <Grid container spacing={3} mb={4}>
             {[
               {
                 label: "Reintegros",
@@ -238,8 +268,8 @@ export default function Dashboard() {
                     padding: 4,
                     borderRadius: 5,
                     textAlign: "center",
-                    marginBottom: 4,
                     backgroundColor: kpi.color,
+                    marginBottom: 2,
                   }}
                 >
                   <CardContent>
@@ -255,33 +285,37 @@ export default function Dashboard() {
         )}
 
         {/* GRÁFICOS */}
-        <Grid container spacing={3}>
-          {/* BARRAS */}
+        <Grid container spacing={3} mb={4}>
+          {/* BARRAS VERTICALES */}
           <Grid size={{ xs: 12, md: 6 }}>
-            <Card sx={{ padding: 4 }}>
+            <Card
+              sx={{
+                padding: 4,
+                border: "2px solid #ff69b4",
+                borderRadius: "16px",
+                transition: "all 0.3s ease",
+                boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+                "&:hover": {
+                  transform: "translateY(-4px)", //  levanta la tarjeta
+                  boxShadow: "0 8px 20px rgba(0,0,0,0.15)", // sombra más marcada
+                  borderColor: "#ff69b4", // tono más fuerte al pasar el mouse
+                },
+                background: "linear-gradient(145deg, #ffffff, #fff5fb)",
+              }}
+            >
               <Typography variant="h6" mb={2}>
                 Movimientos por período
               </Typography>
-              <ResponsiveContainer width="100%" height={320}>
-                <BarChart data={graficoFormateado} layout="vertical">
-                  <YAxis dataKey="fecha" type="category" />
-                  <XAxis type="number" />
+
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart data={graficoFormateado}>
+                  <XAxis dataKey="fecha" />
+                  <YAxis />
                   <Tooltip />
-                  <Bar
-                    dataKey="reintegros"
-                    fill={COLORS.Azulcielopastel}
-                    stackId="a"
-                  />
-                  <Bar
-                    dataKey="recetas"
-                    fill={COLORS.Verdepistacho}
-                    stackId="a"
-                  />
-                  <Bar
-                    dataKey="autorizaciones"
-                    fill={COLORS.rosa}
-                    stackId="a"
-                  />
+
+                  <Bar dataKey="reintegros" fill={COLORS.Azulcielopastel} />
+                  <Bar dataKey="recetas" fill={COLORS.Verdepistacho} />
+                  <Bar dataKey="autorizaciones" fill={COLORS.rosa} />
                 </BarChart>
               </ResponsiveContainer>
             </Card>
@@ -289,12 +323,26 @@ export default function Dashboard() {
 
           {/* TORTA */}
           <Grid size={{ xs: 12, md: 6 }}>
-            <Card sx={{ padding: 2 }}>
+            <Card
+              sx={{
+                padding: 4,
+                border: "2px solid #ff69b4",
+                borderRadius: "16px",
+                transition: "all 0.3s ease",
+                boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+                "&:hover": {
+                  transform: "translateY(-4px)", //  levanta la tarjeta
+                  boxShadow: "0 8px 20px rgba(0,0,0,0.15)", // sombra más marcada
+                  borderColor: "#ff69b4", // tono más fuerte al pasar el mouse
+                },
+                background: "linear-gradient(145deg, #ffffff, #fff5fb)",
+              }}
+            >
               <Typography variant="h6" mb={2}>
                 Distribución por estado
               </Typography>
 
-              <ResponsiveContainer width="100%" height={320}>
+              <ResponsiveContainer width="100%" height={350}>
                 <PieChart>
                   <Pie
                     data={distribucion}
@@ -302,8 +350,47 @@ export default function Dashboard() {
                     nameKey="estado"
                     cx="50%"
                     cy="50%"
-                    outerRadius={110}
-                    label
+                    outerRadius={120}
+                    activeIndex={activeIndex}
+                    activeShape={CustomActiveShape}
+                    onMouseEnter={(_, index) => setActiveIndex(index)}
+                    onMouseLeave={() => setActiveIndex(null)}
+                    label={({
+                      cx,
+                      cy,
+                      midAngle,
+                      innerRadius,
+                      outerRadius,
+                      index,
+                      value,
+                    }) => {
+                      const RADIAN = Math.PI / 180;
+                      const radius =
+                        innerRadius + (outerRadius - innerRadius) * 0.5;
+                      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+                      const fillColor = [
+                        COLORS.Azulcielopastel,
+                        COLORS.Verdepistacho,
+                        COLORS.rosa,
+                        COLORS.Verdematchapastel,
+                        COLORS.Nudesuave,
+                      ][index % 5];
+
+                      return (
+                        <text
+                          x={x}
+                          y={y}
+                          fill={fillColor}
+                          textAnchor={x > cx ? "start" : "end"}
+                          dominantBaseline="central"
+                          fontWeight="bold"
+                        >
+                          {value}
+                        </text>
+                      );
+                    }}
                   >
                     {distribucion.map((_, i) => (
                       <Cell
@@ -320,6 +407,13 @@ export default function Dashboard() {
                       />
                     ))}
                   </Pie>
+                  <Tooltip
+                    formatter={(value, name) => [value, name]}
+                    contentStyle={{
+                      borderRadius: "8px",
+                      border: "1px solid #fbc3c2",
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </Card>
@@ -327,24 +421,52 @@ export default function Dashboard() {
         </Grid>
 
         {/* TABLA */}
-        <Box mt={3}>
-          <Card sx={{ padding: 2 }}>
-            <Typography variant="h6" mb={2}>
-              Detalle por período
-            </Typography>
+        <Card
+          sx={{
+            padding: 3,
+            border: "2px solid #ff69b4",
+            borderRadius: "16px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            transition: "all 0.3s ease",
+            background: "linear-gradient(145deg, #ffffff, #fff7fc)",
+            "&:hover": {
+              transform: "translateY(-3px)",
+              boxShadow: "0 8px 22px rgba(0,0,0,0.12)",
+              borderColor: "#ff3c91",
+            },
+          }}
+        >
+          <Typography variant="h6" mb={2}>
+            Detalle por período
+          </Typography>
 
-            <DataGrid
-              rows={registrosFormateados}
-              columns={columns}
-              getRowId={(row) => row.id}
-              pageSizeOptions={[8, 16, 32]}
-              initialState={{
-                pagination: { paginationModel: { pageSize: 8 } },
-              }}
-              autoHeight
-            />
-          </Card>
-        </Box>
+          <DataGrid
+            rows={registrosFormateados}
+            columns={columns}
+            getRowId={(row) => row.id}
+            pageSizeOptions={[8, 16]}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 8 } },
+            }}
+            autoHeight
+            sx={{
+              borderRadius: "12px",
+              backgroundColor: "#fff",
+              "& .MuiDataGrid-columnHeaders": {
+                backgroundColor: "#ffe6f2",
+                color: "#b30059",
+                fontWeight: "bold",
+                fontSize: "0.95rem",
+              },
+              "& .MuiDataGrid-row:hover": {
+                backgroundColor: "#fff0f8",
+              },
+              "& .MuiDataGrid-cell": {
+                borderColor: "#f7d1e6",
+              },
+            }}
+          />
+        </Card>
       </Box>
     </PrestadoresLayout>
   );
