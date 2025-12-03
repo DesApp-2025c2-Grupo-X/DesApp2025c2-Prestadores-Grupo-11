@@ -46,11 +46,13 @@ export default function BusquedaHistorialClinico() {
         //Unifico los afiliados e integrantes en una unica lista.
         const pacientesUnificados = [
           ...integrantes.map(integrante => ({
+            id: integrante.id,
             nombre: integrante.nombre,
             dni: integrante.dni,
             tipo: "Integrante"
           })),
           ...afiliados.map(afiliado => ({
+            id: afiliado.id,
             nombre: `${afiliado.nombre} ${afiliado.apellido}`,
             dni: afiliado.dni,
             tipo: "Afiliado"

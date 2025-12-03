@@ -165,6 +165,7 @@ export default function SolicitudesEntrantes() {
 			try {
 
 				const dataReintegrosDisponibles = await getReintegrosPropias(user);
+				console.log("Reintegros disponibles!", dataReintegrosDisponibles)
 				setReintegrosDisponibles(dataReintegrosDisponibles);
 
 				const dataRecetasDisponibles = await getRecetasPropias(user.id);

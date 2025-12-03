@@ -138,6 +138,7 @@ export const crearSituacion = async (prestadorId, datos) => {
   if (!datos.fecha_inicio && !datos.fecha)
     throw new Error("Falta la fecha de inicio");
 
+  console.log("EL PAYLOAD:", datos)
   try {
     const payload = {
       ...datos,
