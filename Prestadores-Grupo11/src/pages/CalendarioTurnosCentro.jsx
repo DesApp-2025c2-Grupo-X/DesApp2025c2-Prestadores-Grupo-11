@@ -10,14 +10,14 @@ import "../styles/CalendarioTurnos.css";
 import DetalleHistorialModal from "../components/DetalleHistorialModal";
 import TablaHistorial from "../components/TablaHistorial";
 import {
-  getTurnosByPrestadorId,
+  getTurnosByPrestadorId,getTurnosCentro,
 } from "../services/TurnosApi";
 import { getMedicosDeCentroApi } from "../services/PrestadoresApi"
 
 
 export default function CalendarioTurnosCentro() {
   const user = JSON.parse(localStorage.getItem("miapp_user"));
-  const prestadorId = user?.id;
+  const centroId = user?.id; // AHORA ES CENTRO MÉDICO
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [turnos, setTurnos] = useState([]);
@@ -27,60 +27,62 @@ export default function CalendarioTurnosCentro() {
   const [consultas, setConsultas] = useState([]);
   const [showHistoriaModal, setShowHistoriaModal] = useState(false);
 
-  //Informacion necesaria para poder cargar el historial de un paciente
-  const [pacienteId, setPacienteId] = useState(0)
-  const [tipoPaciente, setTipoPaciente] = useState("")
+  // Información necesaria para cargar historial
+  const [pacienteId, setPacienteId] = useState(0);
+  const [tipoPaciente, setTipoPaciente] = useState("");
 
-  const [medicosCentro, setMedicosCentro] = useState([])
+  const [medicosCentro, setMedicosCentro] = useState([]);
 
-  // === NUEVOS ESTADOS PARA FILTROS ===
+  // Filtros nuevos
   const [especialidad, setEspecialidad] = useState("");
   const [medico, setMedico] = useState("");
 
-  const especialidades = user.especialidades
+  const especialidades = user?.especialidades || [];
 
-  /**  Cargar turnos */
+  /**  Cargar turnos del centro */
   useEffect(() => {
-    if (!prestadorId) return;
+    if (!centroId) return;
 
     const fetchTurnos = async () => {
       try {
-        const data = await getTurnosByPrestadorId(prestadorId);
+        const res = await getTurnosCentro(centroId);
+        const data = Array.isArray(res.data) ? res.data : [];
         setTurnos(data);
         console.log("Turnos recibidos del backend:", data);
       } catch (error) {
         console.error("Error al obtener turnos:", error);
-        toast.error("No se pudieron cargar los turnos.");
+        toast.error("No se pudieron cargar los turnos del centro.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTurnos();
-
     const fetchMedicos = async () => {
       try {
-        const medicos = await getMedicosDeCentroApi(user.id)
-        setMedicosCentro(medicos)
+        const medicos = await getMedicosDeCentroApi(centroId);
+        setMedicosCentro(medicos);
       } catch (error) {
-        console.error("Error al obtener turnos:", error);
-        throw error;
+        console.error("Error al obtener médicos del centro:", error);
       }
-    }
+    };
 
-    fetchMedicos()
-  }, [prestadorId]);
+    fetchTurnos();
+    fetchMedicos();
+  }, [centroId]);
 
-  /** Muestra historia clínica del paciente */
+  /** Muestra historia clínica */
   const handleVerHistoriaClinica = async (turno) => {
-    const tipoPaciente = (turno.afiliadoId === null) ? "Integrante" : "Afiliado"
-    const pacienteId = (tipoPaciente === "Integrante") ? turno.integranteId : turno.afiliadoId
+    const tipo = turno.afiliadoId ? "Afiliado" : "Integrante";
+    const id = turno.afiliadoId || turno.integranteId;
 
-    if (!pacienteId) {
-      toast.warn(" Este turno no tiene paciente asociado.");
+    if (!id) {
+      toast.warn("Este turno no tiene paciente asociado.");
       return;
     }
 
+    setPacienteId(id);
+    setTipoPaciente(tipo);
+    setShowHistoriaModal(true);
     setPacienteId(pacienteId)
     setTipoPaciente(tipoPaciente)
 
@@ -91,28 +93,26 @@ export default function CalendarioTurnosCentro() {
   /** Filtra los turnos por fecha */
   const turnosDelDia = useMemo(() => {
     return turnos.filter((t) => {
-      if (!selectedDate) return false; // Evita error cuando DayPicker borra la fecha
-      const fechaTurno = new Date(t.date); // soporta ambas claves
-      if (isNaN(fechaTurno)) return false; // fecha inválida
+      if (!selectedDate) return false;
+      const fecha = new Date(t.date);
+      if (isNaN(fecha)) return false;
+
       return (
-        fechaTurno.getDate() === selectedDate.getDate() &&
-        fechaTurno.getMonth() === selectedDate.getMonth() &&
-        fechaTurno.getFullYear() === selectedDate.getFullYear()
+        fecha.getDate() === selectedDate.getDate() &&
+        fecha.getMonth() === selectedDate.getMonth() &&
+        fecha.getFullYear() === selectedDate.getFullYear()
       );
     });
   }, [turnos, selectedDate]);
 
-  /** === NUEVO: FILTROS CENTRO === */
-  // const medicosDisponibles = useMemo(() => (especialidad ? medicosEjemplo[especialidad] || [] : []),
-  //   [especialidad]
-  // );
-
+  /** Filtros: especialidad + médico */
   const turnosFiltrados = useMemo(() => {
-    return turnosDelDia.filter(
-      (t) =>
-        (!especialidad || t.prestador.especialidades.includes(especialidad)) &&
-        (!medico || t.prestador.id === Number(medico))
-    );
+    return turnosDelDia.filter((t) => {
+      const coincideEspecialidad = !especialidad || t.prestador?.especialidad === especialidad;
+      const coincideMedico = !medico || t.prestadorId === parseInt(medico);
+
+      return coincideEspecialidad && coincideMedico;
+    });
   }, [turnosDelDia, especialidad, medico]);
 
   const handleLimpiarFiltros = () => {
@@ -120,10 +120,8 @@ export default function CalendarioTurnosCentro() {
     setMedico("");
   };
 
-  if (!prestadorId)
-    return (
-      <p style={{ padding: "2rem" }}>No se encontró el médico logueado.</p>
-    );
+  if (!centroId)
+    return <p style={{ padding: "2rem" }}>No se encontró el centro médico logueado.</p>;
 
   return (
     <PrestadoresLayout header={<HeaderPrestadores />}>
@@ -164,11 +162,13 @@ export default function CalendarioTurnosCentro() {
                 disabled={!especialidad}
               >
                 <option value="">Todos</option>
-                {medicosCentro.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.username}
-                  </option>
-                ))}
+                {medicosCentro
+                  .filter((m) => !especialidad || m.especialidad === especialidad)
+                  .map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.username}
+                    </option>
+                  ))}
               </select>
             </div>
 
@@ -220,16 +220,13 @@ export default function CalendarioTurnosCentro() {
               ) : turnosFiltrados.length > 0 ? (
                 turnosFiltrados.map((turno) => {
                   const nombrePaciente =
-                    turno.afiliado?.nombre && turno.afiliado?.apellido
+                    turno.afiliado?.nombre
                       ? `${turno.afiliado.nombre} ${turno.afiliado.apellido}`
                       : turno.integrante?.nombre || "Paciente no especificado";
 
                   return (
                     <div key={turno.id} className="turno-card">
-                      <div
-                        className="turno-header"
-
-                      >
+                      <div className="turno-header">
                         <span className="hora">
                           {format(new Date(turno.date), "HH:mm")}
                         </span>
@@ -256,20 +253,12 @@ export default function CalendarioTurnosCentro() {
           {showHistoriaModal && (
             <div
               className="modal fade show"
-              style={{
-                display: "block",
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-                zIndex: 1055,
-              }}
-              tabIndex="-1"
-              role="dialog"
+              style={{ display: "block", backgroundColor: "rgba(0, 0, 0, 0.5)", zIndex: 1055 }}
             >
               <div className="modal-dialog modal-xl modal-dialog-scrollable">
                 <div className="modal-content">
                   <div className="modal-header">
-                    <h5 className="modal-title">
-                      Historia clínica
-                    </h5>
+                    <h5 className="modal-title">Historia clínica</h5>
                     <button
                       type="button"
                       className="btn-close"
@@ -278,10 +267,7 @@ export default function CalendarioTurnosCentro() {
                   </div>
 
                   <div className="modal-body">
-                    <TablaHistorial
-                      pacienteId={pacienteId}
-                      tipo={tipoPaciente}
-                    />
+                    <TablaHistorial pacienteId={pacienteId} tipo={tipoPaciente} />
                   </div>
 
                   <div className="modal-footer">

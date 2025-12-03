@@ -16,7 +16,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     // === Validaciones iniciales ===
-    if (!username.trim() || !password.trim()) {
+    if (!username || !password) {
       toast.error("Completá usuario y contraseña.");
       return;
     }
@@ -24,9 +24,10 @@ export default function LoginPage() {
     setSubmitting(true);
 
     try {
+     
       const payload = {
-        username: String(username).trim(),
-        password: String(password).trim(),
+        username: username, // sin normalizar
+        password: password, // sin normalizar
       };
 
       console.log("Enviando payload de login:", payload);
@@ -48,7 +49,8 @@ export default function LoginPage() {
       console.log("Body de la respuesta:", data);
 
       if (!res.ok) {
-        toast.error(data.message || "Credenciales incorrectas.");
+        toast.error(data.error || data.message || "Credenciales incorrectas.");
+
         setSubmitting(false);
         return;
       }
@@ -57,7 +59,8 @@ export default function LoginPage() {
       if (data.message === "Acceso exitoso" && data.prestador) {
         const { id, username, role, especialidades, centro } = data.prestador;
 
-        const normalizedRole = role.trim().toLowerCase(); // normalizado
+        // Se mantiene el role normalizado porque esto no afecta la contraseña
+        const normalizedRole = role.trim().toLowerCase();
 
         localStorage.setItem(
           "miapp_user",
@@ -66,7 +69,7 @@ export default function LoginPage() {
             username,
             role: normalizedRole,
             especialidades,
-            centro: centro ? centro.username : null
+            centro: centro ? centro.username : null,
           })
         );
 
@@ -74,7 +77,6 @@ export default function LoginPage() {
 
         console.log("Redirigiendo a /dashboard para role:", normalizedRole);
 
-        // Redirección con pequeño delay para mostrar el toast
         setTimeout(() => navigate("/dashboard"), 1000);
       } else {
         toast.error(data.message || "Error en el inicio de sesión.");
