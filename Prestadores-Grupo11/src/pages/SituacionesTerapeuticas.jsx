@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import PrestadoresLayout from "../components/PrestadoresLayout";
 import HeaderPrestadores from "../components/HeaderPrestadores";
 import SideBar from "../components/SideBar";
-import { ArrowLeft, Folder } from "lucide-react";
+import { ArrowLeft, Pen } from "lucide-react";
 import { FiPlus } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
@@ -22,12 +22,18 @@ import {
 export default function SituacionesTerapeuticas() {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const [paciente, setPaciente] = useState(null);
   const [situaciones, setSituaciones] = useState([]);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState(false);
-  
+
+  // Estados para poder abrir el modal de modificacion
+  const [showModal, setShowModal] = useState(false);
+  const [situacionSeleccionada, setSituacionSeleccionada] = useState(null);
+  const [fechaFinalizacion, setFechaFinalizacion] = useState("");
+  const [descripcionEdit, setDescripcionEdit] = useState("");
+
   //Se fija en el url si el paciente es afiliado o integrante
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -74,9 +80,10 @@ export default function SituacionesTerapeuticas() {
         if (Array.isArray(data)) {
           listaSituaciones = data.map((s) => ({
             id: s.id,
-            fecha_inicio: s.fecha_inicio
-              ? new Date(s.fecha_inicio).toLocaleDateString()
-              : "—",
+            fecha_inicio: s.fecha_inicio || null,
+            fecha_final: s.fecha_final || null,
+            fecha_inicio_str: s.fecha_inicio ? new Date(s.fecha_inicio).toLocaleDateString() : "—",
+            fecha_final_str: s.fecha_final ? new Date(s.fecha_final).toLocaleDateString() : "—",
             especialidad: s.especialidad || "—",
             descripcion: s.observaciones || "—",
             estado: s.estado || "Pendiente",
@@ -101,9 +108,10 @@ export default function SituacionesTerapeuticas() {
         ) {
           listaSituaciones = data.situaciones.map((s) => ({
             id: s.id,
-            fecha_inicio: s.fecha_inicio
-              ? new Date(s.fecha_inicio).toLocaleDateString()
-              : "—",
+            fecha_inicio: s.fecha_inicio || null,
+            fecha_final: s.fecha_final || null,
+            fecha_inicio_str: s.fecha_inicio ? new Date(s.fecha_inicio).toLocaleDateString() : "—",
+            fecha_final_str: s.fecha_final ? new Date(s.fecha_final).toLocaleDateString() : "—",
             especialidad: s.especialidad || "—",
             descripcion: s.observaciones || "—",
             estado: s.estado || "Pendiente",
@@ -152,6 +160,51 @@ export default function SituacionesTerapeuticas() {
     let identificador = paciente.id; // usamos el ID interno, no el DNI
     navigate(`/prestadores/situaciones/alta/${identificador}?tipoPaciente=${tipoPaciente}`);
   };
+
+  const abrirModalEdicion = (situacion) => {
+    setSituacionSeleccionada(situacion);
+    setDescripcionEdit(situacion.descripcion || "");
+
+    setFechaFinalizacion(
+      situacion.fecha_final
+        ? new Date(situacion.fecha_final).toISOString().slice(0, 16)
+        : ""
+    );
+
+    setShowModal(true);
+  };
+
+  const guardarCambios = async () => {
+    try {
+      if (!situacionSeleccionada) return;
+
+      await actualizarSituacion(situacionSeleccionada.id, {
+        fecha_final: fechaFinalizacion,
+        observaciones: descripcionEdit
+      });
+
+      setSituaciones(prev =>
+        prev.map(s =>
+          s.id === situacionSeleccionada.id
+            ? {
+              ...s,
+              fecha_final: fechaFinalizacion, // fecha REAL
+              fecha_final_str: new Date(fechaFinalizacion).toLocaleDateString(), // vista
+              descripcion: descripcionEdit
+            }
+            : s
+        )
+      );
+
+      toast.success("Situación actualizada correctamente");
+
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error actualizando situación:", error);
+      toast.error("No se pudo actualizar la situación");
+    }
+  };
+
 
 
   const handleArchivar = async (id) => {
@@ -301,6 +354,7 @@ export default function SituacionesTerapeuticas() {
                   <th>Paciente</th>
                   <th>DNI</th>
                   <th>Fecha inicio</th>
+                  <th>Fecha finalizacion</th>
                   <th>Especialidad</th>
                   <th>Descripción</th>
                   <th>Prestador</th>
@@ -314,7 +368,8 @@ export default function SituacionesTerapeuticas() {
                     <tr key={s.id}>
                       <td>{s.pacienteNombre}</td>
                       <td>{s.pacienteDNI}</td>
-                      <td>{s.fecha_inicio}</td>
+                      <td>{s.fecha_inicio_str}</td>
+                      <td>{s.fecha_final_str}</td>
                       <td>{s.especialidad}</td>
                       <td>
                         <button
@@ -344,8 +399,8 @@ export default function SituacionesTerapeuticas() {
                             handleEditarEstado(s.id, e.target.value)
                           }
                           className={`form-select form-select-sm ${s.estado === "Finalizado"
-                              ? "estado-finalizado"
-                              : "estado-proceso"
+                            ? "estado-finalizado"
+                            : "estado-proceso"
                             }`}
                         >
                           <option value="alta">Pendiente</option>
@@ -356,16 +411,16 @@ export default function SituacionesTerapeuticas() {
                       <td>
                         <button
                           className="btn btn-sm btn-outline-secondary"
-                          onClick={() => handleArchivar(s.id, s.estado)}
+                          onClick={() => abrirModalEdicion(s)}
                         >
-                          <Folder size={16} />
+                          <Pen size={16} />
                         </button>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="8" style={{ color: "var(--azul-petroleo)" }}>
+                    <td colSpan="9" style={{ color: "var(--azul-petroleo)" }}>
                       No hay situaciones registradas.
                     </td>
                   </tr>
@@ -375,6 +430,84 @@ export default function SituacionesTerapeuticas() {
           </div>
         </div>
       </div>
+
+      {/* Modal de modificacion */}
+      {showModal && (
+        <>
+          {/* Difumina el fondo */}
+          <div
+            className="modal-backdrop fade show"
+            style={{ zIndex: 1040 }}
+            onClick={() => setShowModal(false)}
+          ></div>
+
+          {/* Modal */}
+          <div
+            className="modal fade show d-block"
+            tabIndex="-1"
+            style={{ zIndex: 1050 }}
+          >
+            <div className="modal-dialog modal-lg modal-dialog-centered">
+              <div className="modal-content">
+
+                <div className="modal-header">
+                  <h5 className="modal-title">Editar Situación</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowModal(false)}
+                  ></button>
+                </div>
+
+                <div className="modal-body">
+
+                  {/* Fecha de finalización */}
+                  <div className="mb-3">
+                    <label className="form-label">Fecha de Finalización</label>
+                    <input
+                      type="datetime-local"
+                      className="form-control"
+                      value={fechaFinalizacion}
+                      onChange={(e) => setFechaFinalizacion(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Descripción */}
+                  <div className="mb-3">
+                    <label className="form-label">Descripción</label>
+                    <textarea
+                      className="form-control"
+                      rows="4"
+                      maxLength={1000}
+                      value={descripcionEdit}
+                      onChange={(e) => setDescripcionEdit(e.target.value)}
+                    />
+                    <div
+                      className="text-end mt-1"
+                      style={{ fontSize: "0.85rem", color: "#6c757d" }}
+                    >
+                      {descripcionEdit.length}/1000
+                    </div>
+                  </div>
+
+                </div>
+
+                <div className="modal-footer">
+                  <button className="btn btn-secondary" onClick={() => setShowModal(false)}>
+                    Cancelar
+                  </button>
+
+                  <button className="btn btn-primary" onClick={guardarCambios}>
+                    Guardar Cambios
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
     </PrestadoresLayout>
   );
 }
