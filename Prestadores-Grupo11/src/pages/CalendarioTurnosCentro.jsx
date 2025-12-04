@@ -10,7 +10,7 @@ import "../styles/CalendarioTurnos.css";
 import DetalleHistorialModal from "../components/DetalleHistorialModal";
 import TablaHistorial from "../components/TablaHistorial";
 import {
-  getTurnosByPrestadorId,getTurnosCentro,
+  getTurnosByPrestadorId, getTurnosCentro,
 } from "../services/TurnosApi";
 import { getMedicosDeCentroApi } from "../services/PrestadoresApi"
 
@@ -82,9 +82,6 @@ export default function CalendarioTurnosCentro() {
 
     setPacienteId(id);
     setTipoPaciente(tipo);
-    setShowHistoriaModal(true);
-    setPacienteId(pacienteId)
-    setTipoPaciente(tipoPaciente)
 
     setShowHistoriaModal(true); //  abrimos el modal
 
@@ -108,8 +105,13 @@ export default function CalendarioTurnosCentro() {
   /** Filtros: especialidad + médico */
   const turnosFiltrados = useMemo(() => {
     return turnosDelDia.filter((t) => {
-      const coincideEspecialidad = !especialidad || t.prestador?.especialidad === especialidad;
-      const coincideMedico = !medico || t.prestadorId === parseInt(medico);
+      const especialidadPrestador = t.prestador?.especialidades?.[0];
+
+      const coincideEspecialidad =
+        !especialidad || especialidadPrestador === especialidad;
+
+      const coincideMedico =
+        !medico || t.prestadorId === parseInt(medico);
 
       return coincideEspecialidad && coincideMedico;
     });
@@ -122,6 +124,11 @@ export default function CalendarioTurnosCentro() {
 
   if (!centroId)
     return <p style={{ padding: "2rem" }}>No se encontró el centro médico logueado.</p>;
+
+  useEffect(() => {
+    console.log("Especialidad escogida: ", especialidad)
+    console.log("Medico escogido: ", medico)
+  }, [especialidad, medico])
 
   return (
     <PrestadoresLayout header={<HeaderPrestadores />}>
@@ -163,12 +170,16 @@ export default function CalendarioTurnosCentro() {
               >
                 <option value="">Todos</option>
                 {medicosCentro
-                  .filter((m) => !especialidad || m.especialidad === especialidad)
+                  .filter((m) =>
+                    !especialidad ||
+                    m.especialidades?.includes(especialidad)
+                  )
                   .map((m) => (
                     <option key={m.id} value={m.id}>
                       {m.username}
                     </option>
-                  ))}
+                  ))
+                }
               </select>
             </div>
 
