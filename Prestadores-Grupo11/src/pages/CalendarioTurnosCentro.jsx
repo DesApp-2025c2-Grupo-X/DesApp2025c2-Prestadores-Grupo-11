@@ -123,6 +123,11 @@ export default function CalendarioTurnosCentro() {
   if (!centroId)
     return <p style={{ padding: "2rem" }}>No se encontró el centro médico logueado.</p>;
 
+  useEffect(() => {
+    console.log("Especialidad escogida: ", especialidad)
+    console.log("Medico escogido: ", medico)
+  }, [especialidad, medico])
+
   return (
     <PrestadoresLayout header={<HeaderPrestadores />}>
       <div className="calendario-turnos-container">
@@ -163,7 +168,7 @@ export default function CalendarioTurnosCentro() {
               >
                 <option value="">Todos</option>
                 {medicosCentro
-                  .filter((m) => !especialidad || m.especialidad === especialidad)
+                  // .filter((m) => !especialidad || m.especialidad === especialidad)
                   .map((m) => (
                     <option key={m.id} value={m.id}>
                       {m.username}
