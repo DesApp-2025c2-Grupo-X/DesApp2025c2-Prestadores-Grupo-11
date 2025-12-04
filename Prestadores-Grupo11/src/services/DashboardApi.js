@@ -1,29 +1,57 @@
-
 import api from "./Api";
 
+// Utilidad para GET con params
 const request = async (url, params = {}) => {
-  const res = await api.get(url, { params });
-  return res.data;
+  try {
+    const res = await api.get(url, { params });
+    return res.data;
+  } catch (error) {
+    throw formatError(error);
+  }
 };
 
-export const getKpis = () => request("/dashboard/kpis");
+// Formateo único de errores
+const formatError = (error) => {
+  let msg = "Error obteniendo datos";
 
-export const getSemanal = () => request("/dashboard/semanal");
+  if (error?.response?.data?.error) msg = error.response.data.error;
+  if (error?.message) msg = error.message;
 
-export const getMensual = () => request("/dashboard/mensual");
+  return { message: msg };
+};
 
-export const getAnual = () => request("/dashboard/anual");
-
+// ENDPOINTS SIMPLES GET
+export const getKpis      = () => request("/dashboard/kpis");
+export const getSemanal   = () => request("/dashboard/semanal");
+export const getMensual   = () => request("/dashboard/mensual");
+export const getAnual     = () => request("/dashboard/anual");
 export const getRegistros = () => request("/dashboard/registros");
 
+// GET /dashboard/filtrado
+/**
+ * @param {Object} params
+ * @param {string} params.desde  - Fecha YYYY-MM-DD
+ * @param {string} params.hasta  - Fecha YYYY-MM-DD
+ * @param {string} [params.estado="todos"]
+ */
 export const getFiltrado = ({ estado = "todos", desde, hasta }) => {
-  const params = {  estado };
+  const hoy = new Date().toISOString().split("T")[0];
+  const desdeDefault = "2025-01-01";
 
-  if (desde) params.desde = desde;
-  if (hasta) params.hasta = hasta;
-
-  return api.get("/dashboard/filtrado", { params }).then((r) => r.data);
+  return api
+    .get("/dashboard/filtrado", {
+      params: {
+        estado,
+        desde: desde || desdeDefault,
+        hasta: hasta || hoy,
+        t: Date.now(),
+      },
+      headers: { "Cache-Control": "no-cache" },
+    })
+    .then((res) => res.data)
+    .catch((error) => Promise.reject(formatError(error)));
 };
+
 
 export default {
   getKpis,

@@ -98,8 +98,9 @@ export default function Dashboard() {
 
   // Filtros
   const [estado, setEstado] = useState("todos");
-  const [desde, setDesde] = useState("");
-  const [hasta, setHasta] = useState("");
+  const [desde, setDesde] = useState("2025-01-01");
+  const [hasta, setHasta] = useState(new Date().toISOString().split("T")[0]);
+
 
   // Data
   const [kpis, setKpis] = useState(null);
