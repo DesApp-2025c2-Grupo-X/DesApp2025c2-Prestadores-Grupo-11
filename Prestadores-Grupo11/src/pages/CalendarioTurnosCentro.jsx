@@ -10,7 +10,7 @@ import "../styles/CalendarioTurnos.css";
 import DetalleHistorialModal from "../components/DetalleHistorialModal";
 import TablaHistorial from "../components/TablaHistorial";
 import {
-  getTurnosByPrestadorId,getTurnosCentro,
+  getTurnosByPrestadorId, getTurnosCentro,
 } from "../services/TurnosApi";
 import { getMedicosDeCentroApi } from "../services/PrestadoresApi"
 
@@ -83,8 +83,6 @@ export default function CalendarioTurnosCentro() {
     setPacienteId(id);
     setTipoPaciente(tipo);
     setShowHistoriaModal(true);
-    setPacienteId(pacienteId)
-    setTipoPaciente(tipoPaciente)
 
     setShowHistoriaModal(true); //  abrimos el modal
 
@@ -108,8 +106,13 @@ export default function CalendarioTurnosCentro() {
   /** Filtros: especialidad + médico */
   const turnosFiltrados = useMemo(() => {
     return turnosDelDia.filter((t) => {
-      const coincideEspecialidad = !especialidad || t.prestador?.especialidad === especialidad;
-      const coincideMedico = !medico || t.prestadorId === parseInt(medico);
+      const especialidadPrestador = t.prestador?.especialidades?.[0];
+
+      const coincideEspecialidad =
+        !especialidad || especialidadPrestador === especialidad;
+
+      const coincideMedico =
+        !medico || t.prestadorId === parseInt(medico);
 
       return coincideEspecialidad && coincideMedico;
     });

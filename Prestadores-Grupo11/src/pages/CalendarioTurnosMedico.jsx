@@ -30,6 +30,11 @@ export default function CalendarioTurnosMedico() {
   const [tipoPaciente, setTipoPaciente] = useState("");
   const [nota, setNota] = useState("");
 
+  useEffect(() => {
+    console.log("El tipo de paciente: ", tipoPaciente)
+    console.log("El id del paciente: ", pacienteId)
+  }, [pacienteId, tipoPaciente])
+
   // CONTROL SEGURO DEL CLICK EN EL CALENDARIO
   const handleSelectDate = (date) => {
     if (!date || isNaN(date)) return; // Evita crash al hacer doble click.
