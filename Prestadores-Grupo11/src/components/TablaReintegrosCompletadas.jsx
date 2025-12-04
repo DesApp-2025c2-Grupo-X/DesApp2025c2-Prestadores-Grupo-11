@@ -1,13 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function TablaReintegrosCompletadas({ solicitudes }) {
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
 
   const [paginaActual, setPaginaActual] = useState(1);
-  const itemsPorPagina = 10;
+  const itemsPorPagina = 5;
 
-  // --- Filtrado por fecha ---
   const solicitudesFiltradas = solicitudes?.filter((s) => {
     if (!s.fecha_finalizacion) return false;
 
@@ -45,6 +44,10 @@ export default function TablaReintegrosCompletadas({ solicitudes }) {
   const paginaAnterior = () => {
     if (paginaActual > 1) setPaginaActual(paginaActual - 1);
   };
+
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [solicitudes]);
 
   return (
     <>

@@ -15,6 +15,10 @@ export default function TablaHistorial({
   const [consultas, setConsultas] = useState([])
   const [filtro, setFiltro] = useState("none");
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 6;
+
+
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
   const hayFechas = fechaInicio || fechaFin;
@@ -32,6 +36,7 @@ export default function TablaHistorial({
         fechaFin
       );
       setConsultas(consultas)
+      setCurrentPage(1);
     };
 
     getConsultas()
@@ -49,6 +54,11 @@ export default function TablaHistorial({
     if (!texto) return "";
     return texto.length > limite ? texto.slice(0, limite) + "..." : texto;
   };
+
+  // Calcular páginas
+  const totalPages = Math.ceil(consultas.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const consultasPaginadas = consultas.slice(startIndex, startIndex + pageSize);
 
   return (
     <>
@@ -102,7 +112,7 @@ export default function TablaHistorial({
           </thead>
           <tbody>
             {consultas.length > 0 ? (
-              consultas.map((consulta, idx) => (
+              consultasPaginadas.map((consulta, idx) => (
                 <motion.tr
                   key={idx}
                   className="align-middle"
@@ -152,6 +162,31 @@ export default function TablaHistorial({
           </tbody>
         </table>
       </motion.div>
+
+      {consultas.length > 0 && (
+        <div className="d-flex justify-content-center align-items-center gap-2 mt-3">
+          <button
+            className="btn btn-outline-primary btn-sm"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(prev => prev - 1)}
+          >
+            Anterior
+          </button>
+
+          <span>
+            Página {currentPage} de {totalPages}
+          </span>
+
+          <button
+            className="btn btn-outline-primary btn-sm"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(prev => prev + 1)}
+          >
+            Siguiente
+          </button>
+        </div>
+      )}
+
 
       {/* Modal de detalle */}
       <DetalleHistorialModal
