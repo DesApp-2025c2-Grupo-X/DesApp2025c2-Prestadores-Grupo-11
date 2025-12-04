@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function TablaRecetas({ solicitudes }) {
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+  const pageSize = 5;
 
   const solicitudesFiltradas = solicitudes.filter((s) => {
     if (!s.fecha_finalizacion) return false;
@@ -42,6 +42,10 @@ export default function TablaRecetas({ solicitudes }) {
   const paginaSiguiente = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [solicitudes]);
 
   return (
     <>

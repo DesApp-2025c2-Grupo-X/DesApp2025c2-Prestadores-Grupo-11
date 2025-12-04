@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function TablaAutorizacionesCompletadas({ solicitudes }) {
-  
+
   const [fechaInicio, setFechaInicio] = useState("")
   const [fechaFin, setFechaFin] = useState("")
 
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+  const pageSize = 5;
 
   const solicitudesFiltradas = solicitudes?.filter((s) => {
     if (!s.fecha_finalizacion) return false;
@@ -45,9 +45,13 @@ export default function TablaAutorizacionesCompletadas({ solicitudes }) {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [solicitudes]);
+
   return (
     <>
-    <div className="d-flex justify-content-center gap-3 mt-2 mb-3 align-items-center w-100">
+      <div className="d-flex justify-content-center gap-3 mt-2 mb-3 align-items-center w-100">
         <div>
           <label className="form-label mb-0">Fecha inicio:</label>
           <input
@@ -92,15 +96,15 @@ export default function TablaAutorizacionesCompletadas({ solicitudes }) {
             {autorizacionesPaginadas.length > 0 ? (
               autorizacionesPaginadas.map((s) => (
                 <tr key={s.id} className="align-middle">
-                    <td>
-                      {new Date(s.fecha_finalizacion).toLocaleString("es-AR", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </td>
+                  <td>
+                    {new Date(s.fecha_finalizacion).toLocaleString("es-AR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </td>
                   <td>
                     {new Date(s.fecha_prevista).toLocaleString("es-AR", {
                       day: "2-digit",

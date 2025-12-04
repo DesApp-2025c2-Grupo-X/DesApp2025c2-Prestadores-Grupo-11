@@ -2,7 +2,6 @@ import React from "react";
 
 const DetalleHistorialModal = ({ mostrar, onClose, detalle }) => {
   if (!detalle) return null;
-  console.log("Mi detalle!", detalle)
 
   const user = JSON.parse(localStorage.getItem("miapp_user"));
   let lugar = (user.role === "medico") ? user.centro : user.username
@@ -65,10 +64,20 @@ const DetalleHistorialModal = ({ mostrar, onClose, detalle }) => {
             )}
             <span>
               <strong>Notas:</strong>{" "}
-              <p>{detalle.notas && detalle.notas.trim() !== ""
-                ? detalle.notas
-                : "Sin notas"}
-              </p>
+              <div
+                style={{
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                  padding: "8px",
+                  border: "1px solid #ddd",
+                  borderRadius: "4px",
+                  backgroundColor: "#f9f9f9"
+                }}
+              >
+                {detalle.notas && detalle.notas.trim() !== ""
+                  ? detalle.notas
+                  : "Sin notas"}
+              </div>
             </span>
           </div>
           <div className="modal-footer">
