@@ -16,8 +16,8 @@ export const getAnual = () => request("/dashboard/anual");
 
 export const getRegistros = () => request("/dashboard/registros");
 
-export const getFiltrado = ({ periodo = "semana", estado = "todos", desde, hasta }) => {
-  const params = { periodo, estado };
+export const getFiltrado = ({ estado = "todos", desde, hasta }) => {
+  const params = {  estado };
 
   if (desde) params.desde = desde;
   if (hasta) params.hasta = hasta;
