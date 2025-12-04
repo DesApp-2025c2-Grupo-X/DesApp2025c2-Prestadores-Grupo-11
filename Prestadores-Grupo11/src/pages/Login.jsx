@@ -101,7 +101,7 @@ export default function LoginPage() {
                 <input
                   type="text"
                   className="form-control custom-input"
-                  placeholder="NÚMERO CUIT / MATRÍCULA"
+                  placeholder="NOMBRE USUARIO"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   autoComplete="username"
