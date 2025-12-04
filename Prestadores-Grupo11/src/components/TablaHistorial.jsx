@@ -9,9 +9,6 @@ export default function TablaHistorial({
   pacienteId,
   tipo
 }) {
-  console.log("El pacienteId que recibi: ", pacienteId)
-  console.log("El tipo de paciente que recibi: ", tipo)
-
   const [mostrarModal, setMostrarModal] = useState(false);
   const [detalleSeleccionado, setDetalleSeleccionado] = useState(null);
 

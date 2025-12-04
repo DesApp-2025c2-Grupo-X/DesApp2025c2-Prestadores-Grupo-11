@@ -82,7 +82,6 @@ export default function CalendarioTurnosCentro() {
 
     setPacienteId(id);
     setTipoPaciente(tipo);
-    setShowHistoriaModal(true);
 
     setShowHistoriaModal(true); //  abrimos el modal
 
@@ -171,12 +170,16 @@ export default function CalendarioTurnosCentro() {
               >
                 <option value="">Todos</option>
                 {medicosCentro
-                  // .filter((m) => !especialidad || m.especialidad === especialidad)
+                  .filter((m) =>
+                    !especialidad ||
+                    m.especialidades?.includes(especialidad)
+                  )
                   .map((m) => (
                     <option key={m.id} value={m.id}>
                       {m.username}
                     </option>
-                  ))}
+                  ))
+                }
               </select>
             </div>
 
