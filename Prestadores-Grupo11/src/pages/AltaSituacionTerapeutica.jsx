@@ -109,7 +109,7 @@ export default function AltaSituacionTerapeutica({ onNuevaSituacion, integranteI
         situacion: formData.situacion.trim(),
         observaciones: formData.observaciones.trim(),
         fecha_inicio: fechaISO,
-        fecha_final: fechaISO,
+        fecha_final: null,
         estado: "alta",
         afiliadoId: esIntegrante ? null : identificador,
         integranteId: esIntegrante ? identificador : null,

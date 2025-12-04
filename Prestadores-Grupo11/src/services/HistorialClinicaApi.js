@@ -27,7 +27,7 @@ export const getHistorialClinicoById = async (pacienteId, tipoPaciente, filtro, 
     const situaciones = historialCompleto.data.situaciones
     const situacionesFormato = situaciones.map(s => ({
       tipo: `Situacion terapeutica Estado: ${s.estado}`,
-      fecha: s.fecha_final,
+      fecha: s.fecha_inicio,
       notas: s.observaciones,
       especialidad: s.especialidad,
       medico: s.prestador.username,
